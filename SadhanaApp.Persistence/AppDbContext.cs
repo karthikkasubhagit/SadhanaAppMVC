@@ -15,9 +15,10 @@ public class AppDbContext : DbContext
             .HasMany(u => u.Devotees)
             .WithOne(s => s.ShikshaGuru)
             .HasForeignKey(s => s.ShikshaGuruId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false); // This is the line making ShikshaGuruId nullable
 
         modelBuilder.Entity<ChantingRecord>()
-        .HasKey(c => c.Id);
+            .HasKey(c => c.Id);
     }
 }
