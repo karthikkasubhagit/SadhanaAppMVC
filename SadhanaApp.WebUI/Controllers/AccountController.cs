@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SadhanaApp.WebUI.Utilities;
 using SadhanaApp.WebUI.ViewModels;
+using System.Security.Claims;
 
 namespace SadhanaApp.WebUI.Controllers
 {
@@ -43,12 +46,6 @@ namespace SadhanaApp.WebUI.Controllers
             };
 
             return View(viewModel);
-        }
-
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
         }
 
         [HttpPost]
@@ -100,5 +97,48 @@ namespace SadhanaApp.WebUI.Controllers
 
             return View(model);  // Return with validation errors
         }
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = _context.Users.FirstOrDefault(u => u.Username == model.Username); // Note: Avoid storing plain text passwords
+
+                if (user != null && PasswordUtility.HashPassword(model.Password) == user.PasswordHash)
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.Username),
+                        new Claim(ClaimTypes.Email, user.Email)
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                    return RedirectToAction("Sadhana", "Home");
+                }
+
+                ModelState.AddModelError("", "Invalid login attempt, Please try again.");
+            }
+
+            return View(model);
+        }
+
+        // Logout functionality
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
+        }
+
+
     }
 }

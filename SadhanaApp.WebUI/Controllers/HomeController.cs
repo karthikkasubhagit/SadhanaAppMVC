@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SadhanaApp.WebUI.Models;
 using System.Diagnostics;
 
@@ -18,6 +19,12 @@ namespace SadhanaApp.WebUI.Controllers
             return View();
         }
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public IActionResult Sadhana()
         {
             return View();
         }
