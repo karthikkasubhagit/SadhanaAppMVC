@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SadhanaApp.WebUI.Utilities;
 using SadhanaApp.WebUI.ViewModels;
@@ -18,7 +19,30 @@ namespace SadhanaApp.WebUI.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            //var viewModel = new UserRegistrationViewModel
+            //{
+            //    ShikshaGurus = new List<SelectListItem>
+            //    {
+            //        new SelectListItem { Value = "1", Text = "Parijanya Das" },
+            //        new SelectListItem { Value = "2", Text = "Ambarish Das" },
+            //        new SelectListItem { Value = "3", Text = "Sanaka Santan Das" }
+            //    }
+            //};
+
+            var shikshaGurus = _context.Users
+                               .Where(u => u.IsInstructor) // I assume IsInstructor is your equivalent property for IsShikshaGuru
+                               .ToList();
+
+            var viewModel = new UserRegistrationViewModel
+            {
+                ShikshaGurus = shikshaGurus.Select(sg => new SelectListItem
+                {
+                    Value = sg.UserId.ToString(),
+                    Text = $"{sg.FirstName} {sg.LastName}"  // You can format this as per your preference
+                })
+            };
+
+            return View(viewModel);
         }
 
         [HttpGet]
@@ -39,14 +63,33 @@ namespace SadhanaApp.WebUI.Controllers
                     return View(model);
                 }
 
-                var user = new User
+                User user;
+                if (model.IsShikshaGuru)
                 {
-                    Username = model.Username,
-                    PasswordHash = PasswordUtility.HashPassword(model.Password),  // Hash the password before storing
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName
-                };
+                    user = new User
+                    {
+                        Username = model.Username,
+                        PasswordHash = PasswordUtility.HashPassword(model.Password),  // Hash the password before storing
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        IsInstructor = model.IsShikshaGuru
+                    };
+                }
+                else
+                {
+                    user = new User
+                    {
+                        Username = model.Username,
+                        PasswordHash = PasswordUtility.HashPassword(model.Password),  // Hash the password before storing
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        ShikshaGuruId = model.ShikshaGuruId
+                    };
+                    // Assign the user to the selected ShikshaGuru
+                    // using model.ShikshaGuruId
+                }
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
