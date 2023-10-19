@@ -1,18 +1,58 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
+
+    body {
+        background-size: auto 100%; /* Adjust the height to 100% */
+        background-position: center top; /* Adjust position if needed */
+    }
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-image: url('../images/background-image.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+    body::before {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(255, 255, 255, 0.5); /* White with 50% opacity */
+        pointer-events: none; /* Ensure it doesn't interfere with click events */
+        z-index: 0;
+    }
+
+.container {
+    background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
+    padding: 20px; /* Add some spacing around content */
+    border-radius: 10px; /* Rounded corners for aesthetics */
+}
+
+.center-right-image, .navbar, .footer {
+    z-index: 1001; /* Ensure these elements stay on top of the background */
+}
+
+.center-right-image {
+    position: fixed; /* This will keep it in the position regardless of scrolling */
+    top: 50%; /* Center it vertically */
+    right: 10px; /* Keep it 10px from the right edge */
+    transform: translateY(-50%); /* This will perfectly center it vertically */
+    z-index: 1000; /* Assuming we want this image to be above most other elements */
 }

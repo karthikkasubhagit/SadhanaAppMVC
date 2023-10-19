@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace SadhanaApp.WebUI.ViewModels
 {
@@ -20,5 +21,12 @@ namespace SadhanaApp.WebUI.ViewModels
 
         [Required]
         public string LastName { get; set; }
+
+        [Display(Name = "Is ShikshaGuru")]
+        public bool IsShikshaGuru { get; set; }
+
+        // Optionally, if we  want the user to select their Shiksha Guru during registration
+        public int? ShikshaGuruId { get; set; }
+        public IEnumerable<SelectListItem>? ShikshaGurus { get; set; } // This can be used to populate a dropdown of available ShikshaGurus
     }
 }

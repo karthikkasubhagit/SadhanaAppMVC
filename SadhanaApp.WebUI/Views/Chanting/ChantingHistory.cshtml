@@ -1,0 +1,46 @@
+﻿@model IEnumerable<ChantingRecord>
+
+@{
+    ViewData["Title"] = "ChantingHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Your Chanting History</h2>
+
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Morning Rounds</th>
+                <th>Day Rounds</th>
+                <th>Evening Rounds</th>
+                <th>Total Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var record in Model)
+            {
+                <tr>
+                    <td>@record.Date.ToShortDateString()</td>
+                    <td>@record.MorningRounds</td>
+                    <td>@record.DayRounds</td>
+                    <td>@record.EveningRounds</td>
+                    <td>@(record.MorningRounds * 4.5 + record.DayRounds * 3 + record.EveningRounds * 1.5)</td>
+                </tr>
+            }
+        </tbody>
+        <a asp-action="RecordChanting" class="btn btn-primary">Record Chanting</a>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">
+        <p>No chanting records found. Start recording your chanting now.</p>
+        <a asp-action="RecordChanting" class="btn btn-primary">Record Chanting</a>
+    </div>
+}
+
+
+

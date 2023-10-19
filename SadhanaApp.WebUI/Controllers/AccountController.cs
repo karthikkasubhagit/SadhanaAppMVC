@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SadhanaApp.WebUI.Utilities;
 using SadhanaApp.WebUI.ViewModels;
+using System.Security.Claims;
 
 namespace SadhanaApp.WebUI.Controllers
 {
@@ -18,13 +22,30 @@ namespace SadhanaApp.WebUI.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
-        }
+            //var viewModel = new UserRegistrationViewModel
+            //{
+            //    ShikshaGurus = new List<SelectListItem>
+            //    {
+            //        new SelectListItem { Value = "1", Text = "Parijanya Das" },
+            //        new SelectListItem { Value = "2", Text = "Ambarish Das" },
+            //        new SelectListItem { Value = "3", Text = "Sanaka Santan Das" }
+            //    }
+            //};
 
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
+            var shikshaGurus = _context.Users
+                               .Where(u => u.IsInstructor) // I assume IsInstructor is your equivalent property for IsShikshaGuru
+                               .ToList();
+
+            var viewModel = new UserRegistrationViewModel
+            {
+                ShikshaGurus = shikshaGurus.Select(sg => new SelectListItem
+                {
+                    Value = sg.UserId.ToString(),
+                    Text = $"{sg.FirstName} {sg.LastName}"  // You can format this as per your preference
+                })
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -39,14 +60,33 @@ namespace SadhanaApp.WebUI.Controllers
                     return View(model);
                 }
 
-                var user = new User
+                User user;
+                if (model.IsShikshaGuru)
                 {
-                    Username = model.Username,
-                    PasswordHash = PasswordUtility.HashPassword(model.Password),  // Hash the password before storing
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName
-                };
+                    user = new User
+                    {
+                        Username = model.Username,
+                        PasswordHash = PasswordUtility.HashPassword(model.Password),  // Hash the password before storing
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        IsInstructor = model.IsShikshaGuru
+                    };
+                }
+                else
+                {
+                    user = new User
+                    {
+                        Username = model.Username,
+                        PasswordHash = PasswordUtility.HashPassword(model.Password),  // Hash the password before storing
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        ShikshaGuruId = model.ShikshaGuruId
+                    };
+                    // Assign the user to the selected ShikshaGuru
+                    // using model.ShikshaGuruId
+                }
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
@@ -57,5 +97,49 @@ namespace SadhanaApp.WebUI.Controllers
 
             return View(model);  // Return with validation errors
         }
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = _context.Users.FirstOrDefault(u => u.Username == model.Username); // Note: Avoid storing plain text passwords
+
+                if (user != null && PasswordUtility.HashPassword(model.Password) == user.PasswordHash)
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.Username),
+                        new Claim(ClaimTypes.Email, user.Email),
+                        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                    return RedirectToAction("ChantingHistory", "Chanting");
+                }
+
+                ModelState.AddModelError("", "Invalid login attempt, Please try again.");
+            }
+
+            return View(model);
+        }
+
+        // Logout functionality
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
+        }
+
+
     }
 }
