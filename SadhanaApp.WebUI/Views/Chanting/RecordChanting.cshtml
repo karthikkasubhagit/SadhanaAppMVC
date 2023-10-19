@@ -1,0 +1,29 @@
+﻿@model ChantingRecord
+
+@{
+    ViewData["Title"] = "ChantingHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h2>Record Your Chanting</h2>
+
+<form asp-action="RecordChanting" method="post">
+    <div class="form-group">
+        <label>Date:</label>
+        <input asp-for="Date" type="date" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Chanted Rounds in the Morning (till 8am):</label>
+        <input asp-for="MorningRounds" type="number" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Chanted Rounds during the Day (8am to 6pm):</label>
+        <input asp-for="DayRounds" type="number" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Chanted Rounds in the Evening (after 6pm):</label>
+        <input asp-for="EveningRounds" type="number" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

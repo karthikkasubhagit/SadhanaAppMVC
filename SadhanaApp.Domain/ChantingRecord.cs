@@ -10,4 +10,12 @@
     // Navigation property
     public int UserId { get; set; }
     public User User { get; set; }
+
+    public double TotalScore
+    {
+        get
+        {
+            return (MorningRounds * 4.5) + (DayRounds * 3) + (EveningRounds * 1.5);
+        }
+    }
 }

@@ -1,0 +1,39 @@
+﻿@model IEnumerable<User>
+
+@{
+    ViewData["Title"] = "DevoteeChantingHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h2>Devotee Chanting History</h2>
+
+@foreach (var devotee in Model)
+{
+    <h3>@devotee.FirstName @devotee.LastName's Records</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Morning Rounds</th>
+                <th>Day Rounds</th>
+                <th>Evening Rounds</th>
+                <th>Total Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var record in devotee.ChantingRecords)
+            {
+                <tr>
+                    <td>@record.Date.ToShortDateString()</td>
+                    <td>@record.MorningRounds</td>
+                    <td>@record.DayRounds</td>
+                    <td>@record.EveningRounds</td>
+                    <td>@(record.MorningRounds * 4.5 + record.DayRounds * 3 + record.EveningRounds * 1.5)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+

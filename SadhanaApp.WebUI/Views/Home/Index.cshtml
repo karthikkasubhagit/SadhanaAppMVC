@@ -5,6 +5,13 @@
 <div class="text-center">
     <h1 class="display-4">Hare Krishna</h1>
     <p>This application helps you track your sadhana progress.</a>.</p>
-    <p>Don't have an account? <a asp-controller="Account" asp-action="Register">Register now</a>!</p>
-    <p>Click here <a asp-controller="Account" asp-action="Login">Login</a>!</p>
+    @if (!Context.User.Identity.IsAuthenticated)
+    {
+        <p>Don't have an account? <a asp-controller="Account" asp-action="Register">Register now</a>!</p>
+        <p>Click here <a asp-controller="Account" asp-action="Login">Login</a>!</p>
+    }
+    else
+    {
+        <p>Click here <a asp-controller="Chanting" asp-action="ChantingHistory">SadhanaTracker</a>!</p>
+    }
 </div>
