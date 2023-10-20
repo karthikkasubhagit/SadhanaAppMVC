@@ -1,57 +1,69 @@
 html {
-    font-size: 14px;
-}
-
-
-
-html {
-    position: relative;
-    min-height: 100%;
+    font-size: 16px;
+    font-family: Arial, sans-serif; /* Change the font family here */
 }
 
 body {
     margin-bottom: 60px;
     background-image: url('../images/background-image.jpg');
-    background-size: contain; /* Change from cover to contain */
+    background-size: cover;
     background-repeat: no-repeat;
-    background-position: center center; /* Adjusted position to center */
+    background-position: center center;
+    color: #333; /* Dark color for the text */
 }
 
-@media (max-width: 767px) { /* Targeting devices with a max-width of 767px (mostly phones) */
+@media (max-width: 767px) {
     body {
-        background-size: contain; /* Ensuring image is contained within view */
-        background-position: top center; /* Adjust based on what part of the image you want visible */
+        background-size: cover;
+        background-position: top center;
     }
 }
 
-
-    body::before {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background-color: rgba(255, 255, 255, 0.5); /* White with 50% opacity */
-        pointer-events: none; /* Ensure it doesn't interfere with click events */
-        z-index: 0;
-    }
+body::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.4); /* Black with 40% opacity */
+    pointer-events: none;
+    z-index: 0;
+}
 
 .container {
-    background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
-    padding: 20px; /* Add some spacing around content */
-    border-radius: 10px; /* Rounded corners for aesthetics */
+    background-color: rgba(255, 255, 255, 0.9); /* Increased opacity for better visibility */
+    padding: 30px; /* Increased padding for better spacing */
+    border-radius: 15px; /* Larger border radius for softer corners */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Added shadow for a subtle lift effect */
 }
 
-.center-right-image, .navbar, .footer {
-    z-index: 1001; /* Ensure these elements stay on top of the background */
+.navbar, .footer {
+    z-index: 1001;
+    background-color: rgba(255, 255, 255, 0.9); /* Matching the container styling */
 }
 
 .center-right-image {
-    position: fixed; /* This will keep it in the position regardless of scrolling */
-    top: 50%; /* Center it vertically */
-    right: 10px; /* Keep it 10px from the right edge */
-    transform: translateY(-50%); /* This will perfectly center it vertically */
-    z-index: 1000; /* Assuming we want this image to be above most other elements */
+    position: fixed;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    z-index: 1000;
+}
+
+/* Adding some styling to navbar links for a more engaging look */
+.nav-item a {
+    color: #495057;
+    transition: color 0.3s ease-in-out;
+}
+
+.nav-item a:hover {
+    color: #000;
+    text-decoration: none;
+}
+
+/* Updating the footer text color to match the body text */
+.footer {
+    color: #333;
 }
