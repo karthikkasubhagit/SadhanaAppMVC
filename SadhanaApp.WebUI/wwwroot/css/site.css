@@ -30,7 +30,9 @@ th:nth-child(9), td:nth-child(9) { /* Edit column */
 body {
     margin-bottom: 60px;
     background-image: url('../images/background-image.jpg');
+    background-repeat: no-repeat; /* This line ensures the background doesn't repeat */
     background-size: cover;
+    background-attachment: fixed; /* This keeps the background image fixed while scrolling */
     background-position: center center;
     color: #333; /* Dark color for the text */
     font-family: 'Lato', sans-serif;
@@ -50,8 +52,15 @@ body {
 }
 
 @media (max-width: 767px) {
+    html {
+        background-image: url('../images/background-image.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center center;
+    }
     body {
-        background-position: top center;
+        background-image: none; /* Remove the background from the body on smaller screens */
     }
 }
 
