@@ -27,6 +27,10 @@ namespace SadhanaApp.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> RecordSadhana(ChantingRecord model)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model); // Return the same view with validation messages
+            }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             model.UserId = int.Parse(userId);
 
@@ -136,6 +140,11 @@ namespace SadhanaApp.WebUI.Controllers
             if (id != model.Id)
             {
                 return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model); // Return the same view with validation messages
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

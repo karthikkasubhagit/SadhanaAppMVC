@@ -22,13 +22,12 @@ html {
 
 body {
     margin-bottom: 60px;
-    background-image: url('../images/background-image.jpg');
     background-size: cover;
-    background-size: auto 100%;
     background-position: center center;
     color: #333; /* Dark color for the text */
     font-family: 'Lato', sans-serif;
 }
+
 
 .specific-text {
     font-size: 1.2em; /* Adjust size as needed */
@@ -44,7 +43,6 @@ body {
 
 @media (max-width: 767px) {
     body {
-        background-size: cover;
         background-position: top center;
     }
 }
