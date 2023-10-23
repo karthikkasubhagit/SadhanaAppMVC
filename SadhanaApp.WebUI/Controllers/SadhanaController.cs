@@ -27,6 +27,10 @@ namespace SadhanaApp.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> RecordSadhana(ChantingRecord model)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model); // Return the same view with validation messages
+            }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             model.UserId = int.Parse(userId);
 
@@ -112,6 +116,56 @@ namespace SadhanaApp.WebUI.Controllers
             };
 
             return View(viewModel);
+        }
+
+        // Display the Edit form
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var record = await _context.ChantingRecords.FindAsync(id);
+            if (record == null)
+            {
+                return NotFound();
+            }
+
+            return View(record);
+        }
+
+        // Handle the Edit form submission
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Edit(int id, ChantingRecord model)
+        {
+            if (id != model.Id)
+            {
+                return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model); // Return the same view with validation messages
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Ensure that the user is modifying their own record
+            if (model.UserId != int.Parse(userId))
+            {
+                return Unauthorized();
+            }
+
+            _context.Entry(model).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Handle the exception (e.g., record doesn't exist anymore)
+                return NotFound();
+            }
+            return RedirectToAction("SadhanaHistory");
         }
 
     }

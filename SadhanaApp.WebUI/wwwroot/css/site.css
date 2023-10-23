@@ -3,15 +3,39 @@ html {
     font-family: Arial, sans-serif; /* Change the font family here */
 }
 
+.welcome-message {
+    font-weight: 400; /* Change as desired */
+    color: #333; /* Change to your preferred color */
+    text-transform: uppercase; /* Makes text uppercase */
+    font-size: 18px; /* Adjust the font size as needed */
+    padding: 5px 10px; /* Adds some space around the text for better visibility */
+}
+
+.username {
+    font-weight: 700; /* Making username bold */
+    color: #007BFF; /* Making username a different color, change as desired */
+    /* border-bottom: 2px solid #007BFF; Removed the underline */
+    padding-bottom: 2px; /* Space between text and underline (you can remove this too if you want) */
+}
+
+ th:nth-child(1), td:nth-child(1) { /* Date column */
+        width: 10%; 
+        min-width: 100px;
+    }
+    th:nth-child(9), td:nth-child(9) { /* Edit column */
+        width: 10%;
+        min-width: 80px;
+    }
+
 body {
     margin-bottom: 60px;
     background-image: url('../images/background-image.jpg');
     background-size: cover;
-    background-size: auto 100%;
     background-position: center center;
     color: #333; /* Dark color for the text */
     font-family: 'Lato', sans-serif;
 }
+
 
 .specific-text {
     font-size: 1.2em; /* Adjust size as needed */
@@ -27,22 +51,8 @@ body {
 
 @media (max-width: 767px) {
     body {
-        background-size: cover;
         background-position: top center;
     }
-}
-
-body::before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.4); /* Black with 40% opacity */
-    pointer-events: none;
-    z-index: 0;
 }
 
 .container {

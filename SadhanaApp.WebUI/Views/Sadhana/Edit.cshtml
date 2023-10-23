@@ -1,0 +1,53 @@
+@model ChantingRecord
+@{
+    ViewData["Title"] = "Edit Chanting Record";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit Sadhana Record</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="UserId" />
+
+    <div class="form-group">
+        <label asp-for="Date">Date</label>
+        <input asp-for="Date" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MorningRounds">Morning Rounds</label>
+        <input asp-for="MorningRounds" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DayRounds">Day Rounds</label>
+        <input asp-for="DayRounds" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EveningRounds">Evening Rounds</label>
+        <input asp-for="EveningRounds" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ReadingDurationInMinutes">Reading Duration (in minutes)</label>
+        <input asp-for="ReadingDurationInMinutes" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="HearingDurationInMinutes">Hearing Duration (in minutes)</label>
+        <input asp-for="HearingDurationInMinutes" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ServiceDurationInMinutes">Service Duration (in minutes)</label>
+        <input asp-for="ServiceDurationInMinutes" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Notes">Notes</label>
+        <textarea asp-for="Notes" class="form-control"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>

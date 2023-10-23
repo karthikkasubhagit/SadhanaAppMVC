@@ -3,14 +3,26 @@
 <!-- References to Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Canvas for the Daily Chart -->
-<canvas id="dailyScoreChart" width="800" height="400"></canvas>
+<!-- Chart container with flex layout for responsiveness -->
+<div
+    style="display: flex; flex-direction: column; align-items: center; background-color: #fff; padding: 20px; border-radius: 5px;">
 
-<!-- Canvas for the Monthly Chart -->
-<canvas id="monthlyScoreChart" width="800" height="400"></canvas>
+    <!-- Canvas for the Daily Chart -->
+    <div style="width: 100%; max-width: 800px;">
+        <canvas id="dailyScoreChart"></canvas>
+    </div>
 
-<!-- Canvas for the Yearly Chart -->
-<canvas id="yearlyScoreChart" width="800" height="400"></canvas>
+    <!-- Canvas for the Monthly Chart -->
+    <div style="width: 100%; max-width: 800px;">
+        <canvas id="monthlyScoreChart"></canvas>
+    </div>
+
+    <!-- Canvas for the Yearly Chart -->
+    <div style="width: 100%; max-width: 800px;">
+        <canvas id="yearlyScoreChart"></canvas>
+    </div>
+
+</div>
 
 @section Scripts
 {
