@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SadhanaApp.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231022165358_ReadingHearingServices")]
+    partial class ReadingHearingServices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,31 +41,35 @@ namespace SadhanaApp.Persistence.Migrations
                     b.Property<int>("EveningRounds")
                         .HasColumnType("int");
 
-                    b.Property<int?>("HearingDurationInMinutes")
-                        .HasColumnType("int");
+                    b.Property<TimeSpan>("HearingDuration")
+                        .HasColumnType("time");
 
                     b.Property<string>("HearingTitle")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("MorningRounds")
                         .HasColumnType("int");
 
                     b.Property<string>("Notes")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ReadingDurationInMinutes")
-                        .HasColumnType("int");
+                    b.Property<TimeSpan>("ReadingDuration")
+                        .HasColumnType("time");
 
                     b.Property<string>("ReadingTitle")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RecordId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ServiceDurationInMinutes")
-                        .HasColumnType("int");
+                    b.Property<TimeSpan>("ServiceDuration")
+                        .HasColumnType("time");
 
                     b.Property<string>("ServiceType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")

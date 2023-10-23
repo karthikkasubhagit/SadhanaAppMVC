@@ -18,6 +18,9 @@
                 <th>Morning Rounds</th>
                 <th>Day Rounds</th>
                 <th>Evening Rounds</th>
+                <th>Reading Duration</th>
+                <th>Hearing Duration</th>
+                <th>Service Duration</th>
                 <th>Total Points</th>
             </tr>
         </thead>
@@ -29,11 +32,12 @@
                     <td>@record.MorningRounds</td>
                     <td>@record.DayRounds</td>
                     <td>@record.EveningRounds</td>
-                    <td>@(record.MorningRounds * 4.5 + record.DayRounds * 3 + record.EveningRounds * 1.5)</td>
+                    <td>@record.ReadingDurationInMinutes</td>
+                    <td>@record.HearingDurationInMinutes</td>
+                    <td>@record.ServiceDurationInMinutes</td>
+                    <td>@record.TotalScore</td>
                 </tr>
             }
         </tbody>
     </table>
 }
-
-
