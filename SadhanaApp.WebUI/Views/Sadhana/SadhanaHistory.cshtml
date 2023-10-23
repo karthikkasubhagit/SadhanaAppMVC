@@ -20,6 +20,7 @@
                 <th>Hearing Duration</th>
                 <th>Service Duration</th>
                 <th>Total Points</th>
+                <th>Edit</th>
             </tr>
         </thead>
         <tbody>
@@ -34,6 +35,7 @@
                     <td>@record.HearingDurationInMinutes</td>
                     <td>@record.ServiceDurationInMinutes</td>
                     <td>@record.TotalScore</td>
+                    <td><a asp-action="Edit" asp-route-id="@record.Id" class="btn btn-warning">Edit</a></td>
                 </tr>
             }
         </tbody>
