@@ -3,6 +3,23 @@ html {
     font-family: Arial, sans-serif; /* Change the font family here */
 }
 
+.welcome-message {
+    font-weight: 400; /* Change as desired */
+    color: #333; /* Change to your preferred color */
+    text-transform: uppercase; /* Makes text uppercase */
+    font-size: 18px; /* Adjust the font size as needed */
+    padding: 5px 10px; /* Adds some space around the text for better visibility */
+}
+
+.username {
+    font-weight: 700; /* Making username bold */
+    color: #007BFF; /* Making username a different color, change as desired */
+    /* border-bottom: 2px solid #007BFF; Removed the underline */
+    padding-bottom: 2px; /* Space between text and underline (you can remove this too if you want) */
+}
+
+
+
 body {
     margin-bottom: 60px;
     background-image: url('../images/background-image.jpg');

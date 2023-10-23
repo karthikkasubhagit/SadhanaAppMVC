@@ -12,13 +12,28 @@
 </head>
 
 <body class="background-body">
+
+    @{
+        var username = "";
+        if (User.Identity.IsAuthenticated)
+        {
+            username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+        }
+    }
     @* <div class="center-right-image">
     <img src="~/images/small-image.jpg" alt="Prabhupada" />
     </div> *@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Sadhana App</a>
+
+
+                <div class="welcome-message">
+                    Welcome <span class="username">@username</span>
+                </div>
+
+
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
