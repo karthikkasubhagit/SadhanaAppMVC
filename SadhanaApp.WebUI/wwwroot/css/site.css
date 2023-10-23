@@ -18,10 +18,18 @@ html {
     padding-bottom: 2px; /* Space between text and underline (you can remove this too if you want) */
 }
 
-
+th:nth-child(1), td:nth-child(1) { /* Date column */
+    width: 10%; 
+    min-width: 100px;
+}
+th:nth-child(9), td:nth-child(9) { /* Edit column */
+    width: 10%;
+    min-width: 80px;
+}
 
 body {
     margin-bottom: 60px;
+    background-image: url('../images/background-image.jpg');
     background-size: cover;
     background-position: center center;
     color: #333; /* Dark color for the text */
