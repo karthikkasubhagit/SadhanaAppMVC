@@ -120,11 +120,14 @@ namespace SadhanaApp.WebUI.Controllers
                         new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
                     };
 
+                    var role = user.IsInstructor ? "Instructor" : "User";  // Assuming "User" as default role
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                    return RedirectToAction("ChantingHistory", "Chanting");
+                    return RedirectToAction("SadhanaHistory", "Sadhana");
                 }
 
                 ModelState.AddModelError("", "Invalid login attempt, Please try again.");

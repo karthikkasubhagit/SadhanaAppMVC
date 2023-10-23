@@ -1,0 +1,57 @@
+@model SadhanaApp.WebUI.ViewModels.GraphViewModel
+
+<!-- References to Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Canvas for the Daily Chart -->
+<canvas id="dailyScoreChart" width="800" height="400"></canvas>
+
+<!-- Canvas for the Monthly Chart -->
+<canvas id="monthlyScoreChart" width="800" height="400"></canvas>
+
+<!-- Canvas for the Yearly Chart -->
+<canvas id="yearlyScoreChart" width="800" height="400"></canvas>
+
+@section Scripts
+{
+    <script>
+        // For daily progress
+        var dates = @Html.Raw(Json.Serialize(Model.Dates));
+        var totalScoresPerDay = @Html.Raw(Json.Serialize(Model.TotalScoresPerDay));
+        renderChart('dailyScoreChart', dates, totalScoresPerDay, 'Daily Progress');
+
+        // For monthly progress
+        var months = @Html.Raw(Json.Serialize(Model.Months));
+        var totalScoresPerMonth = @Html.Raw(Json.Serialize(Model.TotalScoresPerMonth));
+        renderChart('monthlyScoreChart', months, totalScoresPerMonth, 'Monthly Progress');
+
+        // For yearly progress
+        var years = @Html.Raw(Json.Serialize(Model.Years));
+        var totalScoresPerYear = @Html.Raw(Json.Serialize(Model.TotalScoresPerYear));
+        renderChart('yearlyScoreChart', years, totalScoresPerYear, 'Yearly Progress');
+
+        function renderChart(elementId, labels, data, labelText) {
+            var ctx = document.getElementById(elementId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: labelText,
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+}

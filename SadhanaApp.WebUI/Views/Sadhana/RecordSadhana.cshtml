@@ -1,0 +1,67 @@
+﻿@model ChantingRecord
+
+@{
+    ViewData["Title"] = "Sadhana History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h2>Record Your entries</h2>
+
+<form asp-action="RecordSadhana" method="post">
+    <div class="form-group">
+        <label>Date:</label>
+        <input asp-for="Date" type="date" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Chanted Rounds in the Morning (till 8am):</label>
+        <input asp-for="MorningRounds" type="number" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Chanted Rounds during the Day (8am to 6pm):</label>
+        <input asp-for="DayRounds" type="number" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Chanted Rounds in the Evening (after 6pm):</label>
+        <input asp-for="EveningRounds" type="number" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Reading Title:</label>
+        <input asp-for="ReadingTitle" type="text" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Reading Duration (in minutes)</label>
+        <input asp-for="ReadingDurationInMinutes" class="form-control" type="number" />
+    </div>
+
+    <div class="form-group">
+        <label>Hearing Title:</label>
+        <input asp-for="HearingTitle" type="text" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Hearing Duration (in minutes)</label>
+        <input asp-for="HearingDurationInMinutes" class="form-control" type="number" />
+    </div>
+
+    <div class="form-group">
+        <label>Service Type : (e.g. cleaning temple, garlands, cooking, serving prasadam, book distribution, giving
+            lecture, deity worship, etc)</label>
+        <input asp-for="ServiceType" type="text" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Service Duration (in minutes)</label>
+        <input asp-for="ServiceDurationInMinutes" class="form-control" type="number" />
+    </div>
+
+    <div class="form-group">
+        <label>Notes (You can enter notes for the day in column L. This space can be used to explain any sudden
+            jump/fall in sadhana. E.g. Ekadashi, Sickness, etc.)</label>
+        <input asp-for="Notes" type="text" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <p>Back <a asp-controller="Home" asp-action="Index">to home page</a>!</p>
+</form>

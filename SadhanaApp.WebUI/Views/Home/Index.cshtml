@@ -2,16 +2,18 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Hare Krishna</h1>
-    <p>This application helps you track your sadhana progress.</a>.</p>
+<div class="container login-container">
+    <h1 class="specific-text">Hare Krishna!</h1>
+    <p class="specific-text">This application is designed to assist you in monitoring and enhancing your sadhana
+        journey</a>.</p>
     @if (!Context.User.Identity.IsAuthenticated)
     {
-        <p>Don't have an account? <a asp-controller="Account" asp-action="Register">Register now</a>!</p>
+        <p class="specific-text">Don't have an account? <a asp-controller="Account" asp-action="Register">Register now</a>!
+        </p>
         <p>Click here <a asp-controller="Account" asp-action="Login">Login</a>!</p>
     }
     else
     {
-        <p>Click here <a asp-controller="Chanting" asp-action="ChantingHistory">SadhanaTracker</a>!</p>
+        <p>Click here <a asp-controller="Sadhana" asp-action="SadhanaHistory">SadhanaTracker</a>!</p>
     }
 </div>
