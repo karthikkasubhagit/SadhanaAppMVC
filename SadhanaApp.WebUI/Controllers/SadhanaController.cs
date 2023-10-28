@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SadhanaApp.WebUI.ViewModels;
 using System.Security.Claims;
@@ -67,6 +68,9 @@ namespace SadhanaApp.WebUI.Controllers
                 .Include(u => u.ChantingRecords)
                 .Where(u => u.ShikshaGuruId == int.Parse(userId))
                 .ToListAsync();
+
+            // Convert the list of devotees into a SelectList
+            ViewBag.DevoteeList = new SelectList(devotees, "UserId", "FirstName");
 
             return View(devotees);
         }
