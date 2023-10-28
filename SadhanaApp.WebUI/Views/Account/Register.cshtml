@@ -36,7 +36,7 @@
             <span asp-validation-for="LastName" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label>Are you a mentor?</label>
+            <label>Do you mentor others?</label>
             <div>
                 <label>
                     <input type="radio" asp-for="IsShikshaGuru" value="true"> Yes
@@ -46,15 +46,17 @@
                 </label>
             </div>
         </div>
-        <div class="form-group" id="shikshaGuruDropdown" style="display:none;">
+        <div class="form-group" id="shikshaGuruDropdown">
             <label asp-for="ShikshaGuruId">Select your mentor</label>
-            <select asp-for="ShikshaGuruId" asp-items="Model.ShikshaGurus" class="form-control">
+            <select asp-for="ShikshaGuruId" asp-items="Model.ShikshaGurus" class="form-control" required>
                 <option value="">Select a mentor</option>
             </select>
+            <span asp-validation-for="ShikshaGuruId" class="text-danger"></span>
         </div>
         <button type="submit" class="btn btn-primary btn-block">Register</button>
     </form>
 </div>
+@* 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var isShikshaGuruRadios = document.querySelectorAll("[name='IsShikshaGuru']");
@@ -82,4 +84,4 @@
             }
         }
     });
-</script>
+</script> *@

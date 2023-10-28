@@ -26,6 +26,7 @@ namespace SadhanaApp.WebUI.ViewModels
         public bool IsShikshaGuru { get; set; }
 
         // Optionally, if we  want the user to select their Shiksha Guru during registration
+        [Required(ErrorMessage = "Please select a mentor.")]
         public int? ShikshaGuruId { get; set; }
         public IEnumerable<SelectListItem>? ShikshaGurus { get; set; } // This can be used to populate a dropdown of available ShikshaGurus
     }

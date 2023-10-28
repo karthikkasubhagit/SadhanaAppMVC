@@ -33,7 +33,7 @@ namespace SadhanaApp.WebUI.Controllers
             //};
 
             var shikshaGurus = _context.Users
-                               .Where(u => u.IsInstructor) // I assume IsInstructor is your equivalent property for IsShikshaGuru
+                               .Where(u => u.IsInstructor) // Assuming IsInstructor is equivalent property for IsShikshaGuru
                                .ToList();
 
             var viewModel = new UserRegistrationViewModel
