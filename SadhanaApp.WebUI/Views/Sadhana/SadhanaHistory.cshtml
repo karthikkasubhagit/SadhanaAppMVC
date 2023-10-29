@@ -1,4 +1,5 @@
-﻿@model IEnumerable<ChantingRecord>
+﻿@model Tuple<List<ChantingRecord>, List<DateTime>>
+
 
 @{
     ViewData["Title"] = "ChantingHistory";
@@ -7,7 +8,7 @@
 
 <h2>Your Sadhana History</h2>
 
-@if (Model.Any())
+@if (Model.Item1.Any())
 {
     <div class="table-responsive">
         <table class="table">
@@ -25,7 +26,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var record in Model)
+                @foreach (var record in Model.Item1)
                 {
                     <tr>
                         <td>@record.Date.ToShortDateString()</td>
@@ -50,4 +51,17 @@ else
         <p>No Sadhana records found. Start recording your chanting, hearing/reading and services now.</p>
         <a asp-action="RecordSadhana" class="btn btn-primary">Record Here</a>
     </div>
+}
+
+@if (Model.Item2.Any())
+{
+    <h3>Missing Sadhana Records for last 30 days.</h3>
+
+    <ul class="missing-dates-list">
+        @foreach (var missingDate in Model.Item2)
+        {
+            <li>@missingDate.ToShortDateString()</li>
+        }
+    </ul>
+    <a asp-action="RecordSadhana" class="record-badge">Record Missing Entry</a>
 }

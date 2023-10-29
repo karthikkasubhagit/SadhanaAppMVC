@@ -47,9 +47,20 @@
     </div>
 
     <div class="form-group">
-        <label>Service Type : (e.g. cleaning temple, garlands, cooking, serving prasadam, book distribution, giving
-            lecture, deity worship, etc)</label>
-        <input asp-for="ServiceType" type="text" class="form-control" />
+        <label>Service Type:</label>
+        <select asp-for="ServiceType" class="form-control" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
+            <option value="cleaning temple">Cleaning Temple</option>
+            <option value="garlands">Garlands</option>
+            <option value="cooking">Cooking</option>
+            <option value="ServingPrasadam">Serving Prasadam</option>
+            <option value="BookDistribution">Book Distribution</option>
+            <option value="GivingLecture">Giving Lecture</option>
+            <option value="DeityWorship">Deity Worship</option>
+            <option value="VoiceProgramLecture">Voice Program Lecture</option>
+            <option value="VoiceProgramService">Voice Program Service</option>
+            <option value="other">Other (Please Specify)</option>
+        </select>
+        <input id="customServiceTypeInput" name="customServiceTypeInput" type="text" style="display:none;" class="form-control" />
     </div>
 
     <div class="form-group">
@@ -65,3 +76,17 @@
     <button type="submit" class="btn btn-primary">Submit</button>
     <p>Back <a asp-controller="Home" asp-action="Index">to home page</a>!</p>
 </form>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function toggleCustomServiceTypeInput() {
+        var dropdown = document.getElementById('serviceDropdown');
+        var customServiceInput = document.getElementById('customServiceTypeInput');
+
+        if (dropdown.value === 'other') {
+            customServiceInput.style.display = 'block';
+        } else {
+            customServiceInput.style.display = 'none';
+        }
+    }
+</script>
+

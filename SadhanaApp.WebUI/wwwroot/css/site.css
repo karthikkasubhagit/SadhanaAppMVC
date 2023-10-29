@@ -18,18 +18,19 @@ html {
     padding-bottom: 2px; /* Space between text and underline (you can remove this too if you want) */
 }
 
- th:nth-child(1), td:nth-child(1) { /* Date column */
-        width: 10%; 
-        min-width: 100px;
-    }
-    th:nth-child(9), td:nth-child(9) { /* Edit column */
-        width: 10%;
-        min-width: 80px;
-    }
+th:nth-child(1), td:nth-child(1) { /* Date column */
+    width: 10%;
+    min-width: 100px;
+}
+
+th:nth-child(9), td:nth-child(9) { /* Edit column */
+    width: 10%;
+    min-width: 80px;
+}
 
 body {
     margin-bottom: 60px;
-    background-image: url('../images/background-image.jpg');
+    /*background-image: url('../images/background-image.jpg');*/
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center center;
@@ -85,10 +86,10 @@ body {
     transition: color 0.3s ease-in-out;
 }
 
-.nav-item a:hover {
-    color: #000;
-    text-decoration: none;
-}
+    .nav-item a:hover {
+        color: #000;
+        text-decoration: none;
+    }
 
 /* Updating the footer text color to match the body text */
 .footer {
@@ -117,4 +118,42 @@ select.form-control {
         border-color: #80bdff;
         box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         outline: none;
+    }
+
+
+.missing-dates-list {
+    border: 2px solid #f1f1f1;
+    border-radius: 5px;
+    padding: 15px;
+    max-width: 250px;
+    list-style-type: none; /* This will remove the default bullet points */
+}
+
+    .missing-dates-list li {
+        font-size: 16px;
+        padding: 5px 0;
+        border-bottom: 1px solid #e0e0e0;
+        color: #333;
+    }
+
+        .missing-dates-list li:last-child {
+            border-bottom: none; /* Removing the border for the last item to keep it clean */
+        }
+
+
+.record-badge {
+    display: inline-block;
+    background-color: #007bff; /* You can adjust this color if needed */
+    color: white;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background-color 0.2s; /* Smoothens the hover effect */
+}
+
+    .record-badge:hover {
+        background-color: #0056b3; /* Darker shade for hover effect */
+        text-decoration: none; /* Ensure the link doesn't get underlined on hover */
+        color: white; /* Keeps text color consistent on hover */
     }

@@ -32,6 +32,14 @@ namespace SadhanaApp.WebUI.Controllers
             // {
             //     return View(model); // Return the same view with validation messages
             // }
+
+            // if the ServiceType is "other", then update it with the custom service type provided
+
+            if (model.ServiceType == "other")
+            {
+                model.ServiceType = Request.Form["customServiceTypeInput"];
+            }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             model.UserId = int.Parse(userId);
 
@@ -56,7 +64,22 @@ namespace SadhanaApp.WebUI.Controllers
                 .Where(c => c.UserId == int.Parse(userId))
                 .ToListAsync();
 
-            return View(records ?? new List<ChantingRecord>()); // if records is null, pass an empty list
+            // Define the date range, e.g., for the past 30 days
+            var startDate = DateTime.Today.AddDays(-30);
+            var endDate = DateTime.Today;
+
+            // Generate a list of dates for this range
+            var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                            .Select(d => startDate.AddDays(d))
+                            .ToList();
+
+            // Find missing dates
+            var missingDates = allDates.Except(records.Select(r => r.Date)).ToList();
+
+            // Create a ViewModel (or use a Tuple) to pass both records and missing dates to the view
+            var model = new Tuple<List<ChantingRecord>, List<DateTime>>(records, missingDates);
+
+            return View(model);
         }
 
         // If the user is an instructor, display the chanting history of their students

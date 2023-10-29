@@ -12,10 +12,8 @@
 
     public string? HearingTitle { get; set; }
     public int? HearingDurationInMinutes { get; set; }
-
     public string? ServiceType { get; set; }
     public int? ServiceDurationInMinutes { get; set; }
-
     public string? Notes { get; set; }
 
     // Navigation property
@@ -33,7 +31,12 @@
             int? combinedDuration = ReadingDurationInMinutes + HearingDurationInMinutes;
 
             double? scoreFromReadingHearing;
-            if (combinedDuration < 15)
+
+            if (!ReadingDurationInMinutes.HasValue && !HearingDurationInMinutes.HasValue)
+            {
+                scoreFromReadingHearing = 0;
+            }
+            else if (combinedDuration < 15)
             {
                 scoreFromReadingHearing = -20;
             }
