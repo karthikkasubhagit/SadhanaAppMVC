@@ -182,6 +182,11 @@ namespace SadhanaApp.WebUI.Controllers
                 return Unauthorized();
             }
 
+            if (model.ServiceType == "Other")
+            {
+                model.ServiceType = Request.Form["customServiceTypeInput"];
+            }
+
             _context.Entry(model).State = EntityState.Modified;
             try
             {

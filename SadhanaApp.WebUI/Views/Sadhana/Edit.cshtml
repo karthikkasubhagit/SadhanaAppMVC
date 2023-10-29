@@ -51,7 +51,7 @@
 
     <div class="form-group">
         <label asp-for="ServiceType">Service Type</label>
-        <select asp-for="ServiceType" class="form-control">
+        <select asp-for="ServiceType" class="form-control" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
             @{
                 var services = new List<string>
             {
@@ -66,20 +66,21 @@
             "VoiceProgramService",
             "Other"
             };
+            }
 
-                foreach (var service in services)
+            @foreach (var service in services)
+            {
+                if (Model.ServiceType == service)
                 {
-                    if (Model.ServiceType == service)
-                    {
-                        <option value="@service" selected>@service</option>
-                    }
-                    else
-                    {
-                        <option value="@service">@service</option>
-                    }
+                    <option value="@service" selected>@service</option>
+                }
+                else
+                {
+                    <option value="@service">@service</option>
                 }
             }
         </select>
+        <input id="customServiceTypeInput" name="customServiceTypeInput" type="text" style="display:none;" class="form-control" />
     </div>
 
 
@@ -95,3 +96,16 @@
 
     <button type="submit" class="btn btn-primary">Update</button>
 </form>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function toggleCustomServiceTypeInput() {
+        var dropdown = document.getElementById('serviceDropdown');
+        var customServiceInput = document.getElementById('customServiceTypeInput');
+
+        if (dropdown.value === 'Other') { // Fixed the case here
+            customServiceInput.style.display = 'block';
+        } else {
+            customServiceInput.style.display = 'none';
+        }
+    }
+</script>
