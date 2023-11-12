@@ -16,6 +16,9 @@
     public int? ServiceDurationInMinutes { get; set; }
     public string? Notes { get; set; }
 
+    public DateTime? CreatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+
     // Navigation property
     public int UserId { get; set; }
     public User User { get; set; }
@@ -24,7 +27,7 @@
     {
         get
         {
-            double? scoreFromRounds = (MorningRounds * 4.5) + (DayRounds * 3) + (EveningRounds * 1.5);
+            double? scoreFromRounds = (MorningRounds.GetValueOrDefault() * 4.5) + (DayRounds.GetValueOrDefault() * 3) + (EveningRounds.GetValueOrDefault() * 1.5);
             scoreFromRounds = Math.Min(scoreFromRounds.GetValueOrDefault(), 72);  // Cap chanting to max 72 points
 
             // Combine Reading and Hearing Duration

@@ -6,10 +6,29 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Your Sadhana History</h2>
+<div class="w-100 card border-0 p-4">
+    <div class="card-header bg-success bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Your Sadhana History</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body border p-4">
+        <div class="row pb-3">
+            <div class="col-6 offset-6 text-end">
+                <a asp-controller="Sadhana" asp-action="RecordSadhana" class="btn btn-secondary">
+                    <i class="bi bi-plus-circle"></i> Create New Record
+                </a>
+            </div>
+        </div>
+    </div>
+    </div>
 
 @if (Model.Item1.Any())
 {
+
     <div class="table-responsive">
         <table class="table">
             <thead>
@@ -45,23 +64,27 @@
         </table>
     </div>
 }
-else
+@* else
 {
     <div class="alert alert-info">
         <p>No Sadhana records found. Start recording your chanting, hearing/reading and services now.</p>
         <a asp-action="RecordSadhana" class="btn btn-primary">Record Here</a>
     </div>
-}
+ *@
 
 @if (Model.Item2.Any())
 {
-    <h3>Missing Sadhana Records for last 30 days.</h3>
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 10px; margin-top: 20px; background-color: #f9f9f9;">
+        <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 15px;">Missing Sadhana Records for last 30 days</h3>
 
-    <ul class="missing-dates-list">
-        @foreach (var missingDate in Model.Item2)
-        {
-            <li>@missingDate.ToShortDateString()</li>
-        }
-    </ul>
-    <a asp-action="RecordSadhana" class="record-badge">Record Missing Entry</a>
+        <ul class="missing-dates-list" style="list-style-type: none; padding-left: 0;">
+            @foreach (var missingDate in Model.Item2)
+            {
+                <li style="margin-bottom: 10px; padding: 5px 10px; background-color: #eee; border-radius: 5px;">@missingDate.ToShortDateString()</li>
+            }
+        </ul>
+
+        <a asp-action="RecordSadhana" class="record-badge" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;">Record Missing Entry</a>
+    </div>
 }
+
