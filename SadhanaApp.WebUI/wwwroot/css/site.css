@@ -62,6 +62,18 @@ th:nth-child(9), td:nth-child(9) { /* Edit column */
             text-align: left; /* Align text to the left for better readability */
         }
 
+        .form-floating label {
+            margin-top: -8px; /* Adjust the margin-top as needed */
+            font-size: 14px; /* Optional: Adjust the font size for better visibility on mobile */
+            /* Additional styling here if needed */
+        }
+
+        .form-floating .form-control {
+            height: auto; /* Adjust the height of the input field as required */
+            padding: 10px; /* Adjust padding to ensure text doesn't touch the edges */
+            /* Additional styling for the input field if needed */
+        }
+
         .form-floating input,
         .form-floating select {
             font-size: 1rem;
