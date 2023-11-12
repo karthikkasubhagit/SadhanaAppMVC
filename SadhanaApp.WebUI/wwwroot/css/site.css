@@ -54,10 +54,33 @@ th:nth-child(9), td:nth-child(9) { /* Edit column */
 }
 
 @media (max-width: 767px) {
-    body {
-        background-position: top center;
+    .form-floating {
+        padding: 0.5rem;
+    }
+        .form-floating label {
+            white-space: normal; /* Allow labels to wrap */
+            text-align: left; /* Align text to the left for better readability */
+        }
+
+        .form-floating input,
+        .form-floating select {
+            font-size: 1rem;
+        }
+
+        .form-floating label {
+            font-size: 0.9rem;
+        }
+
+    .container {
+        padding: 20px; /* Reduced padding on smaller screens */
+    }
+
+    .btn {
+        padding: 10px 15px;
+        font-size: 1rem;
     }
 }
+
 
 /*.container {
     overflow: visible;

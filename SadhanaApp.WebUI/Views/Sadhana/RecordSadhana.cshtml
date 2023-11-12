@@ -77,18 +77,19 @@
             </div>
                 <input id="customServiceTypeInput" name="customServiceTypeInput" type="text" style="display:none;" class="form-control" />
 
-            <div class="form-floating py-1 col-12">
-                <input asp-for="ServiceDurationInMinutes" class="form-control border shadow" type="number" />
-                <label asp-for="ServiceDurationInMinutes" class="ms-2">Service Duration (in minutes)</label>
-            </div>
+                <div class="form-floating py-1 col-12" id="customServiceTypeContainer" style="display:none;">
+                    <input id="customServiceTypeInput" name="customServiceTypeInput" type="text" class="form-control border shadow" />
+                    <label for="customServiceTypeInput" class="ms-2">Custom Service Type</label>
+                </div>
 
-            <div class="form-floating py-1 col-12">
-                <input asp-for="Notes" type="text" class="form-control border shadow" />
-                <label asp-for="Notes" class="ms-2">
-                    Notes (This space can be used to explain any sudden
-                    jump/fall in sadhana. E.g. Ekadashi, Sickness, etc.)
-                </label>
-            </div>
+
+                <div class="form-floating py-1 col-12">
+                    <textarea asp-for="Notes" class="form-control border shadow"></textarea>
+                    <label asp-for="Notes" class="ms-2">
+                        Notes (This space can be used to explain any sudden jump/fall in sadhana. E.g. Ekadashi, Sickness, etc.)
+                    </label>
+                </div>
+
 
             <div class="row pt-2">
                 <div class="col-6 col-md-3">
@@ -111,13 +112,14 @@
 <script>
     function toggleCustomServiceTypeInput() {
         var dropdown = document.getElementById('serviceDropdown');
-        var customServiceInput = document.getElementById('customServiceTypeInput');
+        var customServiceInputContainer = document.getElementById('customServiceTypeContainer');
 
         if (dropdown.value === 'other') {
-            customServiceInput.style.display = 'block';
+            customServiceInputContainer.style.display = 'block';
         } else {
-            customServiceInput.style.display = 'none';
+            customServiceInputContainer.style.display = 'none';
         }
     }
+
 </script>
 
