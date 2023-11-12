@@ -2,18 +2,26 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="container login-container">
-    <h1 class="specific-text">Hare Krishna!</h1>
-    <p class="specific-text">This application is designed to assist you in monitoring and enhancing your sadhana
-        journey</a>.</p>
+<div class="container login-container" style="text-align: center; padding: 40px;">
+    <h1 class="specific-text" style="font-size: 2.5rem; margin-bottom: 20px;">Hare Krishna!</h1>
+    <p class="specific-text" style="font-size: 1.2rem;">This application is designed to assist you in monitoring and enhancing your sadhana journey.</p>
+
     @if (!Context.User.Identity.IsAuthenticated)
     {
-        <p class="specific-text">Don't have an account? <a asp-controller="Account" asp-action="Register">Register now</a>!
+        <p class="specific-text" style="margin-top: 20px;">
+            <a asp-controller="Account" asp-action="Register" class="btn btn-primary" style="margin-right: 10px;">Register now</a>
+            or
+            <a asp-controller="Account" asp-action="Login" class="btn btn-secondary" style="margin-left: 10px;">Login</a>
         </p>
-        <p>Click here <a asp-controller="Account" asp-action="Login">Login</a>!</p>
     }
     else
     {
-        <p>Click here <a asp-controller="Sadhana" asp-action="SadhanaHistory">SadhanaTracker</a>!</p>
+        <p style="margin-top: 20px;">
+            <a asp-controller="Sadhana" asp-action="SadhanaHistory" class="btn btn-success">SadhanaTracker</a>
+        </p>
     }
+
+    <!-- Optional: Inspirational Quote or Message -->
+    <p style="font-style: italic; margin-top: 30px;">"To try to become happy by adjusting the material atmosphere is a useless endeavor - Srila Prabhu Pada."</p>
+
 </div>
