@@ -1,4 +1,4 @@
-﻿@model ChantingRecord
+﻿@model SadhanaApp.WebUI.ViewModels.ChantingViewModel
 
 @{
     ViewData["Title"] = "Sadhana History";
@@ -19,7 +19,7 @@
         <form asp-action="RecordSadhana" method="post" class="row">
             <div class="p-3">
                 <div class="form-floating py-1 col-12">
-                    <input asp-for="Date" class="form-control border shadow" required />
+                    <input asp-for="Date" type="date" class="form-control border shadow" required />
                     <label asp-for="Date" class="ms-2"></label>
                     <span asp-validation-for="Date" class="text-danger"></span>
                 </div>
@@ -27,16 +27,19 @@
                 <div class="form-floating py-1 col-12">
                     <input asp-for="MorningRounds" type="number" class="form-control border shadow" />
                     <label asp-for="MorningRounds" class="ms-2">Chanted Rounds in the Morning (till 8am):</label>
+                    <span asp-validation-for="MorningRounds" class="text-danger"></span>
                 </div>
 
                 <div class="form-floating py-1 col-12">
                     <input asp-for="DayRounds" type="number" class="form-control border shadow" />
                     <label asp-for="DayRounds" class="ms-2">Chanted Rounds during the Day (8am to 6pm):</label>
+                    <span asp-validation-for="DayRounds" class="text-danger"></span>
                 </div>
 
                 <div class="form-floating py-1 col-12">
                     <input asp-for="EveningRounds" type="number" class="form-control border shadow" />
                     <label asp-for="EveningRounds" class="ms-2">Chanted Rounds in the Evening (after 6pm):</label>
+                    <span asp-validation-for="EveningRounds" class="text-danger"></span>
                 </div>
 
                 <div class="form-floating py-1 col-12">
@@ -47,6 +50,7 @@
                 <div class="form-floating py-1 col-12">
                     <input asp-for="ReadingDurationInMinutes" type="number" class="form-control border shadow" />
                     <label asp-for="ReadingDurationInMinutes" class="ms-2">Reading Duration (in minutes):</label>
+                    <span asp-validation-for="ReadingDurationInMinutes" class="text-danger"></span>
                 </div>
 
 
@@ -58,6 +62,7 @@
                 <div class="form-floating py-1 col-12">
                     <input asp-for="HearingDurationInMinutes" type="number" class="form-control border shadow" />
                     <label asp-for="HearingDurationInMinutes" class="ms-2">Hearing Duration (in minutes):</label>
+                    <span asp-validation-for="HearingDurationInMinutes" class="text-danger"></span>
                 </div>
 
             
@@ -86,6 +91,7 @@
                 <div class="form-floating py-1 col-12">
                     <input asp-for="ServiceDurationInMinutes" type="number" class="form-control border shadow" />
                     <label asp-for="ServiceDurationInMinutes" class="ms-2">Service Duration(in minutes):</label>
+                    <span asp-validation-for="ServiceDurationInMinutes" class="text-danger"></span>
                 </div>
                 <div class="form-floating py-1 col-12">
                     <textarea asp-for="Notes" class="form-control border shadow"></textarea>
