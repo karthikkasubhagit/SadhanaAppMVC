@@ -1,19 +1,23 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SadhanaApp.WebUI.ViewModels;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace SadhanaApp.WebUI.Controllers
 {
+    
     public class SadhanaController : Controller
     {
         private readonly AppDbContext _context;
-
-        public SadhanaController(AppDbContext context)
+        private readonly IMapper _mapper;
+        public SadhanaController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // Display the form to record chanting rounds
@@ -26,27 +30,34 @@ namespace SadhanaApp.WebUI.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> RecordSadhana(ChantingRecord model)
+        public async Task<IActionResult> RecordSadhana(ChantingViewModel viewModel)
         {
-            // if (!ModelState.IsValid)  // Need to fix this issue
-            // {
-            //     return View(model); // Return the same view with validation messages
-            // }
+            ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            model.UserId = int.Parse(userId);
 
-            // if the ServiceType is "other", then update it with the custom service type provided
+            if (model.UserId <= 0) // Or any other validation logic for UserId
+            {
+                ModelState.AddModelError("UserId", "Invalid UserId.");
+            }
 
+            if (ModelState.IsValid)
+            {
                 if (model.ServiceType == "other")
                 {
                     model.ServiceType = Request.Form["customServiceTypeInput"];
-                }
-
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                model.UserId = int.Parse(userId);
+                }              
 
                 _context.ChantingRecords.Add(model);
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction("SadhanaHistory");
+            }
+            else
+            {
+                return View(viewModel);
+            }
            
         }
 
