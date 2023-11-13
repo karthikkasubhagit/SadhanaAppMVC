@@ -35,18 +35,19 @@ namespace SadhanaApp.WebUI.Controllers
 
             // if the ServiceType is "other", then update it with the custom service type provided
 
-            if (model.ServiceType == "other")
-            {
-                model.ServiceType = Request.Form["customServiceTypeInput"];
-            }
+                if (model.ServiceType == "other")
+                {
+                    model.ServiceType = Request.Form["customServiceTypeInput"];
+                }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            model.UserId = int.Parse(userId);
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                model.UserId = int.Parse(userId);
 
-            _context.ChantingRecords.Add(model);
-            await _context.SaveChangesAsync();
+                _context.ChantingRecords.Add(model);
+                await _context.SaveChangesAsync();
 
-            return RedirectToAction("SadhanaHistory");
+                return RedirectToAction("SadhanaHistory");
+           
         }
 
         // Display the chanting history of the user

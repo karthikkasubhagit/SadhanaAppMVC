@@ -21,6 +21,7 @@
                 <div class="form-floating py-1 col-12">
                     <input asp-for="Date" class="form-control border shadow" required />
                     <label asp-for="Date" class="ms-2"></label>
+                    <span asp-validation-for="Date" class="text-danger"></span>
                 </div>
 
                 <div class="form-floating py-1 col-12">
@@ -82,7 +83,10 @@
                     <label for="customServiceTypeInput" class="ms-2">Custom Service Type</label>
                 </div>
 
-
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="ServiceDurationInMinutes" type="number" class="form-control border shadow" />
+                    <label asp-for="ServiceDurationInMinutes" class="ms-2">Service Duration(in minutes):</label>
+                </div>
                 <div class="form-floating py-1 col-12">
                     <textarea asp-for="Notes" class="form-control border shadow"></textarea>
                     <label asp-for="Notes" class="ms-2">
