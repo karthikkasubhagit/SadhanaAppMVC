@@ -1,10 +1,16 @@
-﻿@model Tuple<List<ChantingRecord>, List<DateTime>>
-
+﻿@model SadhanaApp.WebUI.ViewModels.SadhanaHistoryViewModel
 
 @{
-    ViewData["Title"] = "ChantingHistory";
+    ViewData["Title"] = "Chanting History";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<!-- Date Range Filter -->
+<div>
+    <a asp-action="SadhanaHistory" asp-route-daysFilter="30">Last 30 Days</a> |
+    <a asp-action="SadhanaHistory" asp-route-daysFilter="100">Last 100 Days</a> |
+    <a asp-action="SadhanaHistory" asp-route-daysFilter="365">Last 365 Days</a>
+</div>
 
 <div class="w-100 card border-0 p-4">
     <div class="card-header bg-success bg-gradient ml-0 py-3">
@@ -24,11 +30,10 @@
             </div>
         </div>
     </div>
-    </div>
+</div>
 
-@if (Model.Item1.Any())
+@if (Model.Records.Any())
 {
-
     <div class="table-responsive">
         <table class="table">
             <thead>
@@ -45,7 +50,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var record in Model.Item1)
+                @foreach (var record in Model.Records)
                 {
                     <tr>
                         <td>@record.Date.ToShortDateString()</td>
@@ -56,34 +61,29 @@
                         <td>@record.HearingDurationInMinutes</td>
                         <td>@record.ServiceDurationInMinutes</td>
                         <td>@record.TotalScore</td>
-                        <td><a asp-action="Edit" asp-route-id="@record.Id" class="btn btn-warning">Edit</a></td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@record.Id" class="btn btn-warning">Edit</a>
+                        </td>
                     </tr>
                 }
             </tbody>           
         </table>
     </div>
 }
-@* else
+else
 {
     <div class="alert alert-info">
         <p>No Sadhana records found. Start recording your chanting, hearing/reading and services now.</p>
         <a asp-action="RecordSadhana" class="btn btn-primary">Record Here</a>
     </div>
- *@
-
-@if (Model.Item2.Any())
-{
-    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 10px; margin-top: 20px; background-color: #f9f9f9;">
-        <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 15px;">Missing Sadhana Records for last 30 days</h3>
-
-        <ul class="missing-dates-list" style="list-style-type: none; padding-left: 0;">
-            @foreach (var missingDate in Model.Item2)
-            {
-                <li style="margin-bottom: 10px; padding: 5px 10px; background-color: #eee; border-radius: 5px;">@missingDate.ToShortDateString()</li>
-            }
-        </ul>
-
-        <a asp-action="RecordSadhana" class="record-badge" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;">Record Missing Entry</a>
-    </div>
 }
 
+@if (Model.TotalRecords > Model.PageSize)
+{
+    <div>
+        @for (var i = 1; i <= Math.Ceiling((double)Model.TotalRecords / Model.PageSize); i++)
+        {
+            <a asp-action="SadhanaHistory" asp-route-page="@i" asp-route-daysFilter="@Model.DaysFilter">@i</a>
+        }
+    </div>
+}

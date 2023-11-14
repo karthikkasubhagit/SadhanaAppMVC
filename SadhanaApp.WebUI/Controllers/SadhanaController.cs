@@ -115,7 +115,7 @@ namespace SadhanaApp.WebUI.Controllers
 
         // Display the chanting history of the user
         [Authorize]
-        public async Task<IActionResult> SadhanaHistory()
+        public async Task<IActionResult> SadhanaHistory(int daysFilter = 30, int page = 1, int pageSize = 10)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             // Ensure userId is not null before proceeding
@@ -124,13 +124,21 @@ namespace SadhanaApp.WebUI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var records = await _context.ChantingRecords
-                .Where(c => c.UserId == int.Parse(userId))
-                .ToListAsync();
-
-            // Define the date range, e.g., for the past 30 days
-            var startDate = DateTime.Today.AddDays(-30);
+            // Define the date range based on filter
+            var startDate = DateTime.Today.AddDays(-daysFilter);
             var endDate = DateTime.Today;
+
+            var recordsQuery = _context.ChantingRecords
+           .Where(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate);
+
+
+            // Pagination
+            var totalRecords = await recordsQuery.CountAsync();
+            var records = await recordsQuery
+                .OrderByDescending(c => c.Date)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             // Generate a list of dates for this range
             var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
@@ -140,8 +148,15 @@ namespace SadhanaApp.WebUI.Controllers
             // Find missing dates
             var missingDates = allDates.Except(records.Select(r => r.Date)).ToList();
 
-            // Create a ViewModel (or use a Tuple) to pass both records and missing dates to the view
-            var model = new Tuple<List<ChantingRecord>, List<DateTime>>(records, missingDates);
+            // ViewModel to pass to the view
+            var model = new SadhanaHistoryViewModel
+            {
+                Records = records,
+                TotalRecords = totalRecords,
+                CurrentPage = page,
+                PageSize = pageSize,
+                DaysFilter = daysFilter
+            };
 
             return View(model);
         }
