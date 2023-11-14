@@ -8,10 +8,10 @@ namespace SadhanaApp.WebUI.ViewModels
         public DateTime Date { get; set; }
 
         // Existing service type (e.g., ID of the selected service type)
-        public string SelectedServiceTypeId { get; set; }
+        public string? SelectedServiceTypeId { get; set; }
 
         // Custom service type input for 'other'
-        public string CustomServiceTypeInput { get; set; }
+        public string? CustomServiceTypeInput { get; set; }
 
         [Range(0, 200)]
         public int? MorningRounds { get; set; }

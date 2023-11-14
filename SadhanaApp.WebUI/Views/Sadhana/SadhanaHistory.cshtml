@@ -83,7 +83,7 @@ else
     <div>
         @for (var i = 1; i <= Math.Ceiling((double)Model.TotalRecords / Model.PageSize); i++)
         {
-            <a asp-action="SadhanaHistory" asp-route-page="@i" asp-route-daysFilter="@Model.DaysFilter">@i</a>
+            <a asp-action="SadhanaHistory" asp-route-page="@i" asp-route-daysFilter="@Model.DaysFilter" style="margin: 0 10px;">@i</a>
         }
     </div>
 }
