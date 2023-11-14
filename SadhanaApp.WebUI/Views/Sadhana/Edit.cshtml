@@ -1,4 +1,4 @@
-@model ChantingRecord
+@model SadhanaApp.WebUI.ViewModels.ChantingViewModel
 @{
     ViewData["Title"] = "Edit Chanting Record";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -7,7 +7,6 @@
 <h2>Edit Sadhana Record</h2>
 
 <form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="UserId" />
 
     <div class="form-group">
         <label asp-for="Date">Date</label>
@@ -51,12 +50,12 @@
 
     <div class="form-group">
         <div class="form-floating py-1 col-12">
-            <select asp-for="ServiceType" asp-items="ViewBag.ServiceTypeList" class="form-control" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
+            <select asp-for="SelectedServiceTypeId" asp-items="ViewBag.ServiceTypeList" class="form-control" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
                 <option value="">--Select Service Type--</option>
             </select>
-            <label asp-for="ServiceType" class="ms-2">Service Type:</label>
+            <label asp-for="SelectedServiceTypeId" class="ms-2">Service Type:</label>
         </div>
-        <input id="customServiceTypeInput" name="customServiceTypeInput" type="text" style="display:none;" class="form-control" />
+        <input id="customServiceTypeInput" asp-for="CustomServiceTypeInput" type="text" style="display:none;" class="form-control" />
     </div>
 
 
@@ -70,7 +69,18 @@
         <textarea asp-for="Notes" class="form-control"></textarea>
     </div>
 
-    <button type="submit" class="btn btn-primary">Update</button>
+    <div class="row pt-2">
+        <div class="col-6 col-md-3">
+            <button type="submit" class="btn btn-success w-100">
+                <i class="bi bi-check-circle"></i> Update
+            </button>
+        </div>
+        <div class="col-6 col-md-3">
+            <a asp-controller="Sadhana" asp-action="SadhanaHistory" class="btn btn-secondary w-100">
+                <i class="bi bi-x-circle"></i> Cancel
+            </a>
+        </div>
+    </div>
 </form>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -78,10 +88,12 @@
         var dropdown = document.getElementById('serviceDropdown');
         var customServiceInput = document.getElementById('customServiceTypeInput');
 
-        if (dropdown.value === 'Other') { // Fixed the case here
+        if (dropdown.value === 'other') {
             customServiceInput.style.display = 'block';
+            customServiceInput.required = true; // Make the field required
         } else {
             customServiceInput.style.display = 'none';
+            customServiceInput.required = false; // Remove the required attribute
         }
     }
 </script>

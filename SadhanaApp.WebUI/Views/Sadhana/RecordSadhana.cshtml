@@ -118,9 +118,11 @@
         var customServiceInputContainer = document.getElementById('customServiceTypeContainer');
 
         if (dropdown.value === 'other') {
-            customServiceInputContainer.style.display = 'block';
+            customServiceInput.style.display = 'block';
+            customServiceInput.required = true; // Make the field required
         } else {
-            customServiceInputContainer.style.display = 'none';
+            customServiceInput.style.display = 'none';
+            customServiceInput.required = false; // Remove the required attribute
         }
     }
 

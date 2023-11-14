@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace SadhanaApp.WebUI.Controllers
 {
-    
+
     public class SadhanaController : Controller
     {
         private readonly AppDbContext _context;
@@ -52,6 +52,14 @@ namespace SadhanaApp.WebUI.Controllers
             if (int.TryParse(userIdString, out var userId) && userId > 0)
             {
                 model.UserId = userId;
+
+                bool recordExists = await _context.ChantingRecords
+           .AnyAsync(cr => cr.Date.Date == viewModel.Date.Date && cr.UserId == userId);
+                if (recordExists)
+                {
+                    ModelState.AddModelError("Date", "A record for this date already exists.");
+                    return View(viewModel);
+                }
 
                 // Handle 'other' - new service type
                 if (viewModel.SelectedServiceTypeId == "other")
@@ -207,11 +215,11 @@ namespace SadhanaApp.WebUI.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var record = await _context.ChantingRecords.FindAsync(id);
-            ChantingViewModel model = _mapper.Map<ChantingViewModel>(record);
             if (record == null)
             {
                 return NotFound();
             }
+            ChantingViewModel model = _mapper.Map<ChantingViewModel>(record);
 
             var serviceTypes = await _context.ServiceTypes.ToListAsync();
 
@@ -228,7 +236,7 @@ namespace SadhanaApp.WebUI.Controllers
             // Pass the list to the view
             ViewBag.ServiceTypeList = serviceTypeList;
 
-            return View(record);
+            return View(model);
         }
 
         // Handle the Edit form submission
@@ -236,43 +244,77 @@ namespace SadhanaApp.WebUI.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int id, ChantingViewModel viewModel)
         {
-            ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
-
-            //if (id != model.Id)
-            //{
-            //    return BadRequest();
-            //}
+            if (viewModel.SelectedServiceTypeId != "other")
+            {
+                ModelState.Remove("CustomServiceTypeInput"); // Clear ModelState errors for this field
+            }
 
             if (!ModelState.IsValid)
-            {
+            {              
                 return View(viewModel); // Return the same view with validation messages
             }
 
-           // var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
-            if (viewModel.ServiceType == "other")
+          
+
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Not required for Edit as use can update the same record
+           // if (int.TryParse(userIdString, out var userId) && userId > 0)
+           // {
+           //     bool recordExists = await _context.ChantingRecords
+           //.AnyAsync(cr => cr.Date.Date == viewModel.Date.Date && cr.UserId == userId);
+           //     if (recordExists)
+           //     {
+           //         ModelState.AddModelError("Date", "A record for this date already exists.");
+           //         return View(viewModel);
+           //     }
+           // }
+
+            if (!int.TryParse(userIdString, out var user) || user <= 0)
+            {
+                ModelState.AddModelError("UserId", "Invalid UserId.");
+                return View(viewModel);
+            }
+
+            var existingRecord = await _context.ChantingRecords.FindAsync(id);
+            if (existingRecord == null)
+            {
+                // Handle not found
+                return NotFound();
+            }
+
+            _mapper.Map(viewModel, existingRecord);
+
+            if (viewModel.SelectedServiceTypeId == "other")
             {
                 var serviceType = new ServiceType
                 {
-                    ServiceName = Request.Form["customServiceTypeInput"]
+                    ServiceName = viewModel.CustomServiceTypeInput
                 };
                 _context.ServiceTypes.Add(serviceType);
-                _context.SaveChanges();
-                model.ServiceTypeId = serviceType.ServiceTypeId;
+                await _context.SaveChangesAsync();
+                existingRecord.ServiceTypeId = serviceType.ServiceTypeId;
+            }
+            else if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
+            {
+                existingRecord.ServiceTypeId = serviceTypeId;
+            }
+            else
+            {
+                ModelState.AddModelError("SelectedServiceTypeId", "Invalid Service Type selected.");
+                return View(viewModel);
             }
 
-            _context.Entry(model).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();
+                return RedirectToAction("SadhanaHistory");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                // Handle the exception (e.g., record doesn't exist anymore)
-                return NotFound();
+                ModelState.AddModelError("", "An error occurred while updating the record: " + ex.Message);
+                return View(viewModel);
             }
-            return RedirectToAction("SadhanaHistory");
         }
-
     }
 }
