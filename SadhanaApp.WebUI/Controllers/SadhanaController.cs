@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SadhanaApp.Domain;
 using SadhanaApp.WebUI.ViewModels;
 using System.Diagnostics;
 using System.Security.Claims;
@@ -23,43 +24,86 @@ namespace SadhanaApp.WebUI.Controllers
         // Display the form to record chanting rounds
 
         [Authorize]
-        public IActionResult RecordSadhana()
+        public async Task<IActionResult> RecordSadhana()
         {
+            var serviceTypes = await _context.ServiceTypes.ToListAsync();
+
+            // Convert to SelectListItem
+            var serviceTypeList = serviceTypes.Select(st => new SelectListItem
+            {
+                Value = st.ServiceTypeId.ToString(),
+                Text = st.ServiceName
+            }).ToList();
+
+            // Adding "Other" option manually
+            serviceTypeList.Add(new SelectListItem { Value = "other", Text = "Other (Please Specify)" });
+
+            // Pass the list to the view
+            ViewBag.ServiceTypeList = serviceTypeList;
+
             return View();
         }
-
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> RecordSadhana(ChantingViewModel viewModel)
         {
             ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
-            model.UserId = int.Parse(userId);
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(userIdString, out var userId) && userId > 0)
+            {
+                model.UserId = userId;
 
-            if (model.UserId <= 0) // Or any other validation logic for UserId
+                // Handle 'other' - new service type
+                if (viewModel.SelectedServiceTypeId == "other")
+                {
+                    var serviceType = new ServiceType
+                    {
+                        ServiceName = viewModel.CustomServiceTypeInput
+                    };
+                    _context.ServiceTypes.Add(serviceType);
+                    await _context.SaveChangesAsync();
+                    model.ServiceTypeId = serviceType.ServiceTypeId;
+
+                    // Setting the navigation property to null to prevent tracking issues
+                    model.ServiceType = null;
+                }
+                else
+                {
+                    // Handle existing service type selection
+                    if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
+                    {
+                        model.ServiceTypeId = serviceTypeId;
+                        // Explicitly setting the navigation property to null
+                        model.ServiceType = null;
+                    }
+                    else
+                    {
+                        // Handle invalid selection
+                        ModelState.AddModelError("SelectedServiceTypeId", "Invalid Service Type selected.");
+                        return View(viewModel);
+                    }
+                }
+
+                try
+                {
+                    _context.ChantingRecords.Add(model);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("SadhanaHistory");
+                }
+                catch (Exception ex)
+                {
+                    // Handle or log the exception
+                    ModelState.AddModelError("", "An error occurred while saving the record: " + ex.Message);
+                }
+            }
+            else
             {
                 ModelState.AddModelError("UserId", "Invalid UserId.");
             }
 
-            if (ModelState.IsValid)
-            {
-                if (model.ServiceType == "other")
-                {
-                    model.ServiceType = Request.Form["customServiceTypeInput"];
-                }              
-
-                _context.ChantingRecords.Add(model);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("SadhanaHistory");
-            }
-            else
-            {
-                return View(viewModel);
-            }
-           
+            return View(viewModel);
         }
+
 
         // Display the chanting history of the user
         [Authorize]
@@ -163,10 +207,26 @@ namespace SadhanaApp.WebUI.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var record = await _context.ChantingRecords.FindAsync(id);
+            ChantingViewModel model = _mapper.Map<ChantingViewModel>(record);
             if (record == null)
             {
                 return NotFound();
             }
+
+            var serviceTypes = await _context.ServiceTypes.ToListAsync();
+
+            // Convert to SelectListItem
+            var serviceTypeList = serviceTypes.Select(st => new SelectListItem
+            {
+                Value = st.ServiceTypeId.ToString(),
+                Text = st.ServiceName
+            }).ToList();
+
+            // Adding "Other" option manually
+            serviceTypeList.Add(new SelectListItem { Value = "other", Text = "Other (Please Specify)" });
+
+            // Pass the list to the view
+            ViewBag.ServiceTypeList = serviceTypeList;
 
             return View(record);
         }
@@ -174,29 +234,31 @@ namespace SadhanaApp.WebUI.Controllers
         // Handle the Edit form submission
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Edit(int id, ChantingRecord model)
+        public async Task<IActionResult> Edit(int id, ChantingViewModel viewModel)
         {
-            if (id != model.Id)
+            ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
+
+            //if (id != model.Id)
+            //{
+            //    return BadRequest();
+            //}
+
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return View(viewModel); // Return the same view with validation messages
             }
 
-            // if (!ModelState.IsValid)
-            // {
-            //     return View(model); // Return the same view with validation messages
-            // }
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            // Ensure that the user is modifying their own record
-            if (model.UserId != int.Parse(userId))
+           // var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (viewModel.ServiceType == "other")
             {
-                return Unauthorized();
-            }
-
-            if (model.ServiceType == "Other")
-            {
-                model.ServiceType = Request.Form["customServiceTypeInput"];
+                var serviceType = new ServiceType
+                {
+                    ServiceName = Request.Form["customServiceTypeInput"]
+                };
+                _context.ServiceTypes.Add(serviceType);
+                _context.SaveChanges();
+                model.ServiceTypeId = serviceType.ServiceTypeId;
             }
 
             _context.Entry(model).State = EntityState.Modified;

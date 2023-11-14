@@ -50,36 +50,12 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="ServiceType">Service Type</label>
-        <select asp-for="ServiceType" class="form-control" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
-            @{
-                var services = new List<string>
-            {
-            "CleaningTemple",
-            "Garlands",
-            "Cooking",
-            "ServingPrasadam",
-            "BookDistribution",
-            "GivingLecture",
-            "DeityWorship",
-            "VoiceProgramLecture",
-            "VoiceProgramService",
-            "Other"
-            };
-            }
-
-            @foreach (var service in services)
-            {
-                if (Model.ServiceType == service)
-                {
-                    <option value="@service" selected>@service</option>
-                }
-                else
-                {
-                    <option value="@service">@service</option>
-                }
-            }
-        </select>
+        <div class="form-floating py-1 col-12">
+            <select asp-for="ServiceType" asp-items="ViewBag.ServiceTypeList" class="form-control" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
+                <option value="">--Select Service Type--</option>
+            </select>
+            <label asp-for="ServiceType" class="ms-2">Service Type:</label>
+        </div>
         <input id="customServiceTypeInput" name="customServiceTypeInput" type="text" style="display:none;" class="form-control" />
     </div>
 

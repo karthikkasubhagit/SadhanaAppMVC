@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SadhanaApp.Domain;
+using System.ComponentModel.DataAnnotations;
 
 public class ChantingRecord
 {
@@ -27,7 +28,7 @@ public class ChantingRecord
 
     [Range(0, 500)]
     public int? HearingDurationInMinutes { get; set; }
-    public string? ServiceType { get; set; }
+    //public string? ServiceType { get; set; }
 
     [Range(0, 500)]
     public int? ServiceDurationInMinutes { get; set; }
@@ -41,6 +42,10 @@ public class ChantingRecord
     // Navigation property
     public int UserId { get; set; }
     public User User { get; set; }
+
+    public int? ServiceTypeId { get; set; }
+
+    public ServiceType ServiceType { get; set; }
 
     public int? TotalScore
     {
