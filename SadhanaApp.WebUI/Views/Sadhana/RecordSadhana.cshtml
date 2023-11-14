@@ -17,6 +17,9 @@
 
     <div class="card-body border p-4">
         <form asp-action="RecordSadhana" method="post" class="row">
+           @*  <div class="form-group">
+                <div asp-validation-summary="All" class="text-danger"></div>
+            </div> *@
             <div class="p-3">
                 <div class="form-floating py-1 col-12">
                     <input asp-for="Date" type="date" class="form-control border shadow" required />
@@ -116,15 +119,20 @@
     function toggleCustomServiceTypeInput() {
         var dropdown = document.getElementById('serviceDropdown');
         var customServiceInputContainer = document.getElementById('customServiceTypeContainer');
+        var customServiceInput = document.getElementById('customServiceTypeInput');
 
         if (dropdown.value === 'other') {
-            customServiceInput.style.display = 'block';
+            customServiceInputContainer.style.display = 'block';
             customServiceInput.required = true; // Make the field required
         } else {
-            customServiceInput.style.display = 'none';
+            customServiceInputContainer.style.display = 'none';
             customServiceInput.required = false; // Remove the required attribute
         }
     }
 
+    // Call the function on initial load to set the correct state
+    document.addEventListener('DOMContentLoaded', function () {
+        toggleCustomServiceTypeInput();
+    });
 </script>
 

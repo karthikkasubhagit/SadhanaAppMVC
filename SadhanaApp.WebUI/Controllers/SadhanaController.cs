@@ -62,7 +62,11 @@ namespace SadhanaApp.WebUI.Controllers
                 }
 
                 // Handle 'other' - new service type
-                if (viewModel.SelectedServiceTypeId == "other")
+                if (string.IsNullOrWhiteSpace(viewModel.SelectedServiceTypeId))
+                {
+                    model.ServiceTypeId = null; // Set ServiceTypeId to null
+                }
+                else if (viewModel.SelectedServiceTypeId == "other")
                 {
                     var serviceType = new ServiceType
                     {
@@ -75,22 +79,16 @@ namespace SadhanaApp.WebUI.Controllers
                     // Setting the navigation property to null to prevent tracking issues
                     model.ServiceType = null;
                 }
+                else if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
+                {
+                    model.ServiceTypeId = serviceTypeId;
+                }
                 else
                 {
-                    // Handle existing service type selection
-                    if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
-                    {
-                        model.ServiceTypeId = serviceTypeId;
-                        // Explicitly setting the navigation property to null
-                        model.ServiceType = null;
-                    }
-                    else
-                    {
-                        // Handle invalid selection
-                        ModelState.AddModelError("SelectedServiceTypeId", "Invalid Service Type selected.");
-                        return View(viewModel);
-                    }
+                    ModelState.AddModelError("SelectedServiceTypeId", "Invalid Service Type selected.");
+                    return View(viewModel);
                 }
+
 
                 try
                 {
