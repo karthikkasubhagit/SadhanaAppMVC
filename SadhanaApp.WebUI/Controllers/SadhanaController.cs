@@ -184,36 +184,49 @@ namespace SadhanaApp.WebUI.Controllers
         }
 
         [Authorize]
-
         public IActionResult Graph()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var id = int.Parse(userId);
-            var records = _context.ChantingRecords.Where(u => u.UserId == id).OrderBy(r => r.Date).ToList();
 
-            // For daily progress:
+            // Get the current date without the time part
+            var currentDate = DateTime.Today;
+
+            // Filter records for the last 30 days, last 12 months, and last 5 years
+            var records = _context.ChantingRecords
+                                  .Where(u => u.UserId == id && u.Date >= currentDate.AddDays(-30))
+                                  .OrderBy(r => r.Date)
+                                  .ToList();
+
+            // For daily progress over the last 30 days:
             var dates = records.Select(r => r.Date.ToString("MM-dd-yyyy")).ToList();
             var totalScoresPerDay = records.Select(r => r.TotalScore ?? 0).ToList();
 
-            // For monthly progress:
-            var monthlyData = records.GroupBy(r => new { r.Date.Year, r.Date.Month })
-                                     .Select(g => new
-                                     {
-                                         Month = $"{g.Key.Month}-{g.Key.Year}",
-                                         TotalScore = g.Sum(x => x.TotalScore) ?? 0
-                                     }).ToList();
-
+            // For monthly progress over the last 12 months:
+            var monthlyRecords = _context.ChantingRecords
+                                         .Where(u => u.UserId == id && u.Date >= currentDate.AddMonths(-12))
+                                         .ToList();
+            var monthlyData = monthlyRecords.GroupBy(r => new { r.Date.Year, r.Date.Month })
+                                            .Select(g => new
+                                            {
+                                                Month = $"{g.Key.Month}-{g.Key.Year}",
+                                                TotalScore = g.Sum(x => x.TotalScore) ?? 0
+                                            })
+                                            .ToList();
             var months = monthlyData.Select(m => m.Month).ToList();
             var totalScoresPerMonth = monthlyData.Select(m => m.TotalScore).ToList();
 
-            // For yearly progress:
-            var yearlyData = records.GroupBy(r => r.Date.Year)
-                                    .Select(g => new
-                                    {
-                                        Year = g.Key.ToString(),
-                                        TotalScore = g.Sum(x => x.TotalScore) ?? 0
-                                    }).ToList();
-
+            // For yearly progress over the last 5 years:
+            var yearlyRecords = _context.ChantingRecords
+                                        .Where(u => u.UserId == id && u.Date >= currentDate.AddYears(-5))
+                                        .ToList();
+            var yearlyData = yearlyRecords.GroupBy(r => r.Date.Year)
+                                          .Select(g => new
+                                          {
+                                              Year = g.Key.ToString(),
+                                              TotalScore = g.Sum(x => x.TotalScore) ?? 0
+                                          })
+                                          .ToList();
             var years = yearlyData.Select(y => y.Year).ToList();
             var totalScoresPerYear = yearlyData.Select(y => y.TotalScore).ToList();
 
@@ -229,6 +242,7 @@ namespace SadhanaApp.WebUI.Controllers
 
             return View(viewModel);
         }
+
 
         // Display the Edit form
         [HttpGet]
