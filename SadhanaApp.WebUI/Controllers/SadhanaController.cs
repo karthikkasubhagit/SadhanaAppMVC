@@ -28,20 +28,28 @@ namespace SadhanaApp.WebUI.Controllers
         {
             var serviceTypes = await _context.ServiceTypes.ToListAsync();
 
-            // Convert to SelectListItem
-            var serviceTypeList = serviceTypes.Select(st => new SelectListItem
-            {
-                Value = st.ServiceTypeId.ToString(),
-                Text = st.ServiceName
-            }).ToList();
+            // Convert to SelectListItem, grouping by ServiceName
+            var serviceTypeList = serviceTypes
+                .GroupBy(st => st.ServiceName) // Group by ServiceName
+                .Select(g => new SelectListItem
+                {
+                    Value = g.First().ServiceTypeId.ToString(), // Use the ServiceTypeId of the first item in each group
+                    Text = g.Key // The key of the group is the ServiceName
+                })
+                .ToList();
 
             // Adding "Other" option manually
             serviceTypeList.Add(new SelectListItem { Value = "other", Text = "Other (Please Specify)" });
 
             // Pass the list to the view
-            ViewBag.ServiceTypeList = serviceTypeList;
+            ViewBag.ServiceTypeList = serviceTypeList.Distinct();
 
-            return View();
+            var viewModel = new ChantingViewModel
+            {
+                Date = DateTime.Today
+            };
+
+            return View(viewModel);
         }
         [Authorize]
         [HttpPost]
@@ -54,7 +62,7 @@ namespace SadhanaApp.WebUI.Controllers
                 model.UserId = userId;
 
                 bool recordExists = await _context.ChantingRecords
-           .AnyAsync(cr => cr.Date.Date == viewModel.Date.Date && cr.UserId == userId);
+           .AnyAsync(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId);
                 if (recordExists)
                 {
                     ModelState.AddModelError("Date", "A record for this date already exists.");

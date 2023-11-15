@@ -4,8 +4,11 @@ namespace SadhanaApp.WebUI.ViewModels
 {
     public class ChantingViewModel
     {
-        [Required, DataType(DataType.Date), DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        public DateTime Date { get; set; }
+        [Required(ErrorMessage = "Date is a mandatory field")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [CustomDate(ErrorMessage = "Date cannot be in the future")]
+        public DateTime? Date { get; set; }
 
         // Existing service type (e.g., ID of the selected service type)
         public string? SelectedServiceTypeId { get; set; }
@@ -40,5 +43,14 @@ namespace SadhanaApp.WebUI.ViewModels
         [MaxLength(100)]
         public string? Notes { get; set; }
 
+    }
+
+    public class CustomDateAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            DateTime d = Convert.ToDateTime(value);
+            return d <= DateTime.Now;
+        }
     }
 }
