@@ -55,6 +55,22 @@ namespace SadhanaApp.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> RecordSadhana(ChantingViewModel viewModel)
         {
+            var serviceTypes = await _context.ServiceTypes.ToListAsync();
+
+            // Convert to SelectListItem, grouping by ServiceName
+            var serviceTypeList = serviceTypes
+                .GroupBy(st => st.ServiceName) // Group by ServiceName
+                .Select(g => new SelectListItem
+                {
+                    Value = g.First().ServiceTypeId.ToString(), // Use the ServiceTypeId of the first item in each group
+                    Text = g.Key // The key of the group is the ServiceName
+                })
+                .ToList();
+
+            // Adding "Other" option manually
+            serviceTypeList.Add(new SelectListItem { Value = "other", Text = "Other (Please Specify)" });
+            // Pass the list to the view
+            ViewBag.ServiceTypeList = serviceTypeList.Distinct();
             ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (int.TryParse(userIdString, out var userId) && userId > 0)
@@ -114,7 +130,7 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 ModelState.AddModelError("UserId", "Invalid UserId.");
             }
-
+            
             return View(viewModel);
         }
 
