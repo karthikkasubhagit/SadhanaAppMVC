@@ -48,7 +48,7 @@
         </div>
         <div class="form-group" id="shikshaGuruDropdown">
             <label asp-for="ShikshaGuruId">Select your mentor</label>
-            <select asp-for="ShikshaGuruId" asp-items="Model.ShikshaGurus" class="form-control" required>
+            <select asp-for="ShikshaGuruId" asp-items="Model.ShikshaGurus" class="form-control" required data-val-required="Please select your mentor from the list">
                 <option value="">Select a mentor</option>
             </select>
             <span asp-validation-for="ShikshaGuruId" class="text-danger"></span>

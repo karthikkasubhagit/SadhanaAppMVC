@@ -134,8 +134,8 @@ namespace SadhanaApp.WebUI.Controllers
             return View(viewModel);
         }
 
+        // Display the chanting history of the user   
 
-        // Display the chanting history of the user
         [Authorize]
         public async Task<IActionResult> SadhanaHistory(int daysFilter = 30, int page = 1, int pageSize = 10)
         {
@@ -161,14 +161,6 @@ namespace SadhanaApp.WebUI.Controllers
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-
-            // Generate a list of dates for this range
-            var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-                            .Select(d => startDate.AddDays(d))
-                            .ToList();
-
-            // Find missing dates
-            var missingDates = allDates.Except(records.Select(r => r.Date)).ToList();
 
             // ViewModel to pass to the view
             var model = new SadhanaHistoryViewModel
@@ -481,28 +473,42 @@ namespace SadhanaApp.WebUI.Controllers
             }
         }
 
-
         [Authorize]
-        public async Task<IActionResult> GetMissingDates(int daysFilter)
+        public async Task<IActionResult> GetMissingDates()
         {
+            // Retrieve the user's unique identifier from the claims
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var startDate = DateTime.Today.AddDays(-daysFilter);
+
+            // Retrieve the user's registration date from the database
+            // Replace this with the actual method to get the user's registration date
+            var userRegistrationDate = await GetUserRegistrationDate(int.Parse(userId));
+
+            var startDate = userRegistrationDate.Date;
             var endDate = DateTime.Today;
 
+            // Fetch the records from the database for the user since their registration date
             var records = await _context.ChantingRecords
                 .Where(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate)
                 .Select(c => c.Date)
                 .ToListAsync();
 
+            // Generate a list of all dates from the user's registration date to today
             var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
                             .Select(d => startDate.AddDays(d))
                             .ToList();
 
+            // Find the dates where there are no records
             var missingDates = allDates.Except(records).ToList();
 
+            // Return the partial view with the missing dates
             return PartialView("_MissingDatesPartial", missingDates);
         }
 
+        private async Task<DateTime> GetUserRegistrationDate(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            return user.DateRegistered;
+        }
 
 
     }

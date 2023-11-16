@@ -51,6 +51,15 @@ namespace SadhanaApp.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(UserRegistrationViewModel model)
         {
+            var shikshaGurus = _context.Users
+                         .Where(u => u.IsInstructor)
+                         .Select(sg => new SelectListItem
+                         {
+                             Value = sg.UserId.ToString(),
+                             Text = $"{sg.FirstName} {sg.LastName}"
+                         }).ToList();
+            model.ShikshaGurus = shikshaGurus;
+
             if (ModelState.IsValid)
             {
                 var userExists = await _context.Users.AnyAsync(u => u.Username == model.Username);
