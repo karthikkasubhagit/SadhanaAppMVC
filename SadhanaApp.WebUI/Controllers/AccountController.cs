@@ -143,6 +143,56 @@ namespace SadhanaApp.WebUI.Controllers
             return RedirectToAction("Login");
         }
 
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == model.Username);
+                if (user != null)
+                {
+                    // Redirect to the reset password page
+                    return RedirectToAction("ResetPassword", new { userId = user.UserId });
+                }
+                ModelState.AddModelError("", "Username not found.");
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(int userId)
+        {
+            var model = new ResetPasswordViewModel { UserId = userId };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _context.Users.FindAsync(model.UserId);
+                if (user != null)
+                {
+                    // Update the user's password
+                    user.PasswordHash = PasswordUtility.HashPassword(model.NewPassword);
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Login");
+                }
+                ModelState.AddModelError("", "User not found.");
+            }
+            return View(model);
+        }
+
+
 
     }
 }

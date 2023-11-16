@@ -290,6 +290,31 @@ namespace SadhanaApp.WebUI.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var record = await _context.ChantingRecords.FindAsync(id);
+                if (record == null)
+                {
+                    return Json(new { success = false, message = "Record not found." });
+                }
+
+                _context.ChantingRecords.Remove(record);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
         // Handle the Edit form submission
         [HttpPost]
         [Authorize]
@@ -455,6 +480,29 @@ namespace SadhanaApp.WebUI.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+
+        [Authorize]
+        public async Task<IActionResult> GetMissingDates(int daysFilter)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var startDate = DateTime.Today.AddDays(-daysFilter);
+            var endDate = DateTime.Today;
+
+            var records = await _context.ChantingRecords
+                .Where(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate)
+                .Select(c => c.Date)
+                .ToListAsync();
+
+            var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                            .Select(d => startDate.AddDays(d))
+                            .ToList();
+
+            var missingDates = allDates.Except(records).ToList();
+
+            return PartialView("_MissingDatesPartial", missingDates);
+        }
+
 
 
     }

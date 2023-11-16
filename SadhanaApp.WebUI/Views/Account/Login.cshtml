@@ -37,6 +37,9 @@
             @if (!Context.User.Identity.IsAuthenticated)
             {
                 <p>Don't have an account? <a asp-controller="Account" asp-action="Register">Register now</a>!</p>
+                <p>
+                    <a asp-controller="Account" asp-action="ForgotPassword">Forgot Password?</a>
+                </p>
             }
         </form>
     </div>

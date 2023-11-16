@@ -1,0 +1,14 @@
+﻿@model IEnumerable<DateTime>
+
+@if (Model.Any())
+{
+    <div>
+        <h3>Missing Sadhana Records: Click above links for selected days.</h3>
+        <ul>
+            @foreach (var date in Model)
+            {
+                <li>@date.ToShortDateString()</li>
+            }
+        </ul>
+    </div>
+}

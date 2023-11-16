@@ -46,7 +46,7 @@
                     <th>Hearing Duration</th>
                     <th>Service Duration</th>
                     <th>Total Points</th>
-                    <th>Edit</th>
+                    <th>Edit / Delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,7 +62,13 @@
                         <td>@record.ServiceDurationInMinutes</td>
                         <td>@record.TotalScore</td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@record.Id" class="btn btn-warning">Edit</a>
+                            <a asp-action="Edit" asp-route-id="@record.Id" class="btn btn-warning btn-sm me-1">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('@record.Id')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+
                         </td>
                     </tr>
                 }
@@ -86,4 +92,56 @@ else
             <a asp-action="SadhanaHistory" asp-route-page="@i" asp-route-daysFilter="@Model.DaysFilter" style="margin: 0 10px;">@i</a>
         }
     </div>
+}
+
+
+<a href="#" data-days-filter="30" onclick="loadMissingDates(30);">Last 30 Days</a> |
+<a href="#" data-days-filter="100" onclick="loadMissingDates(100);">Last 100 Days</a> |
+<a href="#" data-days-filter="365" onclick="loadMissingDates(365);">Last 365 Days</a>
+
+
+<div id="missingDatesContainer"></div>
+
+
+
+@section Scripts
+    {
+    <script>
+        function loadMissingDates(daysFilter) {
+            $.ajax({
+                url: '@Url.Action("GetMissingDates", "Sadhana")',
+                data: { daysFilter: daysFilter },
+                success: function (data) {
+                    $('#missingDatesContainer').html(data);
+                }
+            });
+        }
+
+        // Initial load
+        loadMissingDates(30); // Default to 30 days
+
+        // Bind to date range filter links
+        $('a[data-days-filter]').click(function (e) {
+            e.preventDefault();
+            var daysFilter = $(this).data('daysFilter');
+            loadMissingDates(daysFilter);
+        });
+
+        function confirmDelete(id) {
+            if (confirm("Are you sure you want to delete this record?")) {
+                deleteRecord(id);
+            }
+        }
+
+        function deleteRecord(id) {
+            var url = '@Url.Action("Delete", "Sadhana")';
+            $.post(url, { id: id }, function (data) {
+                if (data.success) {
+                    window.location.href = '@Url.Action("SadhanaHistory", "Sadhana")';
+                } else {
+                    alert("Error occurred: " + data.message);
+                }
+            });
+        }
+    </script>
 }
