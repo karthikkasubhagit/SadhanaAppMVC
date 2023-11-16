@@ -57,6 +57,11 @@
                                 <a class="nav-link" asp-controller="Sadhana"
                                     asp-action="DevoteeSadhanaHistory">Students History</a>
                             </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Sadhana"
+                                   asp-action="StudentProgressGraph">Students Graph</a>
+                            </li>
                         }
 
                         @if (!Context.User.Identity.IsAuthenticated)

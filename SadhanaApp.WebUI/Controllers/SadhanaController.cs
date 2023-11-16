@@ -367,5 +367,95 @@ namespace SadhanaApp.WebUI.Controllers
                 return View(viewModel);
             }
         }
+
+
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> StudentProgressGraph()
+        {
+            var instructorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var viewModel = new InstructorStudentGraphViewModel();
+
+            var students = await _context.Users
+                                         .Where(u => u.ShikshaGuruId == int.Parse(instructorId))
+                                         .ToListAsync();
+
+            viewModel.Students = students.Select(s => new SelectListItem
+            {
+                Value = s.UserId.ToString(),
+                Text = $"{s.FirstName} {s.LastName}"
+            }).ToList();
+
+            return View(viewModel);
+        }
+
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> GetStudentGraphData(int studentId)
+        {
+            try
+            {
+                var currentDate = DateTime.Today;
+
+                // Fetch daily records for the last 30 days and process them in memory
+                var dayRecords = await _context.ChantingRecords
+                    .Where(r => r.UserId == studentId && r.Date >= currentDate.AddDays(-30))
+                    .ToListAsync();
+
+                var dailyData = dayRecords
+                    .GroupBy(r => r.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key.ToString("MM-dd-yyyy"),
+                        TotalScore = g.Sum(x => x.TotalScore ?? 0)
+                    })
+                    .OrderBy(g => g.Date)
+                    .ToList();
+
+                // Fetch monthly records for the last 12 months and process them in memory
+                var monthRecords = await _context.ChantingRecords
+                    .Where(r => r.UserId == studentId && r.Date >= currentDate.AddMonths(-12))
+                    .ToListAsync();
+
+                var monthlyData = monthRecords
+                    .GroupBy(r => new { Year = r.Date.Year, Month = r.Date.Month })
+                    .Select(g => new
+                    {
+                        Month = $"{g.Key.Month}/{g.Key.Year}",
+                        TotalScore = g.Sum(x => x.TotalScore ?? 0)
+                    })
+                    .OrderBy(g => g.Month)
+                    .ToList();
+
+                // Fetch yearly records for the last 5 years and process them in memory
+                var yearRecords = await _context.ChantingRecords
+                    .Where(r => r.UserId == studentId && r.Date >= currentDate.AddYears(-5))
+                    .ToListAsync();
+
+                var yearlyData = yearRecords
+                    .GroupBy(r => r.Date.Year)
+                    .Select(g => new
+                    {
+                        Year = g.Key.ToString(),
+                        TotalScore = g.Sum(x => x.TotalScore ?? 0)
+                    })
+                    .OrderBy(g => g.Year)
+                    .ToList();
+
+                var graphData = new
+                {
+                    Daily = dailyData,
+                    Monthly = monthlyData,
+                    Yearly = yearlyData
+                };
+
+                return Json(graphData);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details here
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
     }
 }

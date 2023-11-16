@@ -1,0 +1,83 @@
+﻿@model SadhanaApp.WebUI.ViewModels.InstructorStudentGraphViewModel
+
+<!-- References to Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<select id="studentSelector" onchange="loadStudentGraph()">
+    <option value="">Select a Student</option>
+    @foreach (var student in Model.Students)
+    {
+        <option value="@student.Value">@student.Text</option>
+    }
+</select>
+
+<!-- Canvas for rendering the student's graph -->
+<canvas id="dailyChart" width="400" height="200"></canvas>
+<canvas id="monthlyChart" width="400" height="200"></canvas>
+<canvas id="yearlyChart" width="400" height="200"></canvas>
+
+
+@section Scripts
+    {
+    <script>
+        function loadStudentGraph() {
+            var studentId = document.getElementById('studentSelector').value;
+            if (!studentId) return;
+
+            fetch('/Sadhana/GetStudentGraphData?studentId=' + studentId)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Received data:", data);
+
+                    if (data.daily) {
+                        renderChart('dailyChart', data.daily.map(d => d.date), data.daily.map(d => d.totalScore), 'Daily Scores');
+                    }
+
+                    if (data.monthly) {
+                        renderChart('monthlyChart', data.monthly.map(m => m.month), data.monthly.map(m => m.totalScore), 'Monthly Scores');
+                    }
+
+                    if (data.yearly) {
+                        renderChart('yearlyChart', data.yearly.map(y => y.year), data.yearly.map(y => y.totalScore), 'Yearly Scores');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading student graph data: ", error);
+                });
+        }
+
+        function renderChart(elementId, labels, data, title) {
+            console.log("elementId:", elementId);
+            console.log("labels:", labels);
+            console.log("data:", data);
+            console.log("title:", title);
+
+            var ctx = document.getElementById(elementId).getContext('2d');
+            if (window[elementId + 'GraphInstance']) {
+                window[elementId + 'GraphInstance'].destroy();
+            }
+
+            window[elementId + 'GraphInstance'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: data,
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+    </script>
+}
