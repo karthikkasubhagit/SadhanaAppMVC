@@ -12,6 +12,11 @@ namespace SadhanaApp.WebUI.ViewModels
         [MinLength(5, ErrorMessage = "Password must be at least 5 characters long.")]
         public string Password { get; set; }
 
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; }
+
         [Required]
         [EmailAddress]
         public string Email { get; set; }
