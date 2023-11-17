@@ -31,7 +31,7 @@ namespace SadhanaApp.WebUI.Controllers
 
         [Authorize]
         public async Task<IActionResult> RecordSadhana()
-        {           
+        {
 
             var serviceTypes = await _context.ServiceTypes.ToListAsync();
 
@@ -276,8 +276,6 @@ namespace SadhanaApp.WebUI.Controllers
 
 
         // Display the Edit form
-        [HttpGet]
-        [Authorize]
         public async Task<IActionResult> Edit(int id)
         {
             var record = await _context.ChantingRecords.FindAsync(id);
@@ -285,25 +283,37 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 return RedirectToAction("Error", "Home");
             }
+
             ChantingViewModel model = _mapper.Map<ChantingViewModel>(record);
+
+            // If no service type is selected, set SelectedServiceTypeId to null or empty string
+            if (model.SelectedServiceTypeId == null || model.SelectedServiceTypeId == "other")
+            {
+                model.SelectedServiceTypeId = string.Empty;
+            }
 
             var serviceTypes = await _context.ServiceTypes.ToListAsync();
 
-            // Convert to SelectListItem
-            var serviceTypeList = serviceTypes.Select(st => new SelectListItem
+            // Convert to SelectListItem, adding the default option
+            var serviceTypeList = new List<SelectListItem>
+                {
+                    new SelectListItem { Value = string.Empty, Text = "--Select Service Type--" }
+                };
+
+            serviceTypeList.AddRange(serviceTypes.Select(st => new SelectListItem
             {
                 Value = st.ServiceTypeId.ToString(),
                 Text = st.ServiceName
-            }).ToList();
+            }));
 
             // Adding "Other" option manually
             serviceTypeList.Add(new SelectListItem { Value = "other", Text = "Other (Please Specify)" });
 
-            // Pass the list to the view
             ViewBag.ServiceTypeList = serviceTypeList;
 
             return View(model);
         }
+
 
         [HttpPost]
         [Authorize]
@@ -342,25 +352,25 @@ namespace SadhanaApp.WebUI.Controllers
             }
 
             if (!ModelState.IsValid)
-            {              
+            {
                 return View(viewModel); // Return the same view with validation messages
             }
 
-          
+
 
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             // Not required for Edit as use can update the same record
-           // if (int.TryParse(userIdString, out var userId) && userId > 0)
-           // {
-           //     bool recordExists = await _context.ChantingRecords
-           //.AnyAsync(cr => cr.Date.Date == viewModel.Date.Date && cr.UserId == userId);
-           //     if (recordExists)
-           //     {
-           //         ModelState.AddModelError("Date", "A record for this date already exists.");
-           //         return View(viewModel);
-           //     }
-           // }
+            // if (int.TryParse(userIdString, out var userId) && userId > 0)
+            // {
+            //     bool recordExists = await _context.ChantingRecords
+            //.AnyAsync(cr => cr.Date.Date == viewModel.Date.Date && cr.UserId == userId);
+            //     if (recordExists)
+            //     {
+            //         ModelState.AddModelError("Date", "A record for this date already exists.");
+            //         return View(viewModel);
+            //     }
+            // }
 
             if (!int.TryParse(userIdString, out var user) || user <= 0)
             {
@@ -391,12 +401,6 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 existingRecord.ServiceTypeId = serviceTypeId;
             }
-            else
-            {
-                ModelState.AddModelError("SelectedServiceTypeId", "Invalid Service Type selected.");
-                return View(viewModel);
-            }
-
             try
             {
                 await _context.SaveChangesAsync();
