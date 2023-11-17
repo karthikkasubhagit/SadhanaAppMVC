@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,10 +16,12 @@ namespace SadhanaApp.WebUI.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        public SadhanaController(AppDbContext context, IMapper mapper)
+        private readonly TelemetryClient _telemetryClient;
+        public SadhanaController(AppDbContext context, IMapper mapper, TelemetryClient telemetryClient)
         {
             _context = context;
             _mapper = mapper;
+            _telemetryClient = telemetryClient;
         }
 
         // Display the form to record chanting rounds
@@ -55,83 +58,97 @@ namespace SadhanaApp.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> RecordSadhana(ChantingViewModel viewModel)
         {
-            var serviceTypes = await _context.ServiceTypes.ToListAsync();
-
-            // Convert to SelectListItem, grouping by ServiceName
-            var serviceTypeList = serviceTypes
-                .GroupBy(st => st.ServiceName) // Group by ServiceName
-                .Select(g => new SelectListItem
-                {
-                    Value = g.First().ServiceTypeId.ToString(), // Use the ServiceTypeId of the first item in each group
-                    Text = g.Key // The key of the group is the ServiceName
-                })
-                .ToList();
-
-            // Adding "Other" option manually
-            serviceTypeList.Add(new SelectListItem { Value = "other", Text = "Other (Please Specify)" });
-            // Pass the list to the view
-            ViewBag.ServiceTypeList = serviceTypeList.Distinct();
-            ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (int.TryParse(userIdString, out var userId) && userId > 0)
+            try
             {
-                model.UserId = userId;
+                var serviceTypes = await _context.ServiceTypes.ToListAsync();
 
-                bool recordExists = await _context.ChantingRecords
-           .AnyAsync(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId);
-                if (recordExists)
-                {
-                    ModelState.AddModelError("Date", "A record for this date already exists.");
-                    return View(viewModel);
-                }
-
-                // Handle 'other' - new service type
-                if (string.IsNullOrWhiteSpace(viewModel.SelectedServiceTypeId))
-                {
-                    model.ServiceTypeId = null; // Set ServiceTypeId to null
-                }
-                else if (viewModel.SelectedServiceTypeId == "other")
-                {
-                    var serviceType = new ServiceType
+                // Convert to SelectListItem, grouping by ServiceName
+                var serviceTypeList = serviceTypes
+                    .GroupBy(st => st.ServiceName) // Group by ServiceName
+                    .Select(g => new SelectListItem
                     {
-                        ServiceName = viewModel.CustomServiceTypeInput
-                    };
-                    _context.ServiceTypes.Add(serviceType);
-                    await _context.SaveChangesAsync();
-                    model.ServiceTypeId = serviceType.ServiceTypeId;
+                        Value = g.First().ServiceTypeId.ToString(), // Use the ServiceTypeId of the first item in each group
+                        Text = g.Key // The key of the group is the ServiceName
+                    })
+                    .ToList();
 
-                    // Setting the navigation property to null to prevent tracking issues
-                    model.ServiceType = null;
-                }
-                else if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
+                // Adding "Other" option manually
+                serviceTypeList.Add(new SelectListItem { Value = "other", Text = "Other (Please Specify)" });
+                // Pass the list to the view
+                ViewBag.ServiceTypeList = serviceTypeList.Distinct();
+                ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(userIdString, out var userId) && userId > 0)
                 {
-                    model.ServiceTypeId = serviceTypeId;
+                    model.UserId = userId;
+
+                    bool recordExists = await _context.ChantingRecords
+               .AnyAsync(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId);
+                    if (recordExists)
+                    {
+                        ModelState.AddModelError("Date", "A record for this date already exists.");
+                        return View(viewModel);
+                    }
+
+                    // Handle 'other' - new service type
+                    if (string.IsNullOrWhiteSpace(viewModel.SelectedServiceTypeId))
+                    {
+                        model.ServiceTypeId = null; // Set ServiceTypeId to null
+                    }
+                    else if (viewModel.SelectedServiceTypeId == "other")
+                    {
+                        var serviceType = new ServiceType
+                        {
+                            ServiceName = viewModel.CustomServiceTypeInput
+                        };
+                        _context.ServiceTypes.Add(serviceType);
+                        await _context.SaveChangesAsync();
+                        model.ServiceTypeId = serviceType.ServiceTypeId;
+
+                        // Setting the navigation property to null to prevent tracking issues
+                        model.ServiceType = null;
+                    }
+                    else if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
+                    {
+                        model.ServiceTypeId = serviceTypeId;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("SelectedServiceTypeId", "Invalid Service Type selected.");
+                        return View(viewModel);
+                    }
+
+
+                    try
+                    {
+                        _context.ChantingRecords.Add(model);
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction("SadhanaHistory");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle or log the exception
+                        ModelState.AddModelError("", "An error occurred while saving the record: " + ex.Message);
+                    }
                 }
                 else
                 {
-                    ModelState.AddModelError("SelectedServiceTypeId", "Invalid Service Type selected.");
-                    return View(viewModel);
+                    ModelState.AddModelError("UserId", "Invalid UserId.");
                 }
 
-
-                try
-                {
-                    _context.ChantingRecords.Add(model);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("SadhanaHistory");
-                }
-                catch (Exception ex)
-                {
-                    // Handle or log the exception
-                    ModelState.AddModelError("", "An error occurred while saving the record: " + ex.Message);
-                }
+                return View(viewModel);
             }
-            else
+            catch (Exception ex)
             {
-                ModelState.AddModelError("UserId", "Invalid UserId.");
+                // Log the exception to Application Insights
+                _telemetryClient.TrackException(ex);
+
+                // Add a generic error message to ModelState
+                ModelState.AddModelError("", "An error occurred while processing your request.");
+
+                // Optionally, return a custom error view or the same view with the error message
+                return View(viewModel);
             }
-            
-            return View(viewModel);
         }
 
         // Display the chanting history of the user   
