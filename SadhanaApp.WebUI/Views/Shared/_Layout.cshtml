@@ -91,29 +91,20 @@
     </header>
     <div class="content-wrapper">
         <div class="container">
-            <main role="main" class="pb-3">
-
-                @if (TempData["error"] != null)
-                {
-                    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-                    <script type="text/javascript">
-                        toastr.success('@TempData["error"]')                    
-                    </script>
-                }
-
-                @if (TempData["success"] != null)
-                {
-                    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-                    <script type="text/javascript">
-                        toastr.success('@TempData["success"]')
-                    </script>
-                }
+            <main role="main" class="pb-3">   
+                <partial name="_Notification" />
                 @RenderBody()
             </main>
         </div>
     </div>
+
+    <footer class="border-top footer text-muted" style="color: #f8f9fa; background-color: #343a40;">
+        <div class="container text-center" style="font-size: 1.2em; font-weight: bold;">
+            Hare Krishna Hare Krishna Krishna Krishna Hare Hare
+            Hare Rama Hare Rama Rama Rama Hare Hare
+        </div>
+    </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>

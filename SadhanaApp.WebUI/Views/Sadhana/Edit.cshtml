@@ -50,21 +50,22 @@
         <input asp-for="HearingDurationInMinutes" class="form-control" />
     </div>
 
-    <div class="form-group">
-        <div class="form-floating py-1 col-12">
-            <select asp-for="SelectedServiceTypeId" asp-items="ViewBag.ServiceTypeList" class="form-control" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
-                <option value="">--Select Service Type--</option>
-            </select>
-            <label asp-for="SelectedServiceTypeId" class="ms-2">Service Type:</label>
-        </div>
-        <input id="customServiceTypeInput" asp-for="CustomServiceTypeInput" type="text" style="display:none;" class="form-control" />
+
+    <div class="form-floating py-1 col-12">
+        <select asp-for="SelectedServiceTypeId" asp-items="ViewBag.ServiceTypeList" class="form-control border shadow" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
+        </select>
+        <label asp-for="SelectedServiceTypeId" class="ms-2">Service Type:</label>
     </div>
 
 
-    <div class="form-group">
+    <div class="form-floating py-1 col-12" id="customServiceTypeContainer" style="display:none;">
+        <input asp-for="CustomServiceTypeInput" name="CustomServiceTypeInput" type="text" class="form-control border shadow" />
+        <label asp-for="CustomServiceTypeInput" class="ms-2">Custom Service Type</label>
+    </div>
+
         <label asp-for="ServiceDurationInMinutes">Service Duration (in minutes)</label>
         <input asp-for="ServiceDurationInMinutes" class="form-control" />
-    </div>
+    
 
     <div class="form-group">
         <label asp-for="Notes">Notes</label>
@@ -88,13 +89,14 @@
 <script>
     function toggleCustomServiceTypeInput() {
         var dropdown = document.getElementById('serviceDropdown');
+        var customServiceInputContainer = document.getElementById('customServiceTypeContainer');
         var customServiceInput = document.getElementById('customServiceTypeInput');
 
         if (dropdown.value === 'other') {
-            customServiceInput.style.display = 'block';
+            customServiceInputContainer.style.display = 'block';
             customServiceInput.required = true; // Make the field required
         } else {
-            customServiceInput.style.display = 'none';
+            customServiceInputContainer.style.display = 'none';
             customServiceInput.required = false; // Remove the required attribute
         }
     }
