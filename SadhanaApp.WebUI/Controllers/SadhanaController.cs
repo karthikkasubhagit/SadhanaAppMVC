@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Controller;
 using SadhanaApp.Domain;
 using SadhanaApp.WebUI.ViewModels;
 using System.Diagnostics;
@@ -17,18 +18,21 @@ namespace SadhanaApp.WebUI.Controllers
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly TelemetryClient _telemetryClient;
-        public SadhanaController(AppDbContext context, IMapper mapper, TelemetryClient telemetryClient)
+        private readonly ILogger<SadhanaController> _logger;
+        public SadhanaController(AppDbContext context, IMapper mapper, TelemetryClient telemetryClient, ILogger<SadhanaController> logger)
         {
             _context = context;
             _mapper = mapper;
             _telemetryClient = telemetryClient;
+            _logger = logger;
         }
 
         // Display the form to record chanting rounds
 
         [Authorize]
         public async Task<IActionResult> RecordSadhana()
-        {
+        {           
+
             var serviceTypes = await _context.ServiceTypes.ToListAsync();
 
             // Convert to SelectListItem, grouping by ServiceName
@@ -80,6 +84,7 @@ namespace SadhanaApp.WebUI.Controllers
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (int.TryParse(userIdString, out var userId) && userId > 0)
                 {
+                    _logger.LogInformation("Record is inserted by the {user} at {time}", userIdString, DateTime.UtcNow);
                     model.UserId = userId;
 
                     bool recordExists = await _context.ChantingRecords
