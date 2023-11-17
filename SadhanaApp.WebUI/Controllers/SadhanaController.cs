@@ -84,7 +84,7 @@ namespace SadhanaApp.WebUI.Controllers
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (int.TryParse(userIdString, out var userId) && userId > 0)
                 {
-                    _logger.LogInformation("Record is inserted by the {user} at {time}", userIdString, DateTime.UtcNow);
+                    //_logger.LogInformation("Record is inserted by the {user} at {time}", userIdString, DateTime.UtcNow);
                     model.UserId = userId;
 
                     bool recordExists = await _context.ChantingRecords
