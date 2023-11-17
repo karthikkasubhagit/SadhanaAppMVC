@@ -14,13 +14,13 @@
 
 <body>
     <header>
-    @{
-        var username = "";
-        if (User.Identity.IsAuthenticated)
-        {
-            username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+        @{
+            var username = "";
+            if (User.Identity.IsAuthenticated)
+            {
+                username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+            }           
         }
-    }
     @* <div class="center-right-image">
     <img src="~/images/small-image.jpg" alt="Prabhupada" />
     </div> *@
@@ -91,6 +91,23 @@
     <div class="content-wrapper">
         <div class="container">
             <main role="main" class="pb-3">
+
+                @if (TempData["error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @TempData["error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @if (TempData["success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @TempData["success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
                 @RenderBody()
             </main>
         </div>
@@ -100,6 +117,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.min.js" integrity="sha512-fHY2UiQlipUq0dEabSM4s+phmn+bcxSYzXP4vAXItBvBHU7zAM/mkhCZjtBEIJexhOMzZbgFlPLuErlJF2b+0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        window.setTimeout(function () {
+            $(".alert-dismissible").fadeTo(500, 0).slideUp(500, function () {
+                $(this).remove();
+            });
+        }, 4000);
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

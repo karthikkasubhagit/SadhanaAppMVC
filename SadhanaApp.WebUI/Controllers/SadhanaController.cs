@@ -127,6 +127,7 @@ namespace SadhanaApp.WebUI.Controllers
                     try
                     {
                         _context.ChantingRecords.Add(model);
+                        TempData["success"] = "Your chanting record has been created successfully.";
                         await _context.SaveChangesAsync();
                         return RedirectToAction("SadhanaHistory");
                     }
@@ -282,7 +283,7 @@ namespace SadhanaApp.WebUI.Controllers
             var record = await _context.ChantingRecords.FindAsync(id);
             if (record == null)
             {
-                return NotFound();
+                return RedirectToAction("Error", "Home");
             }
             ChantingViewModel model = _mapper.Map<ChantingViewModel>(record);
 
@@ -313,12 +314,13 @@ namespace SadhanaApp.WebUI.Controllers
                 var record = await _context.ChantingRecords.FindAsync(id);
                 if (record == null)
                 {
+                    TempData["error"] = "Your chanting record could not be found.";
                     return Json(new { success = false, message = "Record not found." });
                 }
 
                 _context.ChantingRecords.Remove(record);
                 await _context.SaveChangesAsync();
-
+                TempData["success"] = "Your chanting record has been deleted successfully.";
                 return Json(new { success = true });
             }
             catch (Exception ex)
@@ -398,6 +400,7 @@ namespace SadhanaApp.WebUI.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                TempData["success"] = "Your chanting record has been updated successfully.";
                 return RedirectToAction("SadhanaHistory");
             }
             catch (Exception ex)
