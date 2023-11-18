@@ -91,7 +91,7 @@ namespace SadhanaApp.WebUI.Controllers
                .AnyAsync(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId);
                     if (recordExists)
                     {
-                        ModelState.AddModelError("Date", "A record for this date already exists.");
+                        TempData["error"] = "A record for this date already exists.";
                         return View(viewModel);
                     }
 
