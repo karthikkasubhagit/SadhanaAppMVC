@@ -1,0 +1,91 @@
+﻿@{
+    ViewData["Title"] = "Help";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Sadhana Help & Instructions while creating a new record</h2>
+
+    <div class="accordion" id="helpAccordion">
+        <!-- Chanting Section -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingChanting">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChanting" aria-expanded="true" aria-controls="collapseChanting">
+                    Chanting
+                </button>
+            </h2>
+            <div id="collapseChanting" class="accordion-collapse collapse show" aria-labelledby="headingChanting">
+                <div class="accordion-body">
+                    <p>Maximum points are 72. For the rounds that you chant in mode goodness (till 8am) then you get 4.5 points for every round. For chanting in the time of mode of passion (8am to 6pm), you get 3 points for each round & aftre 6 pm which is in mode of ignorance, you get 1.5 points for each round.</p>
+                    <p>Idea is to complete 16 rounds in mode of goodness time. You accumulate more points on the Sadhana card if you do chanting in the morning.</p>
+                    <p>
+                        e.g. If you chant 10 rounds till 8 am, 4 rounds between 8am & 6pm & 2 rounds after 6 pm then please enter 10, 4 & 2 in the respective text boxes.
+                        This will give you 10 x 4.5= 45 for morning chanting + 4 x 3=12 for day chanting + 2 x 1.5= 3 for evening chanting. Over a period of time (say 6 months / 1 year) if you see your score is going up then that is an improvement in sadhana.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading & Hearing Section -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingReadingHearing">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReadingHearing" aria-expanded="false" aria-controls="collapseReadingHearing">
+                    Reading & Hearing
+                </button>
+            </h2>
+            <div id="collapseReadingHearing" class="accordion-collapse collapse" aria-labelledby="headingReadingHearing">
+                <div class="accordion-body">
+                    <p>Maximum points in this category is 18.</p>
+                    <p>If you don't do any reading/ hearing then there is a score of -20. The reason is that if you don't read or hear then you won't last very long on the path. We want to have a solid foundation of transcendental knowledge so that we remain fixed on the path.</p>
+                    <p>For the title - enter the book name or topic of lecture you heard. If you want to add more details then mention the scripture & verses as well. e.g. BG 18.66 - VVPS maharaj or SB 1.1.5 - Chowpatty</p>
+                    <p>It is not necessary to do both reading & hearing. The time gets added before it calculates the score. But do at least some reading of Srila Prabhupada's books instead of focusing on just hearing lectures.</p>
+                    <p>Less than 15 min gives you -20 score.  15 mis to 1 hour gives you 18 points linearly depending on the time spent.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Section -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingService">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseService" aria-expanded="false" aria-controls="collapseService">
+                    Service
+                </button>
+            </h2>
+            <div id="collapseService" class="accordion-collapse collapse" aria-labelledby="headingService">
+                <div class="accordion-body">
+                    <p>Maximum points in this category is 10.</p>
+                    <p>In the type text box enter the service name e.g. cleaning temple, garlands, cooking, serving prasadam, book distribution, giving lecture, deity worship, etc.</p>
+                    <p>Enter minutes per day that you spend on these activities in respective textbox</p>
+                    <p>Less than 15 mins, you get 0 points. 15 to 30 mins gives you 10 points linearly depending on the time spent.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingNotes">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNotes" aria-expanded="false" aria-controls="collapseNotes">
+                    Notes
+                </button>
+            </h2>
+            <div id="collapseNotes" class="accordion-collapse collapse" aria-labelledby="headingNotes">
+                <div class="accordion-body">
+                    <p>You can enter notes for the day in the provided space. This can be used to explain any sudden jump/fall in sadhana. E.g. Ekadashi, Sickness, etc.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingNotes">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNotes" aria-expanded="false" aria-controls="collapseNotes">
+                    Contact Us
+                </button>
+            </h2>
+            <div id="collapseNotes" class="accordion-collapse collapse" aria-labelledby="headingNotes">
+                <div class="accordion-body">
+                    <p>If you have any suggestions to improve this application, questions, or any kind of feedback, kindly contact us at <a href="mailto:iskonwebteamnz@gmail.com" target="_blank" rel="noopener noreferrer">iskonwebteamnz@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
