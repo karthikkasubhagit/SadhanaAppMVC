@@ -34,66 +34,50 @@
 
 <div class="accordion" id="recordsAccordion">
     <!-- Records Section -->
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingRecords">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRecords" aria-expanded="true" aria-controls="collapseRecords">
-                Your Sadhana Records
-            </button>
-        </h2>
-        <div id="collapseRecords" class="accordion-collapse collapse show" aria-labelledby="headingRecords" data-bs-parent="#recordsAccordion">
-            <div class="accordion-body">
-                <!-- Place Your Records Table Here -->
-                @if (Model.Records.Any())
-                {
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Morning Rounds</th>
-                                    <th>Day Rounds</th>
-                                    <th>Evening Rounds</th>
-                                    <th>Reading Duration</th>
-                                    <th>Hearing Duration</th>
-                                    <th>Service Duration</th>
-                                    <th>Total Points</th>
-                                    <th>Edit / Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var record in Model.Records)
-                                {
-                                    <tr>
-                                        <td>@record.Date.ToShortDateString()</td>
-                                        <td>@record.MorningRounds</td>
-                                        <td>@record.DayRounds</td>
-                                        <td>@record.EveningRounds</td>
-                                        <td>@record.ReadingDurationInMinutes</td>
-                                        <td>@record.HearingDurationInMinutes</td>
-                                        <td>@record.ServiceDurationInMinutes</td>
-                                        <td>@record.TotalScore</td>
-                                        <td>
-                                            <a asp-action="Edit" asp-route-id="@record.Id" class="btn btn-warning btn-sm me-1">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('@record.Id')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+    <div class="accordion" id="recordsAccordion">
+        <!-- Records Section -->
+        @if (Model.Records.Any())
+        {
+            foreach (var record in Model.Records)
+            {
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingRecord-@record.Id">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRecord-@record.Id" aria-expanded="false" aria-controls="collapseRecord-@record.Id">
+                            @record.Date.ToShortDateString() - @record.TotalScore Points
+                        </button>
+                    </h2>
+                    <div id="collapseRecord-@record.Id" class="accordion-collapse collapse" aria-labelledby="headingRecord-@record.Id" data-bs-parent="#recordsAccordion">
+                        <div class="accordion-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>Morning Rounds:</strong> @record.MorningRounds <br>
+                                    <strong>Day Rounds:</strong> @record.DayRounds <br>
+                                    <strong>Evening Rounds:</strong> @record.EveningRounds <br>
+                                    <strong>Reading Duration:</strong> @record.ReadingDurationInMinutes <br>
+                                    <strong>Hearing Duration:</strong> @record.HearingDurationInMinutes <br>
+                                    <strong>Service Duration:</strong> @record.ServiceDurationInMinutes <br>
+                                    <strong>Notes:</strong> @record.Notes
+                                </div>
+                                <div class="text-end">
+                                    <a asp-action="Edit" asp-route-id="@record.Id" class="btn btn-warning btn-sm me-1">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('@record.Id')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    <div class="alert alert-info">No records found.</div>
-                }
-            </div>
-        </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info">No records found.</div>
+        }
     </div>
+
 
 @if (Model.TotalRecords > Model.PageSize)
 {
