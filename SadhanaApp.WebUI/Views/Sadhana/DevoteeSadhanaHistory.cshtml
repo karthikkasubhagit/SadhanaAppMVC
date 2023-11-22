@@ -25,8 +25,14 @@
                 <thead>
                     <tr>
                         <th>Date</th>
+                        <th>Morning Rounds</th>
+                        <th>Day Rounds</th>
+                        <th>Evening Rounds</th>
+                        <th>Reading Duration</th>
+                        <th>Hearing Duration</th>
+                        <th>Service Duration</th>
                         <th>Total Points</th>
-                        <th>Details</th> <!-- Updated class -->
+                        <th>Details</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,24 +40,24 @@
                     {
                         <tr data-bs-toggle="collapse" data-bs-target="#details-@record.Id" aria-expanded="false" aria-controls="details-@record.Id">
                             <td>@record.Date.ToShortDateString()</td>
+                            <td>@record.MorningRounds</td>
+                            <td>@record.DayRounds</td>
+                            <td>@record.EveningRounds</td>
+                            <td>@record.ReadingDurationInMinutes</td>
+                            <td>@record.HearingDurationInMinutes</td>
+                            <td>@record.ServiceDurationInMinutes</td>
                             <td>@record.TotalScore</td>
                             <td>
-                                <button class="btn btn-outline-primary btn-sm">View Details</button> <!-- Updated class -->
+                                <button class="btn btn-outline-primary btn-sm">View Details</button> 
                             </td>
                         </tr>
                         <!-- Collapsible row for details -->
                         <tr id="details-@record.Id" class="collapse">
                             <td colspan="3">
                                 <div class="card card-body">
-                                    Morning Rounds: @record.MorningRounds <br>
-                                    Day Rounds: @record.DayRounds <br>
-                                    Evening Rounds: @record.EveningRounds <br>
                                     Reading Title: @record.ReadingTitle <br>
-                                    Reading Duration: @record.ReadingDurationInMinutes <br>
                                     Hearing Title: @record.HearingTitle <br>
-                                    Hearing Duration: @record.HearingDurationInMinutes <br>
-                                    Service Duration: @record.ServiceDurationInMinutes <br>
-                                    Service Type: @(record.ServiceType?.ServiceName ?? "N/A") <br>
+                                    Service Type: @(record.ServiceType?.ServiceName ?? "No Service Selected") <br>
                                     Notes: @record.Notes
                                 </div>
                             </td>
