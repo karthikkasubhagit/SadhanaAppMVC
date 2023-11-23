@@ -549,6 +549,33 @@ namespace SadhanaApp.WebUI.Controllers
             return user.DateRegistered;
         }
 
+        public async Task<IActionResult> GetReadingTitles(string term)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var readingTitles = await _context.ChantingRecords
+                                              .Where(c => c.UserId == int.Parse(userId) &&
+                                                          c.ReadingTitle.Contains(term))
+                                              .Select(c => c.ReadingTitle)
+                                              .Distinct()
+                                              .ToListAsync();
+
+            return Json(readingTitles);
+        }
+
+        public async Task<IActionResult> GetHearingTitles(string term)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var readingTitles = await _context.ChantingRecords
+                                              .Where(c => c.UserId == int.Parse(userId) &&
+                                                          c.HearingTitle.Contains(term))
+                                              .Select(c => c.ReadingTitle)
+                                              .Distinct()
+                                              .ToListAsync();
+
+            return Json(readingTitles);
+        }
 
     }
 }
