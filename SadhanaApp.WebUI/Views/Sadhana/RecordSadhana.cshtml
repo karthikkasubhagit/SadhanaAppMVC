@@ -110,5 +110,49 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function saveFormData() {
+            var formData = {
+                date: $('#Date').val(),
+                morningRounds: $('#MorningRounds').val(),
+                dayRounds: $('#DayRounds').val(),
+                eveningRounds: $('#EveningRounds').val(),
+                readingTitle: $('#ReadingTitle').val(),
+                readingDurationInMinutes: $('#ReadingDurationInMinutes').val(),
+                hearingTitle: $('#HearingTitle').val(),
+                hearingDurationInMinutes: $('#HearingDurationInMinutes').val(),
+                selectedServiceTypeId: $('#SelectedServiceTypeId').val(),
+                serviceDurationInMinutes: $('#ServiceDurationInMinutes').val(),
+                notes: $('#Notes').val(),
+            };
+            localStorage.setItem('sadhanaFormData', JSON.stringify(formData));
+        }
+
+        // Attach event listeners
+        $('#Date, #MorningRounds, #DayRounds, #EveningRounds, #ReadingTitle, #ReadingDurationInMinutes, #HearingTitle, #HearingDurationInMinutes, #SelectedServiceTypeId, #ServiceDurationInMinutes, #Notes').change(saveFormData);
+
+        $(document).ready(function () {
+            var savedData = localStorage.getItem('sadhanaFormData');
+            if (savedData) {
+                var formData = JSON.parse(savedData);
+                $('#Date').val(formData.date);
+                $('#MorningRounds').val(formData.morningRounds);
+                $('#DayRounds').val(formData.dayRounds);
+                $('#EveningRounds').val(formData.eveningRounds);
+                $('#ReadingTitle').val(formData.readingTitle);
+                $('#ReadingDurationInMinutes').val(formData.readingDurationInMinutes);
+                $('#HearingTitle').val(formData.hearingTitle);
+                $('#HearingDurationInMinutes').val(formData.hearingDurationInMinutes);
+                $('#SelectedServiceTypeId').val(formData.selectedServiceTypeId);
+                $('#ServiceDurationInMinutes').val(formData.serviceDurationInMinutes);
+                $('#Notes').val(formData.notes);
+            }
+        });
+
+        $("form").submit(function () {
+            localStorage.removeItem('sadhanaFormData');
+        });
+    </script>
 }
 
