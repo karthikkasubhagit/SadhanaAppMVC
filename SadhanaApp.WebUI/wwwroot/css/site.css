@@ -11,6 +11,12 @@
     padding: 5px 10px; /* Adds some space around the text for better visibility */
 }
 
+.sadhana-heading {
+    font-weight: bold;
+    color: #007bff; /* Example color, adjust as needed */
+}
+
+
 .username {
     font-weight: 700; /* Making username bold */
     color: #007BFF; /* Making username a different color, change as desired */

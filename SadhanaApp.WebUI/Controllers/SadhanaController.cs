@@ -185,6 +185,14 @@ namespace SadhanaApp.WebUI.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
+            var headingText = daysFilter switch
+            {
+                30 => "Last 30 Days",
+                100 => "Last 100 Days",
+                365 => "Last 365 Days",
+                _ => "Custom Date Range"
+            };
+
             // ViewModel to pass to the view
             var model = new SadhanaHistoryViewModel
             {
@@ -192,8 +200,10 @@ namespace SadhanaApp.WebUI.Controllers
                 TotalRecords = totalRecords,
                 CurrentPage = page,
                 PageSize = pageSize,
-                DaysFilter = daysFilter
+                DaysFilter = daysFilter,
+                HeadingText = headingText
             };
+
 
             return View(model);
         }
