@@ -10,7 +10,10 @@
 
     <div class="text-end mb-3">
         <a asp-action="Create" class="btn btn-primary">Add New Service Type</a>
-        <a asp-controller="Sadhana" asp-action="RecordSadhana" class="btn btn-secondary">Back to Sadhana Entry Form</a>
+        <div class="text-end mt-3">
+            <a href="javascript:void(0);" onclick="setReturnFlagAndNavigate()"> <i class="bi bi-arrow-left"></i>Back to Sadhana Entry Form</a>
+        </div>
+
     </div>
 
     <div class="table-responsive">
@@ -41,11 +44,20 @@
     </div>
 
     <div class="text-end mt-3">
-        <a asp-controller="Sadhana" asp-action="RecordSadhana" class="btn btn-secondary">Back to Sadhana Entry Form</a>
+        <a href="javascript:void(0);" onclick="setReturnFlagAndNavigate()"><i class="bi bi-arrow-return-left"></i>Back to Sadhana Entry Form</a>
     </div>
+
 </div>
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function setReturnFlagAndNavigate() {
+            localStorage.setItem('returningFromServiceTypes', 'true');
+            window.location.href = '@Url.Action("RecordSadhana", "Sadhana")';
+        }
+
+    </script>
     <!-- Include any additional scripts here -->
 }
