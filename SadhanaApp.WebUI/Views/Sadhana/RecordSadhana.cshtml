@@ -1,4 +1,5 @@
-﻿@model ChantingViewModel
+﻿@using System.Security.Claims
+@model ChantingViewModel
 
 @{
     ViewData["Title"] = "Sadhana History";
@@ -113,6 +114,7 @@
 
     <script>
         function saveFormData() {
+            var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
             var formData = {
                 date: $('#Date').val(),
                 morningRounds: $('#MorningRounds').val(),
@@ -126,34 +128,38 @@
                 serviceDurationInMinutes: $('#ServiceDurationInMinutes').val(),
                 notes: $('#Notes').val(),
             };
-            localStorage.setItem('sadhanaFormData', JSON.stringify(formData));
+            localStorage.setItem('sadhanaFormData' + userId, JSON.stringify(formData));
         }
 
         // Attach event listeners
         $('#Date, #MorningRounds, #DayRounds, #EveningRounds, #ReadingTitle, #ReadingDurationInMinutes, #HearingTitle, #HearingDurationInMinutes, #SelectedServiceTypeId, #ServiceDurationInMinutes, #Notes').change(saveFormData);
 
         $(document).ready(function () {
-            var savedData = localStorage.getItem('sadhanaFormData');
-            if (savedData) {
-                var formData = JSON.parse(savedData);
-                $('#Date').val(formData.date);
-                $('#MorningRounds').val(formData.morningRounds);
-                $('#DayRounds').val(formData.dayRounds);
-                $('#EveningRounds').val(formData.eveningRounds);
-                $('#ReadingTitle').val(formData.readingTitle);
-                $('#ReadingDurationInMinutes').val(formData.readingDurationInMinutes);
-                $('#HearingTitle').val(formData.hearingTitle);
-                $('#HearingDurationInMinutes').val(formData.hearingDurationInMinutes);
-                $('#SelectedServiceTypeId').val(formData.selectedServiceTypeId);
-                $('#ServiceDurationInMinutes').val(formData.serviceDurationInMinutes);
-                $('#Notes').val(formData.notes);
+            var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var returningFromServiceTypes = localStorage.getItem('returningFromServiceTypes');
+
+            if (returningFromServiceTypes === 'true') {
+                var savedData = localStorage.getItem('sadhanaFormData' + userId);
+                if (savedData) {
+                    var formData = JSON.parse(savedData);
+                    $('#Date').val(formData.date);
+                    $('#MorningRounds').val(formData.morningRounds);
+                    $('#DayRounds').val(formData.dayRounds);
+                    $('#EveningRounds').val(formData.eveningRounds);
+                    $('#ReadingTitle').val(formData.readingTitle);
+                    $('#ReadingDurationInMinutes').val(formData.readingDurationInMinutes);
+                    $('#HearingTitle').val(formData.hearingTitle);
+                    $('#HearingDurationInMinutes').val(formData.hearingDurationInMinutes);
+                    $('#SelectedServiceTypeId').val(formData.selectedServiceTypeId);
+                    $('#ServiceDurationInMinutes').val(formData.serviceDurationInMinutes);
+                    $('#Notes').val(formData.notes);                   
+                }
+                localStorage.removeItem('returningFromServiceTypes');
+            }
+            else {
+                localStorage.removeItem('sadhanaFormData' + userId);
             }
         });
-
-        $("form").submit(function () {
-            localStorage.removeItem('sadhanaFormData');
-        });
-
     </script>
 
 

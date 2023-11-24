@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+<!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 
 <head>
@@ -82,7 +83,7 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Account"
-                                    asp-action="Logout">Logout</a>
+                                   asp-action="Logout" onclick="clearUserData()">Logout</a>
                             </li>
                         }
                         <li class="nav-item">
@@ -110,6 +111,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.min.js" integrity="sha512-fHY2UiQlipUq0dEabSM4s+phmn+bcxSYzXP4vAXItBvBHU7zAM/mkhCZjtBEIJexhOMzZbgFlPLuErlJF2b+0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function clearUserData() {
+            localStorage.clear();
+        }
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 
