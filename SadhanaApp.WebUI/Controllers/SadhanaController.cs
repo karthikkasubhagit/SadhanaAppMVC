@@ -507,7 +507,7 @@ namespace SadhanaApp.WebUI.Controllers
             var readingTitles = await _context.ChantingRecords
                                               .Where(c => c.UserId == int.Parse(userId) &&
                                                           c.HearingTitle.Contains(term))
-                                              .Select(c => c.ReadingTitle)
+                                              .Select(c => c.HearingTitle)
                                               .Distinct()
                                               .ToListAsync();
 

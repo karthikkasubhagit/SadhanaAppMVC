@@ -16,10 +16,10 @@
     </div>
 
     <div class="card-body border p-4">
-        <form asp-action="RecordSadhana" method="post" class="row">             
+        <form asp-action="RecordSadhana" method="post" class="row">
             <div class="p-3">
                 <div class="form-floating py-1 col-12">
-                    <input asp-for="Date" type="date" class="form-control border shadow"/>
+                    <input asp-for="Date" type="date" class="form-control border shadow" />
                     <label asp-for="Date" class="ms-2"></label>
                     <span asp-validation-for="Date" class="text-danger"></span>
                 </div>
@@ -74,7 +74,7 @@
                 </div>
                 <div class="col-12 mt-2">
                     <small class="text-muted d-block mt-1">Add or edit service types if not listed.</small>
-                    <a href="@Url.Action("Index", "ServiceType")" class="btn btn-outline-primary btn-sm">Manage Service Types</a>                    
+                    <a href="@Url.Action("Index", "ServiceType")" class="btn btn-outline-primary btn-sm">Manage Service Types</a>
                 </div>
 
 
@@ -96,27 +96,25 @@
                 </div>
 
 
-            <div class="row pt-2">
-                <div class="col-6 col-md-3">
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="bi bi-check-circle"></i> Create
-                    </button>
-                </div>
-                <div class="col-6 col-md-3">
-                    <a asp-controller="Sadhana" asp-action="SadhanaHistory" class="btn btn-secondary w-100">
-                        <i class="bi bi-x-circle"></i> Cancel
-                    </a>
+                <div class="row pt-2">
+                    <div class="col-6 col-md-3">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-circle"></i> Create
+                        </button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a asp-controller="Sadhana" asp-action="SadhanaHistory" class="btn btn-secondary w-100">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
                 </div>
             </div>
-            </div>
-            
+
         </form>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script>
         function saveFormData() {
             var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -157,7 +155,7 @@
                     $('#HearingDurationInMinutes').val(formData.hearingDurationInMinutes);
                     $('#SelectedServiceTypeId').val(formData.selectedServiceTypeId);
                     $('#ServiceDurationInMinutes').val(formData.serviceDurationInMinutes);
-                    $('#Notes').val(formData.notes);                   
+                    $('#Notes').val(formData.notes);
                 }
                 localStorage.removeItem('returningFromServiceTypes');
             }
@@ -167,15 +165,12 @@
         });
     </script>
 
-
     <script>
         $(document).ready(function () {
-            $('#infoIconNotes').click(function () {
-                $('#notesInfoText').toggle();
-            });
+
             // Autocomplete for Reading Title
 
-            $("#readingTitle").autocomplete({
+            $("#ReadingTitle").autocomplete({
                 source: function (request, response) {
                     $.ajax({
                         url: '@Url.Action("GetReadingTitles", "Sadhana")',
@@ -201,12 +196,20 @@
 
             // Autocomplete for Hearing Title
             $("#HearingTitle").autocomplete({
-                source: '@Url.Action("GetHearingTitles", "Sadhana")', 
-                minLength: 2,
+                source: '@Url.Action("GetHearingTitles", "Sadhana")', // Adjust the URL as needed
+                minLength: 1,
                 select: function (event, ui) {
                     $(this).val(ui.item.value);
                     return false;
                 }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#infoIconNotes').click(function () {
+                $('#notesInfoText').toggle();
             });
         });
     </script>
