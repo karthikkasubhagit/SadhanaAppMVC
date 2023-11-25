@@ -46,8 +46,6 @@ namespace SadhanaApp.WebUI.Controllers
                 })
                 .ToList();
 
-            serviceTypeList.Add(new SelectListItem { Value = "other", Text = "Other (Please Specify)" });
-
             ViewBag.ServiceTypeList = serviceTypeList;
 
             var viewModel = new ChantingViewModel
@@ -77,7 +75,7 @@ namespace SadhanaApp.WebUI.Controllers
                     })
                     .ToList();
 
-                serviceTypeList.Add(new SelectListItem { Value = "other", Text = "Other (Please Specify)" });
+               
                 ViewBag.ServiceTypeList = serviceTypeList;
 
                 ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
@@ -95,20 +93,7 @@ namespace SadhanaApp.WebUI.Controllers
                 if (string.IsNullOrWhiteSpace(viewModel.SelectedServiceTypeId))
                 {
                     model.ServiceTypeId = null; // Set ServiceTypeId to null
-                }
-                else if (viewModel.SelectedServiceTypeId == "other")
-                {
-                    var serviceType = new ServiceType
-                    {
-                        ServiceName = viewModel.CustomServiceTypeInput,
-                        UserId = userId
-                    };
-                    _context.ServiceTypes.Add(serviceType);
-                    await _context.SaveChangesAsync();
-
-                    model.ServiceTypeId = serviceType.ServiceTypeId;
-                    model.ServiceType = null;
-                }
+                }               
                 else if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
                 {
                     model.ServiceTypeId = serviceTypeId;

@@ -73,8 +73,8 @@
                     <label asp-for="SelectedServiceTypeId" class="ms-2">Service Type:</label>
                 </div>
                 <div class="col-12 mt-2">
-                    <a href="@Url.Action("Index", "ServiceType")" class="btn btn-outline-primary btn-sm">Manage Service Types</a>
                     <small class="text-muted d-block mt-1">Add or edit service types if not listed.</small>
+                    <a href="@Url.Action("Index", "ServiceType")" class="btn btn-outline-primary btn-sm">Manage Service Types</a>                    
                 </div>
 
 
@@ -84,10 +84,15 @@
                     <span asp-validation-for="ServiceDurationInMinutes" class="text-danger"></span>
                 </div>
                 <div class="form-floating py-1 col-12">
-                    <textarea asp-for="Notes" class="form-control border shadow"></textarea>
-                    <label asp-for="Notes" class="ms-2">
-                        Notes (This space can be used to explain any sudden jump/fall in sadhana. E.g. Ekadashi, Sickness, etc.)
-                    </label>
+                    <textarea asp-for="Notes" class="form-control border shadow" id="NotesTextArea"></textarea>
+                    <label asp-for="Notes" class="ms-2">Notes</label>
+                </div>
+                <div class="col-12 mt-1">
+                    <i class="bi bi-info-circle" id="infoIconNotes" style="cursor: pointer;"></i>
+                    <small class="text-muted"> Click the icon for more information about this section.</small>
+                    <div id="notesInfoText" style="display: none;">
+                        <small class="text-muted">Use this space to explain any sudden jump/fall in sadhana, such as on Ekadashi, during sickness, etc.</small>
+                    </div>
                 </div>
 
 
@@ -165,7 +170,9 @@
 
     <script>
         $(document).ready(function () {
-
+            $('#infoIconNotes').click(function () {
+                $('#notesInfoText').toggle();
+            });
             // Autocomplete for Reading Title
 
             $("#readingTitle").autocomplete({
@@ -194,7 +201,7 @@
 
             // Autocomplete for Hearing Title
             $("#HearingTitle").autocomplete({
-                source: '@Url.Action("GetHearingTitles", "YourController")', // Adjust the URL as needed
+                source: '@Url.Action("GetHearingTitles", "Sadhana")', 
                 minLength: 2,
                 select: function (event, ui) {
                     $(this).val(ui.item.value);
@@ -203,5 +210,6 @@
             });
         });
     </script>
+
 }
 
