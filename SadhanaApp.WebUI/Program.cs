@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics;
@@ -8,6 +10,7 @@ using System;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -16,12 +19,27 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LogoutPath = "/Account/Logout";
     });
 
+
+// Add Key Vault to the configuration pipeline get it from App settings
+var keyVaultEndpoint = new Uri(builder.Configuration["KeyVaultEndpoint"]);
+// Create a new secret client using the default credential from Azure.Identity using environment variables previously set
+var secretClient = new SecretClient(vaultUri: keyVaultEndpoint, credential: new DefaultAzureCredential());
+
+// Get the secret we created previously
+KeyVaultSecret secret = secretClient.GetSecret("SadhanaSqlConnection");  // Azure SQL
+
+//KeyVaultSecret secret = secretClient.GetSecret("DevConnection");  // Local SQL
+
+
+
+
 builder.Services.AddApplicationInsightsTelemetry();
 // Access the configuration from the builder.
-var configuration = builder.Configuration;
+//var configuration = builder.Configuration;
+//var check = configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(secret.Value));
 
 builder.Services.AddAutoMapper(typeof(Program));
 var app = builder.Build();
