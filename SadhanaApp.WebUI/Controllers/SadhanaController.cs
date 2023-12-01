@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -17,13 +16,11 @@ namespace SadhanaApp.WebUI.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly TelemetryClient _telemetryClient;
         private readonly ILogger<SadhanaController> _logger;
-        public SadhanaController(AppDbContext context, IMapper mapper, TelemetryClient telemetryClient, ILogger<SadhanaController> logger)
+        public SadhanaController(AppDbContext context, IMapper mapper, ILogger<SadhanaController> logger)
         {
             _context = context;
             _mapper = mapper;
-            _telemetryClient = telemetryClient;
             _logger = logger;
         }
 
@@ -32,6 +29,7 @@ namespace SadhanaApp.WebUI.Controllers
         [Authorize]
         public async Task<IActionResult> RecordSadhana()
         {
+            _logger.LogInformation("Entering RecordSadhana action method.");
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             var serviceTypes = await _context.ServiceTypes
@@ -112,7 +110,6 @@ namespace SadhanaApp.WebUI.Controllers
             }
             catch (Exception ex)
             {
-                _telemetryClient.TrackException(ex);
                 ModelState.AddModelError("", "An error occurred while processing your request.");
                 return View(viewModel);
             }

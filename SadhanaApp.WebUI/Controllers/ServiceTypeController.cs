@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using SadhanaApp.Domain;
 using System.Security.Claims;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace SadhanaApp.WebUI.Controllers
 {
