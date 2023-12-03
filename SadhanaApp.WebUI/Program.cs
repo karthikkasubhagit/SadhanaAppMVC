@@ -10,6 +10,8 @@ using SadhanaApp.WebUI.Middleware;
 using Serilog;
 using System;
 using System.Net;
+using Microsoft.AspNetCore.Authentication.Google;
+
 
 
 // Configure Serilog with the settings
@@ -24,6 +26,17 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
     var configuration = builder.Configuration;
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+        .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+        {
+            options.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientId").Value;
+            options.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
+        });
 
     builder.Services.AddApplicationInsightsTelemetry();
 
@@ -59,9 +72,9 @@ try
     var secretClient = new SecretClient(vaultUri: keyVaultEndpoint, credential: new DefaultAzureCredential());
 
     // Get the secret we created previously
-    KeyVaultSecret secret = secretClient.GetSecret("SadhanaSqlConnection");  // Azure SQL
+   // KeyVaultSecret secret = secretClient.GetSecret("SadhanaSqlConnection");  // Azure SQL
 
-    //KeyVaultSecret secret = secretClient.GetSecret("DevConnection");  // Local SQL
+    KeyVaultSecret secret = secretClient.GetSecret("DevConnection");  // Local SQL
 
     // Access the configuration from the builder.
     //var configuration = builder.Configuration;

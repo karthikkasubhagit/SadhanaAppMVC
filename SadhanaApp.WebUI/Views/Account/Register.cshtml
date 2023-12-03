@@ -61,32 +61,3 @@
         <button type="submit" class="btn btn-primary btn-block">Register</button>
     </form>
 </div>
-@* 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var isShikshaGuruRadios = document.querySelectorAll("[name='IsShikshaGuru']");
-        var shikshaGuruDropdown = document.getElementById("shikshaGuruDropdown");
-
-        // Initial check
-        Array.prototype.forEach.call(isShikshaGuruRadios, function (radio) {
-            if (radio.checked) {
-                toggleShikshaGuruDropdown(radio.value);
-            }
-        });
-
-        // Listen for changes on the IsShikshaGuru radios
-        Array.prototype.forEach.call(isShikshaGuruRadios, function (radio) {
-            radio.addEventListener("change", function () {
-                toggleShikshaGuruDropdown(this.value);
-            });
-        });
-
-        function toggleShikshaGuruDropdown(value) {
-            if (value === "false") {
-                shikshaGuruDropdown.style.display = "block";
-            } else {
-                shikshaGuruDropdown.style.display = "none";
-            }
-        }
-    });
-</script> *@

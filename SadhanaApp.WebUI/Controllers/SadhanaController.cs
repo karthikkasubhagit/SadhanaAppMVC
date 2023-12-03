@@ -121,50 +121,58 @@ namespace SadhanaApp.WebUI.Controllers
         [Authorize]
         public async Task<IActionResult> SadhanaHistory(int daysFilter = 30, int page = 1, int pageSize = 10)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            // Ensure userId is not null before proceeding
-            if (userId == null)
+            try
             {
-                return RedirectToAction("Login", "Account");
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                // Ensure userId is not null before proceeding
+                if (userId == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Define the date range based on filter
+                var startDate = DateTime.Today.AddDays(-daysFilter);
+                var endDate = DateTime.Today;
+
+                var recordsQuery = _context.ChantingRecords
+               .Where(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate);
+
+
+                // Pagination
+                var totalRecords = await recordsQuery.CountAsync();
+                var records = await recordsQuery
+                    .OrderByDescending(c => c.Date)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                var headingText = daysFilter switch
+                {
+                    30 => "Last 30 Days",
+                    100 => "Last 100 Days",
+                    365 => "Last 365 Days",
+                    _ => "Custom Date Range"
+                };
+
+                // ViewModel to pass to the view
+                var model = new SadhanaHistoryViewModel
+                {
+                    Records = records,
+                    TotalRecords = totalRecords,
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    DaysFilter = daysFilter,
+                    HeadingText = headingText
+                };
+
+
+                return View(model);
             }
-
-            // Define the date range based on filter
-            var startDate = DateTime.Today.AddDays(-daysFilter);
-            var endDate = DateTime.Today;
-
-            var recordsQuery = _context.ChantingRecords
-           .Where(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate);
-
-
-            // Pagination
-            var totalRecords = await recordsQuery.CountAsync();
-            var records = await recordsQuery
-                .OrderByDescending(c => c.Date)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var headingText = daysFilter switch
+            catch(Exception e)
             {
-                30 => "Last 30 Days",
-                100 => "Last 100 Days",
-                365 => "Last 365 Days",
-                _ => "Custom Date Range"
-            };
-
-            // ViewModel to pass to the view
-            var model = new SadhanaHistoryViewModel
-            {
-                Records = records,
-                TotalRecords = totalRecords,
-                CurrentPage = page,
-                PageSize = pageSize,
-                DaysFilter = daysFilter,
-                HeadingText = headingText
-            };
-
-
-            return View(model);
+                _logger.LogError(e, "Error in SadhanaHistory action method.");
+                throw;
+            }
         }
 
         // If the user is an instructor, display the chanting history of their students
