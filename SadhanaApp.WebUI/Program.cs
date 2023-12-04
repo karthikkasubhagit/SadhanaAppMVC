@@ -67,21 +67,45 @@ try
 
 
     // Add Key Vault to the configuration pipeline get it from App settings
-    var keyVaultEndpoint = new Uri(builder.Configuration["KeyVaultEndpoint"]);
+    //  var keyVaultEndpoint = new Uri(builder.Configuration["KeyVaultEndpoint"]);
     // Create a new secret client using the default credential from Azure.Identity using environment variables previously set
-    var secretClient = new SecretClient(vaultUri: keyVaultEndpoint, credential: new DefaultAzureCredential());
+    // var secretClient = new SecretClient(vaultUri: keyVaultEndpoint, credential: new DefaultAzureCredential());
 
     // Get the secret we created previously
-   // KeyVaultSecret secret = secretClient.GetSecret("SadhanaSqlConnection");  // Azure SQL
+    // KeyVaultSecret secret = secretClient.GetSecret("SadhanaSqlConnection");  // Azure SQL
 
-    KeyVaultSecret secret = secretClient.GetSecret("DevConnection");  // Local SQL
+    // KeyVaultSecret secret = secretClient.GetSecret("DevConnection");  // Local SQL
 
     // Access the configuration from the builder.
     //var configuration = builder.Configuration;
     //var check = configuration.GetConnectionString("DefaultConnection");
 
-    builder.Services.AddDbContext<AppDbContext>(options =>
+    /*builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(secret.Value));
+    */
+
+    // Determine the environment
+    var environment = builder.Environment;
+
+    // Get the connection string based on the environment
+    string connectionString;
+
+    if (environment.IsDevelopment())
+    {
+        // For local development, use Secret Manager
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    }
+    else
+    {
+        // For production, use Azure Key Vault
+        var keyVaultEndpoint = new Uri(builder.Configuration["KeyVaultEndpoint"]);
+        var secretClient = new SecretClient(vaultUri: keyVaultEndpoint, credential: new DefaultAzureCredential());
+        KeyVaultSecret secret = secretClient.GetSecret("SadhanaSqlConnection");
+        connectionString = secret.Value;
+    }
+
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(connectionString));
 
     builder.Services.AddAutoMapper(typeof(Program));
     var app = builder.Build();
