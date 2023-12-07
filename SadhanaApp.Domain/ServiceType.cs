@@ -1,8 +1,12 @@
-﻿namespace SadhanaApp.Domain
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SadhanaApp.Domain
 {
     public class ServiceType
     {
         public int ServiceTypeId { get; set; }
+
+        [Required(ErrorMessage = "ServiceName is a mandatory field")]
         public string? ServiceName { get; set; }
 
         // Foreign key for User

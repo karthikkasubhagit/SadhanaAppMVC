@@ -42,34 +42,41 @@ namespace SadhanaApp.WebUI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ServiceType serviceType)
         {
-            ModelState.Remove("UserId");
-            ModelState.Remove("User");
+            try
+            {
+                ModelState.Remove("UserId");
+                ModelState.Remove("User");
 
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            serviceType.UserId = userId;
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                serviceType.UserId = userId;
 
-            if (ModelState.IsValid)
-            {          
-                // Check for duplicates within the user's service types
-                bool recordExists = await _context.ServiceTypes
-                    .AnyAsync(st => st.ServiceName.Trim().Equals(serviceType.ServiceName.Trim())
-                                    && st.UserId == userId);
-                if (recordExists)
+                if (ModelState.IsValid)
                 {
-                    TempData["error"] = "This service type already exists.";
-                    return View(serviceType);
+                    // Check for duplicates within the user's service types
+                    bool recordExists = await _context.ServiceTypes
+                        .AnyAsync(st => st.ServiceName.Trim().Equals(serviceType.ServiceName.Trim())
+                                        && st.UserId == userId);
+                    if (recordExists)
+                    {
+                        TempData["error"] = "This service type already exists.";
+                        return View(serviceType);
+                    }
+
+                    // Add the new service type
+                    _context.ServiceTypes.Add(serviceType);
+                    await _context.SaveChangesAsync();
+
+                    TempData["success"] = "A new service type has been created successfully.";
+                    return RedirectToAction(nameof(Index));
                 }
 
-                // Add the new service type
-                _context.ServiceTypes.Add(serviceType);
-                await _context.SaveChangesAsync();
-
-                TempData["success"] = "A new service type has been created successfully.";
-                return RedirectToAction(nameof(Index));
+                // If model state is not valid, return the same view to the user for correction
+                return View(serviceType);
             }
-
-            // If model state is not valid, return the same view to the user for correction
-            return View(serviceType);
+            catch(Exception e)
+            {
+                throw;
+            }
         }
 
 
