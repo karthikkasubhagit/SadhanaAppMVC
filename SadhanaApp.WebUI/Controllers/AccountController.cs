@@ -158,7 +158,7 @@ namespace SadhanaApp.WebUI.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentityNewUser));
 
-                return RedirectToAction("SadhanaHistory", "Sadhana");
+                return RedirectToAction("Index", "Home");
             }
 
             if (user == null)
@@ -301,7 +301,7 @@ namespace SadhanaApp.WebUI.Controllers
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                    return RedirectToAction("SadhanaHistory", "Sadhana");
+                    return RedirectToAction("Index", "Home");
                 }
 
                 ModelState.AddModelError("", "Invalid login attempt, Please try again.");
