@@ -68,7 +68,9 @@
                                    asp-action="StudentProgressGraph">Students Graph</a>
                             </li>
                         }
-
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Help" asp-action="Index">Help & Instructions</a>
+                        </li>
                         @if (!Context.User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
@@ -87,9 +89,7 @@
                                    asp-action="Logout" onclick="clearUserData()">Logout</a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Help" asp-action="Index">Help & Instructions</a>
-                        </li>
+                        
                     </ul>
                 </div>
             </div>

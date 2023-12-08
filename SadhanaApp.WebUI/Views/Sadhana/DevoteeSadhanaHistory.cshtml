@@ -9,77 +9,73 @@
 
 <label for="devoteeDropdown">Select a Devotee:</label>
 <select id="devoteeDropdown" class="form-control">
-    <option value="">-- All Devotees --</option>
+    <option value="">-- Select a Devotee --</option>
     @foreach (var devotee in Model)
     {
         <option value="@devotee.UserId">@devotee.FirstName @devotee.LastName</option>
     }
 </select>
 
-@foreach (var devotee in Model)
-{
-    <div class="devotee-section" data-devotee-id="@devotee.UserId">
-        <h3>@devotee.FirstName @devotee.LastName's Records</h3>
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Morning Rounds</th>
-                        <th>Day Rounds</th>
-                        <th>Evening Rounds</th>
-                        <th>Reading Duration</th>
-                        <th>Hearing Duration</th>
-                        <th>Service Duration</th>
-                        <th>Total Points</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var record in devotee.ChantingRecords)
-                    {
-                        <tr data-bs-toggle="collapse" data-bs-target="#details-@record.Id" aria-expanded="false" aria-controls="details-@record.Id">
-                            <td>@record.Date.ToShortDateString()</td>
-                            <td>@record.MorningRounds</td>
-                            <td>@record.DayRounds</td>
-                            <td>@record.EveningRounds</td>
-                            <td>@record.ReadingDurationInMinutes</td>
-                            <td>@record.HearingDurationInMinutes</td>
-                            <td>@record.ServiceDurationInMinutes</td>
-                            <td>@record.TotalScore</td>
-                            <td>
-                                <button class="btn btn-outline-primary btn-sm">View Details</button> 
-                            </td>
-                        </tr>
-                        <!-- Collapsible row for details -->
-                        <tr id="details-@record.Id" class="collapse">
-                            <td colspan="3">
-                                <div class="card card-body">
-                                    Reading Title: @record.ReadingTitle <br>
-                                    Hearing Title: @record.HearingTitle <br>
-                                    Service Type: @(record.ServiceType?.ServiceName ?? "No Service Selected") <br>
-                                    Notes: @record.Notes
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-}
+<div id="chantingRecords"></div>
 
-<script>
-    document.getElementById("devoteeDropdown").addEventListener("change", function () {
-        var selectedDevoteeId = this.value;
-        var sections = document.querySelectorAll(".devotee-section");
+@section Scripts {
+    <script>
+        function formatDate(dateString) {
+            var date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
 
-        sections.forEach(function (section) {
-            if (selectedDevoteeId === "" || section.getAttribute("data-devotee-id") === selectedDevoteeId) {
-                section.style.display = "block";
+        document.getElementById("devoteeDropdown").addEventListener("change", function () {
+            var selectedDevoteeId = this.value;
+            if (selectedDevoteeId) {
+                fetch(`/Sadhana/GetDevoteeChantingRecords?devoteeId=${selectedDevoteeId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        var recordsDiv = document.getElementById('chantingRecords');
+                        recordsDiv.innerHTML = '';
+                        if (data && data.length > 0) {
+                            var table = '<table class="table table-responsive"><thead><tr><th>Date</th><th>Morning Rounds</th><th>Day Rounds</th><th>Evening Rounds</th><th>Reading Duration</th><th>Hearing Duration</th><th>Service Duration</th><th>Total Points</th><th>Details</th></tr></thead><tbody>';
+                            data.forEach((record, index) => {
+                                table += `
+                                            <tr data-bs-toggle="collapse" data-bs-target="#details-${index}" aria-expanded="false" aria-controls="details-${index}">
+                                                <td>${formatDate(record.date)}</td>
+                                                <td>${record.morningRounds}</td>
+                                                <td>${record.dayRounds}</td>
+                                                <td>${record.eveningRounds}</td>
+                                                <td>${record.readingDurationInMinutes}</td>
+                                                <td>${record.hearingDurationInMinutes}</td>
+                                                <td>${record.serviceDurationInMinutes}</td>
+                                                <td>${record.totalScore}</td>
+                                                <td><button class="btn btn-outline-primary btn-sm">View Details</button></td>
+                                            </tr>
+                                            <tr id="details-${index}" class="collapse">
+                                                <td colspan="9">
+                                                    <div class="card card-body">
+                                                        Reading Title: ${record.readingTitle || 'N/A'} <br>
+                                                        Hearing Title: ${record.hearingTitle || 'N/A'} <br>
+                                                        Service Type: ${record.serviceType?.serviceName || 'No Service Selected'} <br>
+                                                        Notes: ${record.notes || 'N/A'}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `;
+                            });
+                            table += '</tbody></table>';
+                            recordsDiv.innerHTML = table;
+                        } else {
+                            recordsDiv.innerHTML = '<p>No records found for the selected devotee.</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('chantingRecords').innerHTML = '<p>An error occurred while fetching records.</p>';
+                    });
             } else {
-                section.style.display = "none";
+                document.getElementById('chantingRecords').innerHTML = '';
             }
         });
-    });
-</script>
+    </script>
+}
+
+
+
