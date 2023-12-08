@@ -145,7 +145,12 @@
                 var savedData = localStorage.getItem('sadhanaFormData' + userId);
                 if (savedData) {
                     var formData = JSON.parse(savedData);
-                    $('#Date').val(formData.date);
+                    var savedDate = new Date(formData.date);
+                    var currentDate = new Date();
+                    // Check if the saved date is today's date
+                    if (savedDate.setHours(0, 0, 0, 0) === currentDate.setHours(0, 0, 0, 0)) {
+                        $('#Date').val(formData.date);
+                    }
                     $('#MorningRounds').val(formData.morningRounds);
                     $('#DayRounds').val(formData.dayRounds);
                     $('#EveningRounds').val(formData.eveningRounds);
