@@ -50,7 +50,7 @@ namespace SadhanaApp.WebUI.Controllers
 
                 var viewModel = new ChantingViewModel
                 {
-                    Date = DateTime.Today
+                    Date = GetNewZealandTime()
                 };
 
                 return View(viewModel);
@@ -60,6 +60,12 @@ namespace SadhanaApp.WebUI.Controllers
                 _logger.LogError(ex, "Error occurred in RecordSadhana method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 return RedirectToAction("Error", "Home");
             }
+        }
+
+        private DateTime GetNewZealandTime()
+        {
+            var nzTimeZone = TimeZoneInfo.FindSystemTimeZoneById("New Zealand Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, nzTimeZone);
         }
 
         [Authorize]
@@ -81,7 +87,7 @@ namespace SadhanaApp.WebUI.Controllers
                     })
                     .ToList();
 
-               
+
                 ViewBag.ServiceTypeList = serviceTypeList;
 
                 ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
@@ -99,7 +105,7 @@ namespace SadhanaApp.WebUI.Controllers
                 if (string.IsNullOrWhiteSpace(viewModel.SelectedServiceTypeId))
                 {
                     model.ServiceTypeId = null; // Set ServiceTypeId to null
-                }               
+                }
                 else if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
                 {
                     model.ServiceTypeId = serviceTypeId;
@@ -118,11 +124,11 @@ namespace SadhanaApp.WebUI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred in RecordSadhana method post operation for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
-                ModelState.AddModelError("", "An error occurred while processing your request.");
-                return View(viewModel);
+                _logger.LogError(ex, "Error occurred in RecordSadhana post method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                return RedirectToAction("Error", "Home");
             }
         }
+
 
 
         // Display the chanting history of the user   
@@ -141,7 +147,7 @@ namespace SadhanaApp.WebUI.Controllers
 
                 // Define the date range based on filter
                 var startDate = DateTime.Today.AddDays(-daysFilter);
-                var endDate = DateTime.Today;
+                var endDate = GetNewZealandTime();
 
                 var recordsQuery = _context.ChantingRecords
                .Where(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate);

@@ -33,7 +33,7 @@ public class ChantingRecord
     [Range(0, 500)]
     public int? ServiceDurationInMinutes { get; set; }
 
-    [MaxLength(100)]
+    [MaxLength(400)]
     public string? Notes { get; set; }
 
     public DateTime? CreatedDate { get; set; }
