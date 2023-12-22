@@ -29,6 +29,9 @@ namespace SadhanaApp.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -48,7 +51,8 @@ namespace SadhanaApp.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
 
                     b.Property<int?>("ReadingDurationInMinutes")
                         .HasColumnType("int");
@@ -62,17 +66,106 @@ namespace SadhanaApp.Persistence.Migrations
                     b.Property<int?>("ServiceDurationInMinutes")
                         .HasColumnType("int");
 
-                    b.Property<string>("ServiceType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("ServiceTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ServiceTypeId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("ChantingRecords");
+                });
+
+            modelBuilder.Entity("SadhanaApp.Domain.ServiceType", b =>
+                {
+                    b.Property<int>("ServiceTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceTypeId"));
+
+                    b.Property<string>("ServiceName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ServiceTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ServiceTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            ServiceTypeId = 1,
+                            ServiceName = "Cleaning Temple",
+                            UserId = 0
+                        },
+                        new
+                        {
+                            ServiceTypeId = 2,
+                            ServiceName = "Garlands",
+                            UserId = 0
+                        },
+                        new
+                        {
+                            ServiceTypeId = 3,
+                            ServiceName = "Cooking",
+                            UserId = 0
+                        },
+                        new
+                        {
+                            ServiceTypeId = 4,
+                            ServiceName = "Serving Prasadam",
+                            UserId = 0
+                        },
+                        new
+                        {
+                            ServiceTypeId = 5,
+                            ServiceName = "Book Distribution",
+                            UserId = 0
+                        },
+                        new
+                        {
+                            ServiceTypeId = 6,
+                            ServiceName = "Giving Lecture",
+                            UserId = 0
+                        },
+                        new
+                        {
+                            ServiceTypeId = 7,
+                            ServiceName = "Deity Worship",
+                            UserId = 0
+                        },
+                        new
+                        {
+                            ServiceTypeId = 8,
+                            ServiceName = "Voice Program Lecture",
+                            UserId = 0
+                        },
+                        new
+                        {
+                            ServiceTypeId = 9,
+                            ServiceName = "Voice Program Service",
+                            UserId = 0
+                        },
+                        new
+                        {
+                            ServiceTypeId = 10,
+                            ServiceName = "Digital Service",
+                            UserId = 0
+                        });
                 });
 
             modelBuilder.Entity("User", b =>
@@ -121,8 +214,25 @@ namespace SadhanaApp.Persistence.Migrations
 
             modelBuilder.Entity("ChantingRecord", b =>
                 {
+                    b.HasOne("SadhanaApp.Domain.ServiceType", "ServiceType")
+                        .WithMany()
+                        .HasForeignKey("ServiceTypeId");
+
                     b.HasOne("User", "User")
                         .WithMany("ChantingRecords")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceType");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SadhanaApp.Domain.ServiceType", b =>
+                {
+                    b.HasOne("User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

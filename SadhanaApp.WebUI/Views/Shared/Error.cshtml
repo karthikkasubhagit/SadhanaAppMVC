@@ -1,25 +1,10 @@
-﻿@model ErrorViewModel
-@{
-    ViewData["Title"] = "Error";
-}
-
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
-
-@if (Model.ShowRequestId)
-{
+﻿<div style="text-align: center;">
+    <img src="~/images/notfound.jpg" width="100%" alt="Error Page Image" />
     <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+        Please <a href="@Url.Action("Index", "Home")">click here</a> to return to the homepage.
     </p>
-}
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+    <p>
+        If the problem persists, please contact the website administrator at <a href="mailto:sadhanaspprtskcn@gmail.com" target="_blank" rel="noopener noreferrer">sadhanaspprtskcn@gmail.com</a>
+    </p>
+</div>

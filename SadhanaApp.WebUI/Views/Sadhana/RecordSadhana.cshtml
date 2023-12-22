@@ -1,67 +1,223 @@
-﻿@model ChantingRecord
+﻿@using System.Security.Claims
+@model ChantingViewModel
 
 @{
     ViewData["Title"] = "Sadhana History";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
-<h2>Record Your entries</h2>
-
-<form asp-action="RecordSadhana" method="post">
-    <div class="form-group">
-        <label>Date:</label>
-        <input asp-for="Date" type="date" class="form-control" required />
-    </div>
-    <div class="form-group">
-        <label>Chanted Rounds in the Morning (till 8am):</label>
-        <input asp-for="MorningRounds" type="number" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Chanted Rounds during the Day (8am to 6pm):</label>
-        <input asp-for="DayRounds" type="number" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Chanted Rounds in the Evening (after 6pm):</label>
-        <input asp-for="EveningRounds" type="number" class="form-control" />
+<div class="w-100 card border-0 p-4">
+    <div class="card-header bg-success bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Record Your Entry</h2>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label>Reading Title:</label>
-        <input asp-for="ReadingTitle" type="text" class="form-control" />
-    </div>
+    <div class="card-body border p-4">
+        <form asp-action="RecordSadhana" method="post" class="row">
+            <div class="p-3">
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="Date" type="date" class="form-control border shadow" />
+                    <label asp-for="Date" class="ms-2"></label>
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
 
-    <div class="form-group">
-        <label>Reading Duration (in minutes)</label>
-        <input asp-for="ReadingDurationInMinutes" class="form-control" type="number" />
-    </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="MorningRounds" type="number" class="form-control border shadow" />
+                    <label asp-for="MorningRounds" class="ms-2">Chanted Rounds in the Morning (till 8am):</label>
+                    <span asp-validation-for="MorningRounds" class="text-danger"></span>
+                </div>
 
-    <div class="form-group">
-        <label>Hearing Title:</label>
-        <input asp-for="HearingTitle" type="text" class="form-control" />
-    </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="DayRounds" type="number" class="form-control border shadow" />
+                    <label asp-for="DayRounds" class="ms-2">Chanted Rounds during the Day (8am to 6pm):</label>
+                    <span asp-validation-for="DayRounds" class="text-danger"></span>
+                </div>
 
-    <div class="form-group">
-        <label>Hearing Duration (in minutes)</label>
-        <input asp-for="HearingDurationInMinutes" class="form-control" type="number" />
-    </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="EveningRounds" type="number" class="form-control border shadow" />
+                    <label asp-for="EveningRounds" class="ms-2">Chanted Rounds in the Evening (after 6pm):</label>
+                    <span asp-validation-for="EveningRounds" class="text-danger"></span>
+                </div>
 
-    <div class="form-group">
-        <label>Service Type : (e.g. cleaning temple, garlands, cooking, serving prasadam, book distribution, giving
-            lecture, deity worship, etc)</label>
-        <input asp-for="ServiceType" type="text" class="form-control" />
-    </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="ReadingTitle" type="text" class="form-control border shadow" />
+                    <label asp-for="ReadingTitle" class="ms-2">Reading Title:</label>
+                </div>
 
-    <div class="form-group">
-        <label>Service Duration (in minutes)</label>
-        <input asp-for="ServiceDurationInMinutes" class="form-control" type="number" />
-    </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="ReadingDurationInMinutes" type="number" class="form-control border shadow" />
+                    <label asp-for="ReadingDurationInMinutes" class="ms-2">Reading Duration (in minutes):</label>
+                    <span asp-validation-for="ReadingDurationInMinutes" class="text-danger"></span>
+                </div>
 
-    <div class="form-group">
-        <label>Notes (This space can be used to explain any sudden
-            jump/fall in sadhana. E.g. Ekadashi, Sickness, etc.)</label>
-        <input asp-for="Notes" type="text" class="form-control">
+
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="HearingTitle" type="text" class="form-control border shadow" />
+                    <label asp-for="HearingTitle" class="ms-2">Hearing Title:</label>
+                </div>
+
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="HearingDurationInMinutes" type="number" class="form-control border shadow" />
+                    <label asp-for="HearingDurationInMinutes" class="ms-2">Hearing Duration (in minutes):</label>
+                    <span asp-validation-for="HearingDurationInMinutes" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-floating py-1 col-12">
+                    <select asp-for="SelectedServiceTypeId" asp-items="ViewBag.ServiceTypeList" class="form-control border shadow" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
+                        <option value="">--Select Service Type--</option>
+                    </select>
+                    <label asp-for="SelectedServiceTypeId" class="ms-2">Service Type:</label>
+                </div>
+                <div class="col-12 mt-2">
+                    <small class="text-muted d-block mt-1">Add or edit service types if not listed.</small>
+                    <a href="@Url.Action("Index", "ServiceType")" class="btn btn-outline-primary btn-sm">Manage Service Types</a>
+                </div>
+
+
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="ServiceDurationInMinutes" type="number" class="form-control border shadow" />
+                    <label asp-for="ServiceDurationInMinutes" class="ms-2">Service Duration(in minutes):</label>
+                    <span asp-validation-for="ServiceDurationInMinutes" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <textarea asp-for="Notes" class="form-control border shadow" id="NotesTextArea"></textarea>
+                    <label asp-for="Notes" class="ms-2">Notes</label>
+                </div>
+                <div class="col-12 mt-1">
+                    <i class="bi bi-info-circle" id="infoIconNotes" style="cursor: pointer;"></i>
+                    <small class="text-muted"> Click the icon for more information about Notes section.</small>
+                    <div id="notesInfoText" style="display: none;">
+                        <small class="text-muted">Use this space to explain any sudden jump/fall in sadhana, such as on Ekadashi, during sickness, etc.</small>
+                    </div>
+                </div>
+
+
+                <div class="row pt-2">
+                    <div class="col-6 col-md-3">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-circle"></i> Create
+                        </button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a asp-controller="Sadhana" asp-action="SadhanaHistory" class="btn btn-secondary w-100">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </form>
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-    <p>Back <a asp-controller="Home" asp-action="Index">to home page</a>!</p>
-</form>
+</div>
+
+@section Scripts {
+    <script>
+        function saveFormData() {
+            var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var formData = {
+                date: $('#Date').val(),
+                morningRounds: $('#MorningRounds').val(),
+                dayRounds: $('#DayRounds').val(),
+                eveningRounds: $('#EveningRounds').val(),
+                readingTitle: $('#ReadingTitle').val(),
+                readingDurationInMinutes: $('#ReadingDurationInMinutes').val(),
+                hearingTitle: $('#HearingTitle').val(),
+                hearingDurationInMinutes: $('#HearingDurationInMinutes').val(),
+                selectedServiceTypeId: $('#SelectedServiceTypeId').val(),
+                serviceDurationInMinutes: $('#ServiceDurationInMinutes').val(),
+                notes: $('#Notes').val(),
+            };
+            localStorage.setItem('sadhanaFormData' + userId, JSON.stringify(formData));
+        }
+
+        // Attach event listeners
+        $('#Date, #MorningRounds, #DayRounds, #EveningRounds, #ReadingTitle, #ReadingDurationInMinutes, #HearingTitle, #HearingDurationInMinutes, #SelectedServiceTypeId, #ServiceDurationInMinutes, #Notes').change(saveFormData);
+
+        $(document).ready(function () {
+            var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var returningFromServiceTypes = localStorage.getItem('returningFromServiceTypes');
+
+            if (returningFromServiceTypes === 'true') {
+                var savedData = localStorage.getItem('sadhanaFormData' + userId);
+                if (savedData) {
+                    var formData = JSON.parse(savedData);
+                    var savedDate = new Date(formData.date);
+                    var currentDate = new Date();
+                    // Check if the saved date is today's date
+                    if (savedDate.setHours(0, 0, 0, 0) === currentDate.setHours(0, 0, 0, 0)) {
+                        $('#Date').val(formData.date);
+                    }
+                    $('#MorningRounds').val(formData.morningRounds);
+                    $('#DayRounds').val(formData.dayRounds);
+                    $('#EveningRounds').val(formData.eveningRounds);
+                    $('#ReadingTitle').val(formData.readingTitle);
+                    $('#ReadingDurationInMinutes').val(formData.readingDurationInMinutes);
+                    $('#HearingTitle').val(formData.hearingTitle);
+                    $('#HearingDurationInMinutes').val(formData.hearingDurationInMinutes);
+                    $('#SelectedServiceTypeId').val(formData.selectedServiceTypeId);
+                    $('#ServiceDurationInMinutes').val(formData.serviceDurationInMinutes);
+                    $('#Notes').val(formData.notes);
+                }
+                localStorage.removeItem('returningFromServiceTypes');
+            }
+            else {
+                localStorage.removeItem('sadhanaFormData' + userId);
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+            // Autocomplete for Reading Title
+
+            $("#ReadingTitle").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: '@Url.Action("GetReadingTitles", "Sadhana")',
+                        data: { term: request.term },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 1, // Start after typing 2 characters
+                select: function (event, ui) {
+                    // Set the input field's value to the selected item's value
+                    $(this).val(ui.item.value);
+
+                    // Additional actions
+                    // For example, if you want to trigger a form submission or update another part of your UI based on the selection
+                    // $('#someOtherElement').val(ui.item.someOtherProperty);
+
+                    // Prevent the widget from automatically inserting the value into the input field
+                    return false;
+                }
+            });
+
+            // Autocomplete for Hearing Title
+            $("#HearingTitle").autocomplete({
+                source: '@Url.Action("GetHearingTitles", "Sadhana")', // Adjust the URL as needed
+                minLength: 1,
+                select: function (event, ui) {
+                    $(this).val(ui.item.value);
+                    return false;
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#infoIconNotes').click(function () {
+                $('#notesInfoText').toggle();
+            });
+        });
+    </script>
+
+}
+

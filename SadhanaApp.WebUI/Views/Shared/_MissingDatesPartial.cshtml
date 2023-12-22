@@ -1,0 +1,13 @@
+﻿@model IEnumerable<DateTime>
+
+@if (Model.Any())
+{
+    <div>
+        <ul>
+            @foreach (var date in Model)
+            {
+                <li>@date.ToShortDateString()</li>
+            }
+        </ul>
+    </div>
+}

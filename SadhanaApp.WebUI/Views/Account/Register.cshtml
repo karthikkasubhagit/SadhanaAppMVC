@@ -21,6 +21,11 @@
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
         <div class="form-group">
+            <label asp-for="ConfirmPassword"></label>
+            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+        <div class="form-group">
             <label asp-for="Email"></label>
             <input asp-for="Email" type="email" class="form-control" placeholder="Enter email" />
             <span asp-validation-for="Email" class="text-danger"></span>
@@ -36,7 +41,7 @@
             <span asp-validation-for="LastName" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label>Are you a mentor?</label>
+            <label>Do you mentor others?</label>
             <div>
                 <label>
                     <input type="radio" asp-for="IsShikshaGuru" value="true"> Yes
@@ -46,40 +51,13 @@
                 </label>
             </div>
         </div>
-        <div class="form-group" id="shikshaGuruDropdown" style="display:none;">
+        <div class="form-group" id="shikshaGuruDropdown">
             <label asp-for="ShikshaGuruId">Select your mentor</label>
-            <select asp-for="ShikshaGuruId" asp-items="Model.ShikshaGurus" class="form-control">
+            <select asp-for="ShikshaGuruId" asp-items="Model.ShikshaGurus" class="form-control" required data-val-required="Please select your mentor from the list">
                 <option value="">Select a mentor</option>
             </select>
+            <span asp-validation-for="ShikshaGuruId" class="text-danger"></span>
         </div>
         <button type="submit" class="btn btn-primary btn-block">Register</button>
     </form>
 </div>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var isShikshaGuruRadios = document.querySelectorAll("[name='IsShikshaGuru']");
-        var shikshaGuruDropdown = document.getElementById("shikshaGuruDropdown");
-
-        // Initial check
-        Array.prototype.forEach.call(isShikshaGuruRadios, function (radio) {
-            if (radio.checked) {
-                toggleShikshaGuruDropdown(radio.value);
-            }
-        });
-
-        // Listen for changes on the IsShikshaGuru radios
-        Array.prototype.forEach.call(isShikshaGuruRadios, function (radio) {
-            radio.addEventListener("change", function () {
-                toggleShikshaGuruDropdown(this.value);
-            });
-        });
-
-        function toggleShikshaGuruDropdown(value) {
-            if (value === "false") {
-                shikshaGuruDropdown.style.display = "block";
-            } else {
-                shikshaGuruDropdown.style.display = "none";
-            }
-        }
-    });
-</script>

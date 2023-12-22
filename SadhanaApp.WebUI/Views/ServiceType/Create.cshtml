@@ -1,0 +1,28 @@
+﻿@model SadhanaApp.Domain.ServiceType
+
+@{
+    ViewData["Title"] = "Add Service Type";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Add Service Type</h2>
+    <div class="card card-body">
+        <form asp-action="Create" method="post">
+            <div class="form-group mb-3">
+                <label asp-for="ServiceName" class="control-label"></label>
+                <input asp-for="ServiceName" class="form-control" placeholder="Enter service name"/>
+                <span asp-validation-for="ServiceName" class="text-danger"></span>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary me-2">Create</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to Form</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Additional scripts can be included here -->
+}
