@@ -11,6 +11,8 @@ using Serilog;
 using System;
 using System.Net;
 using Microsoft.AspNetCore.Authentication.Google;
+using SadhanaApp.Application.Common.Interfaces;
+using SadhanaApp.Persistence.Repository;
 
 
 
@@ -108,6 +110,7 @@ try
         options.UseSqlServer(connectionString));
 
     builder.Services.AddAutoMapper(typeof(Program));
+    builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.

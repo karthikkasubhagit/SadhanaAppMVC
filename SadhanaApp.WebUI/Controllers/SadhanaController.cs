@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Controller;
+using SadhanaApp.Application.Common.Interfaces;
 using SadhanaApp.Domain;
 using SadhanaApp.WebUI.ViewModels;
 using System.Diagnostics;
@@ -14,14 +15,17 @@ namespace SadhanaApp.WebUI.Controllers
 
     public class SadhanaController : Controller
     {
-        private readonly AppDbContext _context;
+        
         private readonly IMapper _mapper;
         private readonly ILogger<SadhanaController> _logger;
-        public SadhanaController(AppDbContext context, IMapper mapper, ILogger<SadhanaController> logger)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public SadhanaController(IMapper mapper, ILogger<SadhanaController> logger, IUnitOfWork unitOfWork)
         {
-            _context = context;
+            
             _mapper = mapper;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         // Display the form to record chanting rounds
@@ -34,9 +38,7 @@ namespace SadhanaApp.WebUI.Controllers
                 _logger.LogInformation("Entering RecordSadhana action method.");
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-                var serviceTypes = await _context.ServiceTypes
-                    .Where(st => st.UserId == userId)
-                    .ToListAsync();
+                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
 
                 var serviceTypeList = serviceTypes
                     .Select(st => new SelectListItem
@@ -75,9 +77,7 @@ namespace SadhanaApp.WebUI.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var serviceTypes = await _context.ServiceTypes
-                    .Where(st => st.UserId == userId)
-                    .ToListAsync();
+                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
 
                 var serviceTypeList = serviceTypes
                     .Select(st => new SelectListItem
@@ -93,8 +93,7 @@ namespace SadhanaApp.WebUI.Controllers
                 ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
                 model.UserId = userId;
 
-                bool recordExists = await _context.ChantingRecords
-                    .AnyAsync(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId);
+                bool recordExists = _unitOfWork.SadhanaRepository.GetAll(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId).Any();
 
                 if (recordExists)
                 {
@@ -116,9 +115,10 @@ namespace SadhanaApp.WebUI.Controllers
                     return View(viewModel);
                 }
 
-                _context.ChantingRecords.Add(model);
+                //_context.ChantingRecords.Add(model);
+                _unitOfWork.SadhanaRepository.Add(model);
                 TempData["success"] = "Your chanting record has been created successfully.";
-                await _context.SaveChangesAsync();
+                _unitOfWork.SadhanaRepository.Save();
 
                 return RedirectToAction("SadhanaHistory");
             }
@@ -128,8 +128,6 @@ namespace SadhanaApp.WebUI.Controllers
                 return RedirectToAction("Error", "Home");
             }
         }
-
-
 
         // Display the chanting history of the user   
 
@@ -149,17 +147,15 @@ namespace SadhanaApp.WebUI.Controllers
                 var startDate = DateTime.Today.AddDays(-daysFilter);
                 var endDate = GetNewZealandTime();
 
-                var recordsQuery = _context.ChantingRecords
-               .Where(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate);
-
+                var recordsQuery = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate);
 
                 // Pagination
-                var totalRecords = await recordsQuery.CountAsync();
-                var records = await recordsQuery
+                var totalRecords = recordsQuery.Count();
+                var records = recordsQuery
                     .OrderByDescending(c => c.Date)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
-                    .ToListAsync();
+                    .ToList();
 
                 var headingText = daysFilter switch
                 {
@@ -198,10 +194,11 @@ namespace SadhanaApp.WebUI.Controllers
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var devotees = await _context.Users
-                    .Where(u => u.ShikshaGuruId == int.Parse(userId))
-                    .ToListAsync();
+                //var devotees = await _context.Users
+                //    .Where(u => u.ShikshaGuruId == int.Parse(userId))
+                //    .ToListAsync();
 
+                var devotees = _unitOfWork.UserRepository.GetAll(u => u.ShikshaGuruId == int.Parse(userId)).ToList();
                 ViewBag.DevoteeList = new SelectList(devotees, "UserId", "FirstName");
 
                 return View(devotees);
@@ -217,10 +214,7 @@ namespace SadhanaApp.WebUI.Controllers
         [Authorize(Roles = "Instructor")]
         public async Task<IActionResult> GetDevoteeChantingRecords(int devoteeId)
         {
-            var chantingRecords = await _context.ChantingRecords
-                .Where(c => c.UserId == devoteeId)
-                .ToListAsync();
-
+            var chantingRecords = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == devoteeId).ToList();
             return Json(chantingRecords);
         }
 
@@ -237,19 +231,20 @@ namespace SadhanaApp.WebUI.Controllers
                 var currentDate = DateTime.Today;
 
                 // Filter records for the last 30 days, last 12 months, and last 5 years
-                var records = _context.ChantingRecords
-                                      .Where(u => u.UserId == id && u.Date >= currentDate.AddDays(-30))
-                                      .OrderBy(r => r.Date)
-                                      .ToList();
+
+                var records = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == id && c.Date >= currentDate.AddDays(-30))
+                                          .OrderBy(r => r.Date)
+                                          .ToList();
 
                 // For daily progress over the last 30 days:
+
                 var dates = records.Select(r => r.Date.ToString("MM-dd-yyyy")).ToList();
+
                 var totalScoresPerDay = records.Select(r => r.TotalScore ?? 0).ToList();
 
-                // For monthly progress over the last 12 months:
-                var monthlyRecords = _context.ChantingRecords
-                                             .Where(u => u.UserId == id && u.Date >= currentDate.AddMonths(-12))
-                                             .ToList();
+                var monthlyRecords = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == id && c.Date >= currentDate.AddMonths(-12))
+                                                 .ToList();
+
                 var monthlyData = monthlyRecords.GroupBy(r => new { r.Date.Year, r.Date.Month })
                                                 .Select(g => new
                                                 {
@@ -261,9 +256,8 @@ namespace SadhanaApp.WebUI.Controllers
                 var totalScoresPerMonth = monthlyData.Select(m => m.TotalScore).ToList();
 
                 // For yearly progress over the last 5 years:
-                var yearlyRecords = _context.ChantingRecords
-                                            .Where(u => u.UserId == id && u.Date >= currentDate.AddYears(-5))
-                                            .ToList();
+                var yearlyRecords = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == id && c.Date >= currentDate.AddYears(-5))
+                                                .ToList();
                 var yearlyData = yearlyRecords.GroupBy(r => r.Date.Year)
                                               .Select(g => new
                                               {
@@ -300,7 +294,8 @@ namespace SadhanaApp.WebUI.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var record = await _context.ChantingRecords.FindAsync(id);
+               
+                var record = _unitOfWork.SadhanaRepository.Get(c => c.Id == id && c.UserId == userId);
                 if (record == null || record.UserId != userId)
                 {
                     return RedirectToAction("Error", "Home");
@@ -308,9 +303,11 @@ namespace SadhanaApp.WebUI.Controllers
 
                 ChantingViewModel model = _mapper.Map<ChantingViewModel>(record);
 
-                var serviceTypes = await _context.ServiceTypes
-                    .Where(st => st.UserId == userId)
-                    .ToListAsync();
+                //var serviceTypes = await _context.ServiceTypes
+                //    .Where(st => st.UserId == userId)
+                //    .ToListAsync();
+
+                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
 
                 var serviceTypeList = serviceTypes.Select(st => new SelectListItem
                 {
@@ -347,9 +344,11 @@ namespace SadhanaApp.WebUI.Controllers
                     return View(viewModel); // Return the same view with validation messages
                 }
 
-                var existingRecord = await _context.ChantingRecords
-                    .Include(cr => cr.ServiceType)
-                    .FirstOrDefaultAsync(cr => cr.Id == id && cr.UserId == userId);
+                //var existingRecord = await _context.ChantingRecords
+                //    .Include(cr => cr.ServiceType)
+                //    .FirstOrDefaultAsync(cr => cr.Id == id && cr.UserId == userId);
+
+                var existingRecord = _unitOfWork.SadhanaRepository.Get(cr => cr.Id == id && cr.UserId == userId, "ServiceType");
 
                 if (existingRecord == null)
                 {
@@ -365,7 +364,7 @@ namespace SadhanaApp.WebUI.Controllers
 
                 try
                 {
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.SadhanaRepository.Save();
                     TempData["success"] = "Your chanting record has been updated successfully.";
                     return RedirectToAction("SadhanaHistory");
                 }
@@ -390,15 +389,17 @@ namespace SadhanaApp.WebUI.Controllers
         {
             try
             {
-                var record = await _context.ChantingRecords.FindAsync(id);
+               // var record = await _context.ChantingRecords.FindAsync(id);
+               var record = _unitOfWork.SadhanaRepository.Get(c => c.Id == id);
                 if (record == null)
                 {
                     TempData["error"] = "Your chanting record could not be found.";
                     return Json(new { success = false, message = "Record not found." });
                 }
 
-                _context.ChantingRecords.Remove(record);
-                await _context.SaveChangesAsync();
+                //_context.ChantingRecords.Remove(record);
+                _unitOfWork.SadhanaRepository.Delete(record);
+                _unitOfWork.SadhanaRepository.Save();
                 TempData["success"] = "Your chanting record has been deleted successfully.";
                 return Json(new { success = true });
             }
@@ -421,10 +422,7 @@ namespace SadhanaApp.WebUI.Controllers
                 var instructorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var viewModel = new InstructorStudentGraphViewModel();
 
-                var students = await _context.Users
-                                             .Where(u => u.ShikshaGuruId == int.Parse(instructorId))
-                                             .ToListAsync();
-
+                var students = _unitOfWork.UserRepository.GetAll(u => u.ShikshaGuruId == int.Parse(instructorId)).ToList();
                 viewModel.Students = students.Select(s => new SelectListItem
                 {
                     Value = s.UserId.ToString(),
@@ -448,9 +446,8 @@ namespace SadhanaApp.WebUI.Controllers
                 var currentDate = DateTime.Today;
 
                 // Fetch daily records for the last 30 days and process them in memory
-                var dayRecords = await _context.ChantingRecords
-                    .Where(r => r.UserId == studentId && r.Date >= currentDate.AddDays(-30))
-                    .ToListAsync();
+
+                var dayRecords = _unitOfWork.SadhanaRepository.GetAll(r => r.UserId == studentId && r.Date >= currentDate.AddDays(-30)).ToList();
 
                 var dailyData = dayRecords
                     .GroupBy(r => r.Date)
@@ -463,9 +460,8 @@ namespace SadhanaApp.WebUI.Controllers
                     .ToList();
 
                 // Fetch monthly records for the last 12 months and process them in memory
-                var monthRecords = await _context.ChantingRecords
-                    .Where(r => r.UserId == studentId && r.Date >= currentDate.AddMonths(-12))
-                    .ToListAsync();
+
+                var monthRecords = _unitOfWork.SadhanaRepository.GetAll(r => r.UserId == studentId && r.Date >= currentDate.AddMonths(-12)).ToList();
 
                 var monthlyData = monthRecords
                     .GroupBy(r => new { Year = r.Date.Year, Month = r.Date.Month })
@@ -478,9 +474,8 @@ namespace SadhanaApp.WebUI.Controllers
                     .ToList();
 
                 // Fetch yearly records for the last 5 years and process them in memory
-                var yearRecords = await _context.ChantingRecords
-                    .Where(r => r.UserId == studentId && r.Date >= currentDate.AddYears(-5))
-                    .ToListAsync();
+
+                var yearRecords = _unitOfWork.SadhanaRepository.GetAll(r => r.UserId == studentId && r.Date >= currentDate.AddYears(-5)).ToList();
 
                 var yearlyData = yearRecords
                     .GroupBy(r => r.Date.Year)
@@ -524,10 +519,10 @@ namespace SadhanaApp.WebUI.Controllers
                 var endDate = DateTime.Today;
 
                 // Fetch the records from the database for the user since their registration date
-                var records = await _context.ChantingRecords
-                    .Where(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate)
-                    .Select(c => c.Date)
-                    .ToListAsync();
+
+                var records = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate)
+                                          .Select(c => c.Date)
+                                          .ToList();
 
                 // Generate a list of all dates from the user's registration date to today
                 var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
@@ -551,7 +546,7 @@ namespace SadhanaApp.WebUI.Controllers
         {
             try
             {
-                var user = await _context.Users.FindAsync(userId);
+                var user = _unitOfWork.UserRepository.Get(u => u.UserId == userId);
                 return user.DateRegistered;
             }
             catch(Exception ex)
@@ -567,12 +562,11 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                var readingTitles = await _context.ChantingRecords
-                                                  .Where(c => c.UserId == int.Parse(userId) &&
-                                                              c.ReadingTitle.Contains(term))
-                                                  .Select(c => c.ReadingTitle)
-                                                  .Distinct()
-                                                  .ToListAsync();
+                var readingTitles = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == int.Parse(userId) &&
+                                                                           c.ReadingTitle.Contains(term))
+                                                .Select(c => c.ReadingTitle)
+                                                .Distinct()
+                                                .ToList();
 
                 return Json(readingTitles);
             }
@@ -589,12 +583,12 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                var readingTitles = await _context.ChantingRecords
-                                                  .Where(c => c.UserId == int.Parse(userId) &&
-                                                              c.HearingTitle.Contains(term))
-                                                  .Select(c => c.HearingTitle)
-                                                  .Distinct()
-                                                  .ToListAsync();
+
+                var readingTitles = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == int.Parse(userId) &&
+                                                                                          c.HearingTitle.Contains(term))
+                                                .Select(c => c.HearingTitle)
+                                                .Distinct()
+                                                .ToList();
 
                 return Json(readingTitles);
             }
