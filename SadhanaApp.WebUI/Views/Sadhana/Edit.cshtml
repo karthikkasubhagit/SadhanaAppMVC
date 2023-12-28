@@ -54,14 +54,17 @@
 
 
     <div class="form-floating py-1 col-12">
-        <select asp-for="SelectedServiceTypeId" asp-items="ViewBag.ServiceTypeList" class="form-control border shadow" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
+        <select asp-for="SelectedServiceTypeId" asp-items="ViewBag.ServiceTypeList" class="form-select border shadow" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
             <option value="">--Select Service Type--</option>
         </select>
         <label asp-for="SelectedServiceTypeId" class="ms-2">Service Type:</label>
     </div>
-    <div class="col-12 mt-2">
-        <a href="@Url.Action("Index", "ServiceType")" class="btn btn-outline-primary btn-sm">Manage Service Types</a>
-        <small class="text-muted d-block mt-1">Add or edit service types if not listed.</small>
+    <div class="col-12 mt-1">
+        <i class="bi bi-info-circle" id="infoIconManageServices" style="cursor: pointer;"></i>
+        <small class="text-muted"> Click the icon for more information about Services Type.</small>
+        <div id="notesManageServices" style="display: none;">
+            <small class="text-muted">Select 'Manage Services' from menu to add a new service type. Once added, it will appear in the dropdown menu when you return to this page.</small>
+        </div>
     </div>
 
     <label asp-for="ServiceDurationInMinutes">Service Duration (in minutes)</label>
@@ -182,6 +185,10 @@
     $(document).ready(function () {
         $('#infoIconNotes').click(function () {
             $('#notesInfoText').toggle();
+        });
+
+        $('#infoIconManageServices').click(function () {
+            $('#notesManageServices').toggle();
         });
     });
 </script>
