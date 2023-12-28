@@ -16,5 +16,10 @@ namespace SadhanaApp.Persistence.Repository
             ServiceRepository = new ServiceRepository(_db);
             UserRepository = new UserRepository(_db);
         }
+
+        public void Save()
+        {
+            _db.SaveChanges();
+        }
     }
 }

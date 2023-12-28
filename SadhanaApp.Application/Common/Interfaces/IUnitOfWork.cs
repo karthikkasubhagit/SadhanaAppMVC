@@ -2,8 +2,9 @@
 {
     public interface IUnitOfWork
     {
-        public ISadhanaRepository SadhanaRepository { get; }
-        public IServiceRepository ServiceRepository { get; }
-        public IUserRepository UserRepository { get; }
+        ISadhanaRepository SadhanaRepository { get; }
+        IServiceRepository ServiceRepository { get; }
+        IUserRepository UserRepository { get; }
+        void Save();
     }
 }

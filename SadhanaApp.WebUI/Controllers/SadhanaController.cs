@@ -118,7 +118,7 @@ namespace SadhanaApp.WebUI.Controllers
                 //_context.ChantingRecords.Add(model);
                 _unitOfWork.SadhanaRepository.Add(model);
                 TempData["success"] = "Your chanting record has been created successfully.";
-                _unitOfWork.SadhanaRepository.Save();
+                _unitOfWork.Save();
 
                 return RedirectToAction("SadhanaHistory");
             }
@@ -364,7 +364,7 @@ namespace SadhanaApp.WebUI.Controllers
 
                 try
                 {
-                    _unitOfWork.SadhanaRepository.Save();
+                    _unitOfWork.Save();
                     TempData["success"] = "Your chanting record has been updated successfully.";
                     return RedirectToAction("SadhanaHistory");
                 }
@@ -398,8 +398,8 @@ namespace SadhanaApp.WebUI.Controllers
                 }
 
                 //_context.ChantingRecords.Remove(record);
-                _unitOfWork.SadhanaRepository.Delete(record);
-                _unitOfWork.SadhanaRepository.Save();
+                _unitOfWork.SadhanaRepository.Remove(record);
+                _unitOfWork.Save();
                 TempData["success"] = "Your chanting record has been deleted successfully.";
                 return Json(new { success = true });
             }
