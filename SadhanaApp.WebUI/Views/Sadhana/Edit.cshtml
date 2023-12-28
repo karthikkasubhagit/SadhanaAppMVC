@@ -54,23 +54,29 @@
 
 
     <div class="form-floating py-1 col-12">
-        <select asp-for="SelectedServiceTypeId" asp-items="ViewBag.ServiceTypeList" class="form-control border shadow" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
+        <select asp-for="SelectedServiceTypeId" asp-items="ViewBag.ServiceTypeList" class="form-select border shadow" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
             <option value="">--Select Service Type--</option>
         </select>
         <label asp-for="SelectedServiceTypeId" class="ms-2">Service Type:</label>
     </div>
-    <div class="col-12 mt-2">
-        <a href="@Url.Action("Index", "ServiceType")" class="btn btn-outline-primary btn-sm">Manage Service Types</a>
-        <small class="text-muted d-block mt-1">Add or edit service types if not listed.</small>
+    <div class="col-12 mt-1">
+        <i class="bi bi-info-circle" id="infoIconManageServices" style="cursor: pointer;"></i>
+        <small class="text-muted"> Click the icon for more information about Services Type.</small>
+        <div id="notesManageServices" style="display: none;">
+            <small class="text-muted">Select 'Manage Services' from menu to add a new service type. Once added, it will appear in the dropdown menu when you return to this page.</small>
+        </div>
     </div>
 
     <label asp-for="ServiceDurationInMinutes">Service Duration (in minutes)</label>
     <input asp-for="ServiceDurationInMinutes" class="form-control" />
 
 
-    <div class="form-group">
-        <label asp-for="Notes">Notes</label>
-        <textarea asp-for="Notes" class="form-control"></textarea>
+    <div class="col-12 mt-1">
+        <i class="bi bi-info-circle" id="infoIconNotes" style="cursor: pointer;"></i>
+        <small class="text-muted"> Click the icon for more information about Notes section.</small>
+        <div id="notesInfoText" style="display: none;">
+            <small class="text-muted">Use this space to explain any sudden jump/fall in sadhana, such as on Ekadashi, during sickness, etc.</small>
+        </div>
     </div>
 
     <div class="row pt-2">
@@ -87,6 +93,7 @@
     </div>
 </form>
 
+@section Scripts {
 <script>
     function saveFormData() {
         var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -183,5 +190,10 @@
         $('#infoIconNotes').click(function () {
             $('#notesInfoText').toggle();
         });
+
+        $('#infoIconManageServices').click(function () {
+            $('#notesManageServices').toggle();
+        });
     });
 </script>
+}

@@ -102,7 +102,7 @@ namespace SadhanaApp.WebUI.Controllers
                     }
 
                     _unitOfWork.UserRepository.Add(user);
-                    _unitOfWork.UserRepository.Save();
+                    _unitOfWork.Save();
 
                     // Here you might want to log the user in and redirect to the dashboard, but for simplicity, we'll redirect to the login page.
                     return RedirectToAction("Login");
@@ -211,7 +211,7 @@ namespace SadhanaApp.WebUI.Controllers
                     };
 
                     _unitOfWork.UserRepository.Add(user);
-                    _unitOfWork.UserRepository.Save();
+                    _unitOfWork.Save();
                 }
 
                 var claimDetails = new List<Claim>
@@ -294,7 +294,7 @@ namespace SadhanaApp.WebUI.Controllers
 
                     // Save changes to the database
                     _unitOfWork.UserRepository.Update(user);
-                    _unitOfWork.UserRepository.Save();
+                    _unitOfWork.Save();
 
                     var claims = new List<Claim>
                     {
@@ -455,7 +455,7 @@ namespace SadhanaApp.WebUI.Controllers
                         // Update the user's password
                         user.PasswordHash = PasswordUtility.HashPassword(model.NewPassword);
                         _unitOfWork.UserRepository.Update(user);
-                        _unitOfWork.UserRepository.Save();
+                        _unitOfWork.Save();
 
                         return RedirectToAction("Login");
                     }

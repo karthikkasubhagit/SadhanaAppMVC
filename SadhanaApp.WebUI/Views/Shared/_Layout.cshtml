@@ -46,16 +46,22 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Sadhana"
+                         @if (Context.User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Sadhana"
                                 asp-action="SadhanaHistory">Sadhana Tracker</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Sadhana" asp-action="Graph">Score Graph</a>
-                        </li>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Sadhana" asp-action="Graph">Score Graph</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="ServiceType" asp-action="Index">Manage Service</a>
+                            </li>
+                        }
                         @if (User.IsInRole("Instructor"))
                         {
                             <li class="nav-item">
