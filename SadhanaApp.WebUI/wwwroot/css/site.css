@@ -11,6 +11,16 @@
     padding: 5px 10px; /* Adds some space around the text for better visibility */
 }
 
+.dropdown-menu {
+    padding: 10px;
+    min-width: 20rem; /* Adjust width as needed */
+}
+
+.form-check {
+    cursor: pointer;
+}
+
+
 .btn-google {
     color: white;
     background-color: #db4437;

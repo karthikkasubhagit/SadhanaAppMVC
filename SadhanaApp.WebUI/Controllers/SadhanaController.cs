@@ -43,7 +43,7 @@ namespace SadhanaApp.WebUI.Controllers
                 var serviceTypeList = serviceTypes
                     .Select(st => new SelectListItem
                     {
-                        Value = st.ServiceTypeId.ToString(),
+                        Value = st.ServiceName,
                         Text = st.ServiceName
                     })
                     .ToList();
@@ -52,7 +52,8 @@ namespace SadhanaApp.WebUI.Controllers
 
                 var viewModel = new ChantingViewModel
                 {
-                    Date = GetNewZealandTime()
+                    Date = GetNewZealandTime(),
+                    SelectedServiceTypeNames = new List<string>() // Initialize the list
                 };
 
                 return View(viewModel);
@@ -101,18 +102,11 @@ namespace SadhanaApp.WebUI.Controllers
                     return View(viewModel);
                 }
 
-                if (string.IsNullOrWhiteSpace(viewModel.SelectedServiceTypeId))
+                // Here, instead of setting a single ServiceTypeId, 
+                // we set the semicolon-separated string of service type names
+                if (viewModel.SelectedServiceTypeNamesAsString != null)
                 {
-                    model.ServiceTypeId = null; // Set ServiceTypeId to null
-                }
-                else if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
-                {
-                    model.ServiceTypeId = serviceTypeId;
-                }
-                else
-                {
-                    ModelState.AddModelError("SelectedServiceTypeId", "Invalid Service Type selected.");
-                    return View(viewModel);
+                    model.ServiceTypeNames = viewModel.SelectedServiceTypeNamesAsString;
                 }
 
                 //_context.ChantingRecords.Add(model);
@@ -311,11 +305,19 @@ namespace SadhanaApp.WebUI.Controllers
 
                 var serviceTypeList = serviceTypes.Select(st => new SelectListItem
                 {
-                    Value = st.ServiceTypeId.ToString(),
+                    Value = st.ServiceName,
                     Text = st.ServiceName
                 }).ToList();
 
                 ViewBag.ServiceTypeList = serviceTypeList;
+
+                // Assuming `ServiceTypeNames` in `ChantingRecord` holds the semicolon-separated service type names
+                // Split the string into a list of names and then map them to their corresponding IDs for the SelectList
+                if (!string.IsNullOrWhiteSpace(record.ServiceTypeNames))
+                {
+                    var selectedNames = record.ServiceTypeNames.Split(';').ToList();
+                    model.SelectedServiceTypeNames = selectedNames;
+                }
 
                 return View(model);
             }
@@ -334,19 +336,11 @@ namespace SadhanaApp.WebUI.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                if (viewModel.SelectedServiceTypeId == "other")
-                {
-                    ModelState.Remove("CustomServiceTypeInput"); // Clear ModelState errors for this field
-                }
 
                 if (!ModelState.IsValid)
                 {
                     return View(viewModel); // Return the same view with validation messages
                 }
-
-                //var existingRecord = await _context.ChantingRecords
-                //    .Include(cr => cr.ServiceType)
-                //    .FirstOrDefaultAsync(cr => cr.Id == id && cr.UserId == userId);
 
                 var existingRecord = _unitOfWork.SadhanaRepository.Get(cr => cr.Id == id && cr.UserId == userId, "ServiceType");
 
@@ -357,13 +351,9 @@ namespace SadhanaApp.WebUI.Controllers
 
                 _mapper.Map(viewModel, existingRecord);
 
-                if (int.TryParse(viewModel.SelectedServiceTypeId, out var serviceTypeId))
-                {
-                    existingRecord.ServiceTypeId = serviceTypeId;
-                }
-
                 try
                 {
+                    _unitOfWork.SadhanaRepository.Update(existingRecord);
                     _unitOfWork.Save();
                     TempData["success"] = "Your chanting record has been updated successfully.";
                     return RedirectToAction("SadhanaHistory");
@@ -380,6 +370,7 @@ namespace SadhanaApp.WebUI.Controllers
                 return RedirectToAction("Error", "Home");
             }
         }
+
 
 
 

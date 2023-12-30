@@ -6,6 +6,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
 <div class="w-100 card border-0 p-4">
     <div class="card-header bg-success bg-gradient ml-0 py-3">
         <div class="row">
@@ -66,12 +67,28 @@
                 </div>
 
 
-                <div class="form-floating py-1 col-12">
-                    <select asp-for="SelectedServiceTypeId" asp-items="ViewBag.ServiceTypeList" class="form-select border shadow" id="serviceDropdown" onchange="toggleCustomServiceTypeInput();">
-                        <option value="">--Select Service Type--</option>
-                    </select>
-                    <label asp-for="SelectedServiceTypeId" class="ms-2">Service Type:</label>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Service Types
+                    </button>
+                    <ul class="dropdown-menu p-2" aria-labelledby="dropdownMenuButton">
+                        @foreach (var serviceType in ViewBag.ServiceTypeList as List<SelectListItem>)
+                        {
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="SelectedServiceTypeNames" value="@serviceType.Text" id="serviceType-@serviceType.Value">
+                                    <label class="form-check-label" for="serviceType-@serviceType.Value">
+                                        @serviceType.Text
+                                    </label>
+                                </div>
+                            </li>
+                        }
+
+                    </ul>
                 </div>
+
+                <label>Service Types:</label>
+
                 <div class="col-12 mt-1">
                     <i class="bi bi-info-circle" id="infoIconManageServices" style="cursor: pointer;"></i>
                     <small class="text-muted"> Click the icon for more information about Services Type.</small>
@@ -118,9 +135,23 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function updateSelectedServiceTypes() {
+            var selectedServiceTypes = $('.dropdown-menu .form-check-input:checked').map(function () {
+                return this.value; // The value is the service type name
+            }).get().join(';');
+
+        }
+
         function saveFormData() {
             var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var selectedServiceTypes = $('#serviceTypesDropdown').val() || [];
+            var selectedServiceTypeNames = selectedServiceTypes.map(function (id) {
+                return $("#serviceTypesDropdown option[value='" + id + "']").text();
+            }).join(';');
+
+
             var formData = {
                 date: $('#Date').val(),
                 morningRounds: $('#MorningRounds').val(),
@@ -130,17 +161,28 @@
                 readingDurationInMinutes: $('#ReadingDurationInMinutes').val(),
                 hearingTitle: $('#HearingTitle').val(),
                 hearingDurationInMinutes: $('#HearingDurationInMinutes').val(),
-                selectedServiceTypeId: $('#SelectedServiceTypeId').val(),
+                selectedServiceTypeNames: selectedServiceTypeNames, // Changed to store the names
                 serviceDurationInMinutes: $('#ServiceDurationInMinutes').val(),
                 notes: $('#Notes').val(),
             };
             localStorage.setItem('sadhanaFormData' + userId, JSON.stringify(formData));
         }
 
+
         // Attach event listeners
-        $('#Date, #MorningRounds, #DayRounds, #EveningRounds, #ReadingTitle, #ReadingDurationInMinutes, #HearingTitle, #HearingDurationInMinutes, #SelectedServiceTypeId, #ServiceDurationInMinutes, #Notes').change(saveFormData);
+        $('#Date, #MorningRounds, #DayRounds, #EveningRounds, #ReadingTitle, #ReadingDurationInMinutes, #HearingTitle, #HearingDurationInMinutes, #serviceTypesDropdown, #ServiceDurationInMinutes, #Notes').change(saveFormData);
+
 
         $(document).ready(function () {
+            $('.service-type-checkbox').change(function () {
+                updateSelectedServiceTypes();
+                // Call saveFormData if needed
+                saveFormData();
+            });
+
+            // Initialize with any pre-selected values if needed
+            updateSelectedServiceTypes();
+
             var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
             var returningFromServiceTypes = localStorage.getItem('returningFromServiceTypes');
 
@@ -150,7 +192,6 @@
                     var formData = JSON.parse(savedData);
                     var savedDate = new Date(formData.date);
                     var currentDate = new Date();
-                    // Check if the saved date is today's date
                     if (savedDate.setHours(0, 0, 0, 0) === currentDate.setHours(0, 0, 0, 0)) {
                         $('#Date').val(formData.date);
                     }
@@ -161,16 +202,23 @@
                     $('#ReadingDurationInMinutes').val(formData.readingDurationInMinutes);
                     $('#HearingTitle').val(formData.hearingTitle);
                     $('#HearingDurationInMinutes').val(formData.hearingDurationInMinutes);
-                    $('#SelectedServiceTypeId').val(formData.selectedServiceTypeId);
+
+                    // Handle multi-select service types
+                    if (formData.selectedServiceTypeNames) {
+                        var serviceNames = formData.selectedServiceTypeNames.split(';');
+                        $('#serviceTypesDropdown').val(serviceNames);
+                        $('#serviceTypesDropdown').trigger('change');
+                    }
+
                     $('#ServiceDurationInMinutes').val(formData.serviceDurationInMinutes);
                     $('#Notes').val(formData.notes);
                 }
                 localStorage.removeItem('returningFromServiceTypes');
-            }
-            else {
+            } else {
                 localStorage.removeItem('sadhanaFormData' + userId);
             }
         });
+
     </script>
 
     <script>

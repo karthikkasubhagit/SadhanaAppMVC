@@ -10,8 +10,16 @@ namespace SadhanaApp.WebUI.ViewModels
         [CustomDate(ErrorMessage = "Date cannot be in the future")]
         public DateTime? Date { get; set; }
 
-        // Existing service type (e.g., ID of the selected service type)
-        public string? SelectedServiceTypeId { get; set; }
+        // A list to hold the names of selected service types
+        public List<string> SelectedServiceTypeNames { get; set; } = new List<string>();
+
+
+        // Property to get/set the selected service type names as a semicolon-separated string
+        public string SelectedServiceTypeNamesAsString
+        {
+            get => string.Join(";", SelectedServiceTypeNames);
+            set => SelectedServiceTypeNames = value?.Split(';').ToList() ?? new List<string>();
+        }
 
         // Custom service type input for 'other'
         public string? CustomServiceTypeInput { get; set; }

@@ -47,6 +47,8 @@ public class ChantingRecord
 
     public ServiceType ServiceType { get; set; }
 
+    public string? ServiceTypeNames { get; set; }
+
     public int? TotalScore
     {
         get
