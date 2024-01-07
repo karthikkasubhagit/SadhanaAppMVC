@@ -42,13 +42,9 @@ public class ChantingRecord
     // Navigation property
     public int UserId { get; set; }
     public User User { get; set; }
-
-    public int? ServiceTypeId { get; set; }
-
-    public ServiceType ServiceType { get; set; }
-
     public string? ServiceTypeNames { get; set; }
-
+    public bool IsOtherServiceTypeSelected { get; set; }
+    public string? CustomServiceTypeInput { get; set; }
     public int? TotalScore
     {
         get

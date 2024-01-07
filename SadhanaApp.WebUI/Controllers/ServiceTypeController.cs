@@ -150,16 +150,6 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 return NotFound(); // Or return unauthorized if you want to indicate a permission issue
             }
-
-            // Check if any chanting records reference this service type
-            bool isReferenced = _unitOfWork.SadhanaRepository.Any(cr => cr.ServiceTypeId == id);
-            if (isReferenced)
-            {
-                // If referenced, prevent deletion and inform the user
-                TempData["error"] = "This service type cannot be deleted because it is referenced by another devotee.";
-                return RedirectToAction(nameof(Index));
-            }
-
             return View(serviceType);
         }
 
@@ -175,24 +165,11 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 return NotFound(); // Or return unauthorized if you want to indicate a permission issue
             }
-
-            // Check if any chanting records reference this service type
-            bool isReferenced = _unitOfWork.SadhanaRepository.Any(cr => cr.ServiceTypeId == id);
-            if (isReferenced)
-            {
-                // If referenced, prevent deletion and inform the user
-                TempData["error"] = "This service type cannot be deleted because it is referenced by other records.";
-                return RedirectToAction(nameof(Index));
-            }
-
             _unitOfWork.ServiceRepository.Remove(serviceType);
             _unitOfWork.Save();
             TempData["success"] = "Service type has been deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
-
-
-
     }
 
 }

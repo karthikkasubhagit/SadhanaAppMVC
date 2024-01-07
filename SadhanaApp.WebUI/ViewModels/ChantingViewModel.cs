@@ -20,6 +20,7 @@ namespace SadhanaApp.WebUI.ViewModels
             get => string.Join(";", SelectedServiceTypeNames);
             set => SelectedServiceTypeNames = value?.Split(';').ToList() ?? new List<string>();
         }
+        public bool IsOtherServiceTypeSelected { get; set; }
 
         // Custom service type input for 'other'
         public string? CustomServiceTypeInput { get; set; }

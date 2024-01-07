@@ -9,5 +9,10 @@
         public int DaysFilter { get; set; }
         public string HeadingText { get; set; }
 
+        // Additions for week-based navigation
+        public int WeekOffset { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
     }
+
 }

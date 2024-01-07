@@ -9,16 +9,16 @@ namespace SadhanaApp.WebUI.Mapper
         public MappingProfile()
         {
             CreateMap<ChantingViewModel, ChantingRecord>()
-                .ForMember(dest => dest.ServiceTypeNames, opt => opt.MapFrom(src => src.SelectedServiceTypeNamesAsString))
-                // Assuming 'ServiceTypeNames' is the property in ChantingRecord to store service type names
-                .ForMember(dest => dest.ServiceType, opt => opt.Ignore()); // Ignore ServiceType in mapping
+            .ForMember(dest => dest.ServiceTypeNames, opt => opt.MapFrom(src => src.SelectedServiceTypeNamesAsString))
+            // Map CustomServiceTypeInput and IsOtherServiceTypeSelected
+            .ForMember(dest => dest.CustomServiceTypeInput, opt => opt.MapFrom(src => src.CustomServiceTypeInput))
+            .ForMember(dest => dest.IsOtherServiceTypeSelected, opt => opt.MapFrom(src => src.SelectedServiceTypeNames.Contains("Others")));
 
             CreateMap<ChantingRecord, ChantingViewModel>()
                 .ForMember(dest => dest.SelectedServiceTypeNamesAsString, opt => opt.MapFrom(src => src.ServiceTypeNames))
-                // Assuming 'ServiceTypeNames' is the property in ChantingRecord for service type names
-                .ForMember(dest => dest.CustomServiceTypeInput, opt => opt.MapFrom(src => src.ServiceType != null
-                                                                                        ? src.ServiceType.ServiceName
-                                                                                        : null));
+                // Map back CustomServiceTypeInput and calculate if 'Others' is selected
+                .ForMember(dest => dest.CustomServiceTypeInput, opt => opt.MapFrom(src => src.CustomServiceTypeInput))
+                .AfterMap((src, dest) => dest.SelectedServiceTypeNames.Add("Others"));
         }
     }
 }

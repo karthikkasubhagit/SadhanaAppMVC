@@ -31,7 +31,7 @@ namespace SadhanaApp.WebUI.Controllers
         // Display the form to record chanting rounds
 
         [Authorize]
-        public async Task<IActionResult> RecordSadhana()
+        public async Task<IActionResult> RecordSadhana(string? date)
         {
             try
             {
@@ -39,6 +39,10 @@ namespace SadhanaApp.WebUI.Controllers
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
                 var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
+
+                // List of custom service types to be included every time
+                var customServiceTypes = new List<string> { "Deity Service", "Garland Service", "Others" };
+
 
                 var serviceTypeList = serviceTypes
                     .Select(st => new SelectListItem
@@ -48,6 +52,15 @@ namespace SadhanaApp.WebUI.Controllers
                     })
                     .ToList();
 
+                // Add custom service types to the list, ensuring they are unique
+                foreach (var customType in customServiceTypes)
+                {
+                    if (!serviceTypeList.Any(st => st.Text == customType))
+                    {
+                        serviceTypeList.Add(new SelectListItem { Value = customType, Text = customType });
+                    }
+                }
+
                 ViewBag.ServiceTypeList = serviceTypeList;
 
                 var viewModel = new ChantingViewModel
@@ -56,6 +69,10 @@ namespace SadhanaApp.WebUI.Controllers
                     SelectedServiceTypeNames = new List<string>() // Initialize the list
                 };
 
+                if(date != null)
+                {
+                    viewModel.Date = DateTime.Parse(date);
+                }
                 return View(viewModel);
             }
             catch(Exception ex)
@@ -78,6 +95,8 @@ namespace SadhanaApp.WebUI.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                bool recordExists = _unitOfWork.SadhanaRepository.GetAll(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId).Any();
                 var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
 
                 var serviceTypeList = serviceTypes
@@ -91,23 +110,21 @@ namespace SadhanaApp.WebUI.Controllers
 
                 ViewBag.ServiceTypeList = serviceTypeList;
 
-                ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
-                model.UserId = userId;
-
-                bool recordExists = _unitOfWork.SadhanaRepository.GetAll(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId).Any();
-
                 if (recordExists)
                 {
                     TempData["error"] = "A record for this date already exists.";
                     return View(viewModel);
                 }
 
-                // Here, instead of setting a single ServiceTypeId, 
-                // we set the semicolon-separated string of service type names
-                if (viewModel.SelectedServiceTypeNamesAsString != null)
-                {
-                    model.ServiceTypeNames = viewModel.SelectedServiceTypeNamesAsString;
-                }
+                ChantingRecord model = _mapper.Map<ChantingRecord>(viewModel);
+                model.UserId = userId;
+
+                // Set whether 'Others' service type is selected
+                model.IsOtherServiceTypeSelected = viewModel.SelectedServiceTypeNames.Contains("Others");
+
+                // If 'Others' is selected, store the custom input; otherwise, store the semicolon-separated string of service type names
+                model.CustomServiceTypeInput = model.IsOtherServiceTypeSelected ? viewModel.CustomServiceTypeInput : null;
+                model.ServiceTypeNames = model.IsOtherServiceTypeSelected ? null : viewModel.SelectedServiceTypeNamesAsString;
 
                 //_context.ChantingRecords.Add(model);
                 _unitOfWork.SadhanaRepository.Add(model);
@@ -126,60 +143,45 @@ namespace SadhanaApp.WebUI.Controllers
         // Display the chanting history of the user   
 
         [Authorize]
-        public async Task<IActionResult> SadhanaHistory(int daysFilter = 30, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> SadhanaHistory(int weekOffset = 0, int pageSize = 10)
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                // Ensure userId is not null before proceeding
                 if (userId == null)
                 {
                     return RedirectToAction("Login", "Account");
                 }
 
-                // Define the date range based on filter
-                var startDate = DateTime.Today.AddDays(-daysFilter);
-                var endDate = GetNewZealandTime();
+                // EndDate is today's date
+                var endDate = DateTime.Today;
+
+                // Adjust EndDate based on the weekOffset
+                endDate = endDate.AddDays(-7 * weekOffset);
+
+                // StartDate is six days before EndDate
+                var startDate = endDate.AddDays(-6);
 
                 var recordsQuery = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate);
 
-                // Pagination
-                var totalRecords = recordsQuery.Count();
-                var records = recordsQuery
-                    .OrderByDescending(c => c.Date)
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
+                var records = recordsQuery.OrderByDescending(c => c.Date).ToList();
 
-                var headingText = daysFilter switch
-                {
-                    30 => "Last 30 Days",
-                    100 => "Last 100 Days",
-                    365 => "Last 365 Days",
-                    _ => "Custom Date Range"
-                };
-
-                // ViewModel to pass to the view
                 var model = new SadhanaHistoryViewModel
                 {
                     Records = records,
-                    TotalRecords = totalRecords,
-                    CurrentPage = page,
-                    PageSize = pageSize,
-                    DaysFilter = daysFilter,
-                    HeadingText = headingText
+                    WeekOffset = weekOffset,
+                    StartDate = startDate,
+                    EndDate = endDate
                 };
-
 
                 return View(model);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in SadhanaHistory method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 return RedirectToAction("Error", "Home");
             }
         }
-
 
 
         [Authorize(Roles = "Instructor")]
@@ -288,12 +290,14 @@ namespace SadhanaApp.WebUI.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-               
+
                 var record = _unitOfWork.SadhanaRepository.Get(c => c.Id == id && c.UserId == userId);
+
                 if (record == null || record.UserId != userId)
                 {
                     return RedirectToAction("Error", "Home");
                 }
+
 
                 ChantingViewModel model = _mapper.Map<ChantingViewModel>(record);
 
@@ -303,11 +307,21 @@ namespace SadhanaApp.WebUI.Controllers
 
                 var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
 
+                var customServiceTypes = new List<string> { "Deity Service", "Garland Service", "Others" };
+
                 var serviceTypeList = serviceTypes.Select(st => new SelectListItem
                 {
                     Value = st.ServiceName,
                     Text = st.ServiceName
                 }).ToList();
+
+                foreach (var customType in customServiceTypes)
+                {
+                    if (!serviceTypeList.Any(st => st.Text == customType))
+                    {
+                        serviceTypeList.Add(new SelectListItem { Value = customType, Text = customType });
+                    }
+                }
 
                 ViewBag.ServiceTypeList = serviceTypeList;
 
@@ -317,6 +331,12 @@ namespace SadhanaApp.WebUI.Controllers
                 {
                     var selectedNames = record.ServiceTypeNames.Split(';').ToList();
                     model.SelectedServiceTypeNames = selectedNames;
+                }
+
+                // Handle custom service type input
+                if (record.IsOtherServiceTypeSelected)
+                {
+                    model.CustomServiceTypeInput = record.CustomServiceTypeInput;
                 }
 
                 return View(model);
@@ -337,19 +357,30 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-                if (!ModelState.IsValid)
-                {
-                    return View(viewModel); // Return the same view with validation messages
-                }
-
-                var existingRecord = _unitOfWork.SadhanaRepository.Get(cr => cr.Id == id && cr.UserId == userId, "ServiceType");
+                var existingRecord = _unitOfWork.SadhanaRepository.Get(cr => cr.Id == id && cr.UserId == userId);
 
                 if (existingRecord == null)
                 {
                     return NotFound();
                 }
 
+                // Map the common properties
                 _mapper.Map(viewModel, existingRecord);
+
+                // Handle custom service type input
+                if (viewModel.SelectedServiceTypeNames.Contains("Others"))
+                {
+                    existingRecord.IsOtherServiceTypeSelected = true;
+                    existingRecord.CustomServiceTypeInput = viewModel.CustomServiceTypeInput;
+                    existingRecord.ServiceTypeNames = null;
+                }
+                else
+                {
+                    existingRecord.IsOtherServiceTypeSelected = false;
+                    existingRecord.CustomServiceTypeInput = null;
+                }
+
+                existingRecord.ServiceTypeNames = viewModel.SelectedServiceTypeNamesAsString;
 
                 try
                 {
@@ -360,6 +391,25 @@ namespace SadhanaApp.WebUI.Controllers
                 }
                 catch (Exception ex)
                 {
+                    var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
+
+                    var customServiceTypes = new List<string> { "Deity Service", "Garland Service", "Others" };
+
+                    var serviceTypeList = serviceTypes.Select(st => new SelectListItem
+                    {
+                        Value = st.ServiceName,
+                        Text = st.ServiceName
+                    }).ToList();
+
+                    foreach (var customType in customServiceTypes)
+                    {
+                        if (!serviceTypeList.Any(st => st.Text == customType))
+                        {
+                            serviceTypeList.Add(new SelectListItem { Value = customType, Text = customType });
+                        }
+                    }
+
+                    ViewBag.ServiceTypeList = serviceTypeList;
                     ModelState.AddModelError("", "An error occurred while updating the record: " + ex.Message);
                     return View(viewModel);
                 }
@@ -370,6 +420,7 @@ namespace SadhanaApp.WebUI.Controllers
                 return RedirectToAction("Error", "Home");
             }
         }
+
 
 
 
@@ -589,6 +640,22 @@ namespace SadhanaApp.WebUI.Controllers
                 throw;
             }
         }
+
+
+        public async Task<IActionResult> GetCustomServiceTypes(string term)
+       {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Fetch the list of CustomServiceTypeInputs where IsOtherServiceTypeSelected is true
+            var customServiceTypes = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == int.Parse(userId) &&
+                                 c.IsOtherServiceTypeSelected && c.CustomServiceTypeInput.Contains(term))
+                                 .Select(c => c.CustomServiceTypeInput)
+                                                .Distinct()
+                                                .ToList(); ;
+                                        
+
+            return Json(customServiceTypes);
+        }
+
 
     }
 }

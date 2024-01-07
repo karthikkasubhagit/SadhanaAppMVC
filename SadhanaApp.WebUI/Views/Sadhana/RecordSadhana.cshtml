@@ -76,7 +76,9 @@
                         {
                             <li>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="SelectedServiceTypeNames" value="@serviceType.Text" id="serviceType-@serviceType.Value">
+                                    <input class="form-check-input service-type-checkbox" type="checkbox"
+                                           name="SelectedServiceTypeNames" value="@serviceType.Text"
+                                           id="serviceType-@serviceType.Value">
                                     <label class="form-check-label" for="serviceType-@serviceType.Value">
                                         @serviceType.Text
                                     </label>
@@ -84,16 +86,21 @@
                             </li>
                         }
 
+
                     </ul>
                 </div>
 
-                <label>Service Types:</label>
+              
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="CustomServiceTypeInput" type="text" class="form-control border shadow" />
+                    <label asp-for="CustomServiceTypeInput" class="ms-2">Service Name(s):</label>
+                </div>
 
                 <div class="col-12 mt-1">
                     <i class="bi bi-info-circle" id="infoIconManageServices" style="cursor: pointer;"></i>
                     <small class="text-muted"> Click the icon for more information about Services Type.</small>
                     <div id="notesManageServices" style="display: none;">
-                        <small class="text-muted">Select 'Manage Services' from menu to add a new service type. Once added, it will appear in the dropdown menu when you return to this page.</small>
+                        <small class="text-muted">To add regular service types, use 'Manage Services' from the menu; they'll appear in the dropdown upon return. For occasional services, check 'Others' and enter details in the above text box.</small>
                     </div>
                 </div>
 
@@ -140,9 +147,18 @@
         function updateSelectedServiceTypes() {
             var selectedServiceTypes = $('.dropdown-menu .form-check-input:checked').map(function () {
                 return this.value; // The value is the service type name
-            }).get().join(';');
+            }).get();
 
+            var isOtherSelected = selectedServiceTypes.includes('Others');
+            if (isOtherSelected) {
+                $('#CustomServiceTypeInput').removeAttr('disabled');
+                selectedServiceTypes = selectedServiceTypes.filter(val => val !== 'Others');
+                $('#CustomServiceTypeInput').val(selectedServiceTypes.join('; '));
+            } else {
+                $('#CustomServiceTypeInput').val(selectedServiceTypes.join('; ')).attr('disabled', 'disabled');
+            }
         }
+
 
         function saveFormData() {
             var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -176,11 +192,10 @@
         $(document).ready(function () {
             $('.service-type-checkbox').change(function () {
                 updateSelectedServiceTypes();
-                // Call saveFormData if needed
                 saveFormData();
             });
 
-            // Initialize with any pre-selected values if needed
+            // Trigger the update function on initial load
             updateSelectedServiceTypes();
 
             var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -252,7 +267,17 @@
 
             // Autocomplete for Hearing Title
             $("#HearingTitle").autocomplete({
-                source: '@Url.Action("GetHearingTitles", "Sadhana")', // Adjust the URL as needed
+                source: '@Url.Action("GetHearingTitles", "Sadhana")', 
+                minLength: 1,
+                select: function (event, ui) {
+                    $(this).val(ui.item.value);
+                    return false;
+                }
+            });
+
+            // Autocomplete for CustomServiceTypeInput
+            $("#CustomServiceTypeInput").autocomplete({
+                source: '@Url.Action("GetCustomServiceTypes", "Sadhana")',
                 minLength: 1,
                 select: function (event, ui) {
                     $(this).val(ui.item.value);
