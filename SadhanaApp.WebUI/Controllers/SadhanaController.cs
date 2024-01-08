@@ -154,7 +154,7 @@ namespace SadhanaApp.WebUI.Controllers
                 }
 
                 // EndDate is today's date
-                var endDate = DateTime.Today;
+                var endDate = GetNewZealandTime();
 
                 // Adjust EndDate based on the weekOffset
                 endDate = endDate.AddDays(-7 * weekOffset);
