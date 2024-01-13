@@ -69,7 +69,7 @@
 
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        Select Service Types
+                        What service did you do?
                     </button>
                     <ul class="dropdown-menu p-2" aria-labelledby="dropdownMenuButton">
                         @foreach (var serviceType in ViewBag.ServiceTypeList as List<SelectListItem>)
@@ -107,7 +107,7 @@
 
                 <div class="form-floating py-1 col-12">
                     <input asp-for="ServiceDurationInMinutes" type="number" class="form-control border shadow" />
-                    <label asp-for="ServiceDurationInMinutes" class="ms-2">Service Duration(in minutes):</label>
+                    <label asp-for="ServiceDurationInMinutes" class="ms-2">Service Duration (in minutes):</label>
                     <span asp-validation-for="ServiceDurationInMinutes" class="text-danger"></span>
                 </div>
                 <div class="form-floating py-1 col-12">

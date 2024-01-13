@@ -7,7 +7,6 @@ namespace SadhanaApp.WebUI.ViewModels
         [Required(ErrorMessage = "Date is a mandatory field")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [CustomDate(ErrorMessage = "Date cannot be in the future")]
         public DateTime? Date { get; set; }
 
         // A list to hold the names of selected service types

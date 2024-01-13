@@ -38,7 +38,7 @@ namespace SadhanaApp.WebUI.Controllers
                 _logger.LogInformation("Entering RecordSadhana action method.");
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
+                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
 
                 // List of custom service types to be included every time
                 var customServiceTypes = new List<string> { "Deity Service", "Garland Service", "Others" };
@@ -97,7 +97,7 @@ namespace SadhanaApp.WebUI.Controllers
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
                 bool recordExists = _unitOfWork.SadhanaRepository.GetAll(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId).Any();
-                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
+                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
 
                 var serviceTypeList = serviceTypes
                     .Select(st => new SelectListItem
@@ -143,7 +143,7 @@ namespace SadhanaApp.WebUI.Controllers
         // Display the chanting history of the user   
 
         [Authorize]
-        public async Task<IActionResult> SadhanaHistory(int weekOffset = 0, int pageSize = 10)
+        public async Task<IActionResult> SadhanaHistory(int offset = 0)
         {
             try
             {
@@ -153,23 +153,21 @@ namespace SadhanaApp.WebUI.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // EndDate is today's date
                 var endDate = GetNewZealandTime();
+                endDate = endDate.AddDays(-offset); // Adjust based on the offset
 
-                // Adjust EndDate based on the weekOffset
-                endDate = endDate.AddDays(-7 * weekOffset);
+                var startDate = endDate.AddDays(-99);
 
-                // StartDate is six days before EndDate
-                var startDate = endDate.AddDays(-6);
-
-                var recordsQuery = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate);
+                var recordsQuery = _unitOfWork.SadhanaRepository.GetAll(
+                    c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate
+                );
 
                 var records = recordsQuery.OrderByDescending(c => c.Date).ToList();
 
                 var model = new SadhanaHistoryViewModel
                 {
                     Records = records,
-                    WeekOffset = weekOffset,
+                    WeekOffset = offset,
                     StartDate = startDate,
                     EndDate = endDate
                 };
@@ -182,6 +180,7 @@ namespace SadhanaApp.WebUI.Controllers
                 return RedirectToAction("Error", "Home");
             }
         }
+
 
 
         [Authorize(Roles = "Instructor")]
@@ -305,7 +304,7 @@ namespace SadhanaApp.WebUI.Controllers
                 //    .Where(st => st.UserId == userId)
                 //    .ToListAsync();
 
-                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
+                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
 
                 var customServiceTypes = new List<string> { "Deity Service", "Garland Service", "Others" };
 
@@ -391,7 +390,7 @@ namespace SadhanaApp.WebUI.Controllers
                 }
                 catch (Exception ex)
                 {
-                    var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId).ToList();
+                    var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
 
                     var customServiceTypes = new List<string> { "Deity Service", "Garland Service", "Others" };
 

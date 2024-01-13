@@ -6,7 +6,7 @@
         public int TotalRecords { get; set; }
         public int CurrentPage { get; set; }
         public int PageSize { get; set; }
-        public int DaysFilter { get; set; }
+        public int EntriesToShow { get; set; }
         public string HeadingText { get; set; }
 
         // Additions for week-based navigation

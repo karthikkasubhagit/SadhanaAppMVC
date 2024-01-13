@@ -23,7 +23,7 @@ namespace SadhanaApp.WebUI.Controllers
             //return View(serviceTypes);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == int.Parse(userId))
+            var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == int.Parse(userId) && !st.IsDeleted)
                 .ToList();
             var distinctServiceTypes = serviceTypes
                 .GroupBy(st => st.ServiceName)
@@ -159,15 +159,19 @@ namespace SadhanaApp.WebUI.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var serviceType =_unitOfWork.ServiceRepository.Get(st => st.ServiceTypeId == id);
+            var serviceType = _unitOfWork.ServiceRepository.Get(st => st.ServiceTypeId == id);
 
             if (serviceType == null || serviceType.UserId != userId)
             {
                 return NotFound(); // Or return unauthorized if you want to indicate a permission issue
             }
-            _unitOfWork.ServiceRepository.Remove(serviceType);
+
+            // Soft delete the service type
+            serviceType.IsDeleted = true;
+            _unitOfWork.ServiceRepository.Update(serviceType);
             _unitOfWork.Save();
-            TempData["success"] = "Service type has been deleted successfully.";
+
+            TempData["success"] = "Service type has been marked as deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
     }
