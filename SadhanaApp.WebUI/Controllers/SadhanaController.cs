@@ -448,6 +448,30 @@ namespace SadhanaApp.WebUI.Controllers
 
 
 
+        //[Authorize(Roles = "Instructor")]
+        //public async Task<IActionResult> StudentProgressGraph()
+        //{
+        //    try
+        //    {
+        //        var instructorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //        var viewModel = new InstructorStudentGraphViewModel();
+
+        //        var students = _unitOfWork.UserRepository.GetAll(u => u.ShikshaGuruId == int.Parse(instructorId)).ToList();
+        //        viewModel.Students = students.Select(s => new SelectListItem
+        //        {
+        //            Value = s.UserId.ToString(),
+        //            Text = $"{s.FirstName} {s.LastName}"
+        //        }).ToList();
+
+        //        return View(viewModel);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error occurred in StudentProgressGraph method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
+        //        return RedirectToAction("Error", "Home");
+        //    }
+        //}
+
         [Authorize(Roles = "Instructor")]
         public async Task<IActionResult> StudentProgressGraph()
         {
@@ -456,12 +480,31 @@ namespace SadhanaApp.WebUI.Controllers
                 var instructorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var viewModel = new InstructorStudentGraphViewModel();
 
+                // Get students
                 var students = _unitOfWork.UserRepository.GetAll(u => u.ShikshaGuruId == int.Parse(instructorId)).ToList();
                 viewModel.Students = students.Select(s => new SelectListItem
                 {
                     Value = s.UserId.ToString(),
                     Text = $"{s.FirstName} {s.LastName}"
                 }).ToList();
+
+                // Assuming you have a similar method to fetch Sadhana records for students
+                // This is where you would add similar logic as in the Graph method
+                // For each student, fetch their Sadhana records and aggregate them
+                // You might need to adjust your ViewModel to accommodate this data
+
+                // Example (you'll need to adjust based on your actual data structure):
+                foreach (var student in students)
+                {
+                    var currentDate = DateTime.Today;
+                    var studentRecords = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == student.UserId && c.Date >= currentDate.AddDays(-30))
+                                                     .OrderBy(r => r.Date)
+                                                     .ToList();
+
+                    // Process records similar to the Graph method
+                    // Aggregate daily, monthly, and yearly data
+                    // Add this data to the ViewModel
+                }
 
                 return View(viewModel);
             }
@@ -471,6 +514,7 @@ namespace SadhanaApp.WebUI.Controllers
                 return RedirectToAction("Error", "Home");
             }
         }
+
 
         [Authorize(Roles = "Instructor")]
         public async Task<IActionResult> GetStudentGraphData(int studentId)
