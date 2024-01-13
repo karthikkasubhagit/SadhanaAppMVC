@@ -15,14 +15,14 @@ namespace SadhanaApp.WebUI.Controllers
 
     public class SadhanaController : Controller
     {
-        
+
         private readonly IMapper _mapper;
         private readonly ILogger<SadhanaController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
         public SadhanaController(IMapper mapper, ILogger<SadhanaController> logger, IUnitOfWork unitOfWork)
         {
-            
+
             _mapper = mapper;
             _logger = logger;
             _unitOfWork = unitOfWork;
@@ -41,7 +41,7 @@ namespace SadhanaApp.WebUI.Controllers
                 var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
 
                 // List of custom service types to be included every time
-                var customServiceTypes = new List<string> { "Deity Service", "Garland Service", "Others" };
+                var customServiceTypes = new List<string> { "Others" };
 
 
                 var serviceTypeList = serviceTypes
@@ -53,6 +53,7 @@ namespace SadhanaApp.WebUI.Controllers
                     .ToList();
 
                 // Add custom service types to the list, ensuring they are unique
+
                 foreach (var customType in customServiceTypes)
                 {
                     if (!serviceTypeList.Any(st => st.Text == customType))
@@ -60,6 +61,7 @@ namespace SadhanaApp.WebUI.Controllers
                         serviceTypeList.Add(new SelectListItem { Value = customType, Text = customType });
                     }
                 }
+
 
                 ViewBag.ServiceTypeList = serviceTypeList;
 
@@ -69,13 +71,13 @@ namespace SadhanaApp.WebUI.Controllers
                     SelectedServiceTypeNames = new List<string>() // Initialize the list
                 };
 
-                if(date != null)
+                if (date != null)
                 {
                     viewModel.Date = DateTime.Parse(date);
                 }
                 return View(viewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in RecordSadhana method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 return RedirectToAction("Error", "Home");
@@ -280,7 +282,7 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 _logger.LogError(ex, "Error occurred in Graph method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 return RedirectToAction("Error", "Home");
-            }        
+            }
         }
 
         // Display the Edit form
@@ -306,7 +308,8 @@ namespace SadhanaApp.WebUI.Controllers
 
                 var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
 
-                var customServiceTypes = new List<string> { "Deity Service", "Garland Service", "Others" };
+
+
 
                 var serviceTypeList = serviceTypes.Select(st => new SelectListItem
                 {
@@ -314,13 +317,12 @@ namespace SadhanaApp.WebUI.Controllers
                     Text = st.ServiceName
                 }).ToList();
 
-                foreach (var customType in customServiceTypes)
-                {
-                    if (!serviceTypeList.Any(st => st.Text == customType))
-                    {
-                        serviceTypeList.Add(new SelectListItem { Value = customType, Text = customType });
-                    }
-                }
+
+                serviceTypeList.Add(new SelectListItem { Value = "Others", Text = "Others" });
+
+
+
+
 
                 ViewBag.ServiceTypeList = serviceTypeList;
 
@@ -391,22 +393,13 @@ namespace SadhanaApp.WebUI.Controllers
                 catch (Exception ex)
                 {
                     var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
-
-                    var customServiceTypes = new List<string> { "Deity Service", "Garland Service", "Others" };
-
                     var serviceTypeList = serviceTypes.Select(st => new SelectListItem
                     {
                         Value = st.ServiceName,
                         Text = st.ServiceName
                     }).ToList();
 
-                    foreach (var customType in customServiceTypes)
-                    {
-                        if (!serviceTypeList.Any(st => st.Text == customType))
-                        {
-                            serviceTypeList.Add(new SelectListItem { Value = customType, Text = customType });
-                        }
-                    }
+                    serviceTypeList.Add(new SelectListItem { Value = "Others", Text = "Others" });
 
                     ViewBag.ServiceTypeList = serviceTypeList;
                     ModelState.AddModelError("", "An error occurred while updating the record: " + ex.Message);
@@ -430,8 +423,8 @@ namespace SadhanaApp.WebUI.Controllers
         {
             try
             {
-               // var record = await _context.ChantingRecords.FindAsync(id);
-               var record = _unitOfWork.SadhanaRepository.Get(c => c.Id == id);
+                // var record = await _context.ChantingRecords.FindAsync(id);
+                var record = _unitOfWork.SadhanaRepository.Get(c => c.Id == id);
                 if (record == null)
                 {
                     TempData["error"] = "Your chanting record could not be found.";
@@ -444,15 +437,15 @@ namespace SadhanaApp.WebUI.Controllers
                 TempData["success"] = "Your chanting record has been deleted successfully.";
                 return Json(new { success = true });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in Delete Post method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 return Json(new { success = false, message = "An error occurred while deleting the record." });
-            }   
+            }
         }
 
 
-        
+
 
 
         [Authorize(Roles = "Instructor")]
@@ -576,7 +569,7 @@ namespace SadhanaApp.WebUI.Controllers
                 // Return the partial view with the missing dates
                 return PartialView("_MissingDatesPartial", missingDates);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in GetMissingDates method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 return RedirectToAction("Error", "Home");
@@ -590,7 +583,7 @@ namespace SadhanaApp.WebUI.Controllers
                 var user = _unitOfWork.UserRepository.Get(u => u.UserId == userId);
                 return user.DateRegistered;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in GetUserRegistrationDate method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 throw;
@@ -642,7 +635,7 @@ namespace SadhanaApp.WebUI.Controllers
 
 
         public async Task<IActionResult> GetCustomServiceTypes(string term)
-       {
+        {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             // Fetch the list of CustomServiceTypeInputs where IsOtherServiceTypeSelected is true
             var customServiceTypes = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == int.Parse(userId) &&
@@ -650,7 +643,7 @@ namespace SadhanaApp.WebUI.Controllers
                                  .Select(c => c.CustomServiceTypeInput)
                                                 .Distinct()
                                                 .ToList(); ;
-                                        
+
 
             return Json(customServiceTypes);
         }
