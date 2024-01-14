@@ -56,7 +56,7 @@ namespace SadhanaApp.WebUI.Controllers
                     // Check for duplicates within the user's service types
                     bool recordExists = _unitOfWork.ServiceRepository
                         .Any(st => st.ServiceName.Trim().Equals(serviceType.ServiceName.Trim())
-                                        && st.UserId == userId);
+                                        && st.UserId == userId && st.IsDeleted == false);
                     if (recordExists)
                     {
                         TempData["error"] = "This service type already exists.";
@@ -64,7 +64,18 @@ namespace SadhanaApp.WebUI.Controllers
                     }
 
                     // Add the new service type
-                    _unitOfWork.ServiceRepository.Add(serviceType);
+
+                    if (_unitOfWork.ServiceRepository
+                        .Any(st => st.ServiceName.Trim().Equals(serviceType.ServiceName.Trim())
+                                        && st.UserId == userId))
+                    {
+                        serviceType.IsDeleted = false;
+                        _unitOfWork.ServiceRepository.Add(serviceType);
+                    }
+                    else
+                    {
+                        _unitOfWork.ServiceRepository.Add(serviceType);
+                    }
                     _unitOfWork.Save();
 
                     TempData["success"] = "A new service type has been created successfully.";

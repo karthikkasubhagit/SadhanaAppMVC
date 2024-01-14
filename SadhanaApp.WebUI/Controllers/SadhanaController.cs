@@ -71,6 +71,7 @@ namespace SadhanaApp.WebUI.Controllers
                     SelectedServiceTypeNames = new List<string>() // Initialize the list
                 };
 
+               
                 if (date != null)
                 {
                     viewModel.Date = DateTime.Parse(date);
@@ -111,6 +112,12 @@ namespace SadhanaApp.WebUI.Controllers
 
 
                 ViewBag.ServiceTypeList = serviceTypeList;
+
+                if (!ModelState.IsValid)
+                {
+                    return View(viewModel); // Return the view with validation errors
+                }
+
 
                 if (recordExists)
                 {

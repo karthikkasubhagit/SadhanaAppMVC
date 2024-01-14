@@ -7,6 +7,7 @@ namespace SadhanaApp.WebUI.ViewModels
         [Required(ErrorMessage = "Date is a mandatory field")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [CustomDate(ErrorMessage = "Future dates are not allowed.")]
         public DateTime? Date { get; set; }
 
         // A list to hold the names of selected service types
@@ -57,8 +58,15 @@ namespace SadhanaApp.WebUI.ViewModels
     {
         public override bool IsValid(object value)
         {
-            DateTime d = Convert.ToDateTime(value);
-            return d <= DateTime.Now;
+            if (value == null || !(value is DateTime))
+            {
+                return false;
+            }
+
+            DateTime inputDate = (DateTime)value;
+            DateTime currentTimePlus2Hours = DateTime.Now.AddHours(2);
+
+            return inputDate <= currentTimePlus2Hours;
         }
     }
 }

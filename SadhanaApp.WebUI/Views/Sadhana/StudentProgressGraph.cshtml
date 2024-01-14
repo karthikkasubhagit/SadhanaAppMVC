@@ -15,7 +15,7 @@
 </div>
 
 <!-- Chart container with flex layout for responsiveness -->
-<div style="display: flex; flex-direction: column; align-items: center; background-color: #fff; padding: 20px; border-radius: 5px;">
+<div id="chartContainer" style="display: none; flex-direction: column; align-items: center; background-color: #fff; padding: 20px; border-radius: 5px;">
     <!-- Canvas for rendering the student's graph -->
     <div style="width: 100%; max-width: 800px;">
         <canvas id="dailyChart"></canvas>
@@ -34,8 +34,14 @@
     <script>
         function loadStudentGraph() {
             var studentId = document.getElementById('studentSelector').value;
-            if (!studentId) return;
-
+            if (!studentId) {
+                clearChart('dailyChart');
+                clearChart('monthlyChart');
+                clearChart('yearlyChart');
+                chartContainer.style.display = 'none'; // Hide the chart container
+                return;
+            }
+            chartContainer.style.display = 'flex';
             fetch('/Sadhana/GetStudentGraphData?studentId=' + studentId)
                 .then(response => response.json())
                 .then(data => {
@@ -91,5 +97,11 @@
             });
         }
 
+        function clearChart(elementId) {
+            if (window[elementId + 'GraphInstance']) {
+                window[elementId + 'GraphInstance'].destroy();
+                window[elementId + 'GraphInstance'] = null;
+            }
+        }
     </script>
 }
