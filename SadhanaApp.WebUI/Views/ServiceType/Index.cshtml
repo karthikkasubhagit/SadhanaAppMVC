@@ -11,7 +11,7 @@
     <div class="text-end mb-3">
         <a asp-action="Create" class="btn btn-primary">Add New Service Type</a>
         <div class="text-end mt-3">
-            <a href="javascript:void(0);" onclick="setReturnFlagAndNavigate()"> <i class="bi bi-arrow-left"></i>Back to Sadhana Entry Form</a>
+            <a href="javascript:void(0);" onclick="setReturnFlagAndNavigate()"> <i class="bi bi-arrow-left"></i>Back to Sadhana History</a>
         </div>
 
     </div>
@@ -44,7 +44,7 @@
     </div>
 
     <div class="text-end mt-3">
-        <a href="javascript:void(0);" onclick="setReturnFlagAndNavigate()"><i class="bi bi-arrow-return-left"></i>Back to Sadhana Entry Form</a>
+        <a href="javascript:void(0);" onclick="setReturnFlagAndNavigate()"><i class="bi bi-arrow-return-left"></i>Back to Sadhana History</a>
     </div>
 
 </div>
@@ -55,7 +55,7 @@
     <script>
         function setReturnFlagAndNavigate() {
             localStorage.setItem('returningFromServiceTypes', 'true');
-            window.location.href = '@Url.Action("RecordSadhana", "Sadhana")';
+            window.location.href = '@Url.Action("SadhanaHistory", "Sadhana")';
         }
 
     </script>
