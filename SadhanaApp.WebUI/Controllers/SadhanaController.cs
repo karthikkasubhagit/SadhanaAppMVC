@@ -9,6 +9,7 @@ using SadhanaApp.Domain;
 using SadhanaApp.WebUI.ViewModels;
 using System.Diagnostics;
 using System.Security.Claims;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace SadhanaApp.WebUI.Controllers
 {
@@ -38,7 +39,9 @@ namespace SadhanaApp.WebUI.Controllers
                 _logger.LogInformation("Entering RecordSadhana action method.");
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
+                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted && !st.IsHidden).ToList();
+
+                
 
                 // List of custom service types to be included every time
                 var customServiceTypes = new List<string> { "Others" };
@@ -100,19 +103,30 @@ namespace SadhanaApp.WebUI.Controllers
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
                 bool recordExists = _unitOfWork.SadhanaRepository.GetAll(cr => cr.Date.Date == viewModel.Date && cr.UserId == userId).Any();
-                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
+                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted && !st.IsHidden).ToList();
+
+                // List of custom service types to be included every time
+                var customServiceTypes = new List<string> { "Others" };
+
 
                 var serviceTypeList = serviceTypes
                     .Select(st => new SelectListItem
                     {
-                        Value = st.ServiceTypeId.ToString(),
+                        Value = st.ServiceName,
                         Text = st.ServiceName
                     })
                     .ToList();
 
+                // Add custom service types to the list, ensuring they are unique
 
+                foreach (var customType in customServiceTypes)
+                {
+                    if (!serviceTypeList.Any(st => st.Text == customType))
+                    {
+                        serviceTypeList.Add(new SelectListItem { Value = customType, Text = customType });
+                    }
+                }
                 ViewBag.ServiceTypeList = serviceTypeList;
-
                 if (!ModelState.IsValid)
                 {
                     return View(viewModel); // Return the view with validation errors
@@ -152,7 +166,7 @@ namespace SadhanaApp.WebUI.Controllers
         // Display the chanting history of the user   
 
         [Authorize]
-        public async Task<IActionResult> SadhanaHistory(int offset = 0)
+        public async Task<IActionResult> SadhanaHistory(int offset = 0, int days = 7)
         {
             try
             {
@@ -165,7 +179,7 @@ namespace SadhanaApp.WebUI.Controllers
                 var endDate = GetNewZealandTime();
                 endDate = endDate.AddDays(-offset); // Adjust based on the offset
 
-                var startDate = endDate.AddDays(-99);
+                var startDate = endDate.AddDays(-days + 1);
 
                 var recordsQuery = _unitOfWork.SadhanaRepository.GetAll(
                     c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate
@@ -178,7 +192,8 @@ namespace SadhanaApp.WebUI.Controllers
                     Records = records,
                     WeekOffset = offset,
                     StartDate = startDate,
-                    EndDate = endDate
+                    EndDate = endDate,
+                    Days = days
                 };
 
                 return View(model);
@@ -216,10 +231,27 @@ namespace SadhanaApp.WebUI.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Instructor")]
-        public async Task<IActionResult> GetDevoteeChantingRecords(int devoteeId)
+        public async Task<IActionResult> GetDevoteeChantingRecords(int devoteeId, int days = 7)
         {
-            var chantingRecords = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == devoteeId).ToList();
-            return Json(chantingRecords);
+            try
+            {
+                DateTime endDate = DateTime.Now;
+                DateTime startDate = endDate.AddDays(-days);
+
+                var chantingRecords = _unitOfWork.SadhanaRepository.GetAll(
+                    c => c.UserId == devoteeId && c.Date.Date >= startDate && c.Date.Date <= endDate
+                ).ToList();
+
+                // Future change - Might want to convert the records to a suitable format or DTO
+                // to send as JSON, depending on your application's needs
+
+                return Json(chantingRecords);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in GetDevoteeChantingRecords method.");
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
 
@@ -313,25 +345,31 @@ namespace SadhanaApp.WebUI.Controllers
                 //    .Where(st => st.UserId == userId)
                 //    .ToListAsync();
 
-                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
+                var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted && !st.IsHidden).ToList();
 
 
-
-
+                // Create SelectListItem list from serviceTypes
                 var serviceTypeList = serviceTypes.Select(st => new SelectListItem
                 {
                     Value = st.ServiceName,
                     Text = st.ServiceName
                 }).ToList();
 
+                // Extract common services
+                var commonServices = GetCommonServices(userId, record.Id);
 
+                // Include common services in the serviceTypeList
+                foreach (var service in commonServices)
+                {
+                    serviceTypeList.Add(new SelectListItem { Value = service, Text = service });
+                }
+
+                // Add the "Others" option
                 serviceTypeList.Add(new SelectListItem { Value = "Others", Text = "Others" });
 
-
-
-
-
+                // Assign the serviceTypeList to ViewBag
                 ViewBag.ServiceTypeList = serviceTypeList;
+
 
                 // Assuming `ServiceTypeNames` in `ChantingRecord` holds the semicolon-separated service type names
                 // Split the string into a list of names and then map them to their corresponding IDs for the SelectList
@@ -399,16 +437,30 @@ namespace SadhanaApp.WebUI.Controllers
                 }
                 catch (Exception ex)
                 {
-                    var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted).ToList();
+                    var serviceTypes = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted && !st.IsHidden).ToList();
+
+                    // Create SelectListItem list from serviceTypes
                     var serviceTypeList = serviceTypes.Select(st => new SelectListItem
                     {
                         Value = st.ServiceName,
                         Text = st.ServiceName
                     }).ToList();
 
+                    // Extract common services
+                    var commonServices = GetCommonServices(userId, existingRecord.Id);
+
+                    // Include common services in the serviceTypeList
+                    foreach (var service in commonServices)
+                    {
+                        serviceTypeList.Add(new SelectListItem { Value = service, Text = service });
+                    }
+
+                    // Add the "Others" option
                     serviceTypeList.Add(new SelectListItem { Value = "Others", Text = "Others" });
 
+                    // Assign the serviceTypeList to ViewBag
                     ViewBag.ServiceTypeList = serviceTypeList;
+
                     ModelState.AddModelError("", "An error occurred while updating the record: " + ex.Message);
                     return View(viewModel);
                 }
@@ -697,6 +749,27 @@ namespace SadhanaApp.WebUI.Controllers
 
 
             return Json(customServiceTypes);
+        }
+
+
+        private List<string> GetCommonServices(int userId, int recordId)
+        {
+            var hiddenServices = _unitOfWork.ServiceRepository.GetAll(st => st.UserId == userId && !st.IsDeleted && st.IsHidden)
+                    .Select(entity => entity.ServiceName.Trim()) // Trimming each service name
+            .Distinct()
+            .ToList();
+
+            var usedServices = _unitOfWork.SadhanaRepository.GetAll(st => st.UserId == userId && st.Id == recordId)
+                   .SelectMany(entity =>
+                       entity.ServiceTypeNames?.Split(';') ?? Array.Empty<string>())
+                   .Select(name => name.Trim())
+                   .Distinct()
+                   .ToList();
+
+
+            // Finding common elements between hiddenServices and usedServices
+            var commonServices = hiddenServices.Intersect(usedServices).ToList();
+            return commonServices;
         }
 
 

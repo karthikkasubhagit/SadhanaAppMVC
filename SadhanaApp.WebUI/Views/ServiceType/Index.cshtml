@@ -1,4 +1,4 @@
-﻿@model IEnumerable<SadhanaApp.Domain.ServiceType>
+﻿@model SadhanaApp.WebUI.ViewModels.ServiceTypeViewModel
 
 @{
     ViewData["Title"] = "Manage Service Types";
@@ -7,35 +7,27 @@
 
 <div class="container mt-4">
     <h2 class="text-center">Manage Service Types</h2>
-
-    <div class="text-end mb-3">
-        <a asp-action="Create" class="btn btn-primary">Add New Service Type</a>
-        <div class="text-end mt-3">
-            <a href="javascript:void(0);" onclick="setReturnFlagAndNavigate()"> <i class="bi bi-arrow-left"></i>Back to Sadhana History</a>
-        </div>
-
-    </div>
-
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
+    <a asp-action="Create" class="btn btn-primary">Add New Service Type</a>
+    <div class="text-end mt-3">
+        <a href="javascript:void(0);" onclick="setReturnFlagAndNavigate()"> <i class="bi bi-arrow-left"></i>Back to Sadhana History</a>
+    <!-- Active Service Types -->
+    <div>
+        <h3>Active Service Types</h3>
+        <table class="table">
             <thead>
                 <tr>
                     <th>Service Name</th>
-                    <th class="text-center">Actions</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.ActiveServiceTypes)
                 {
                     <tr>
                         <td>@item.ServiceName</td>
-                        <td class="text-center">
-                            <a asp-action="Edit" asp-route-id="@item.ServiceTypeId" class="btn btn-secondary btn-sm me-2">
-                                <i class="bi bi-pencil"></i> Edit
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@item.ServiceTypeId" class="btn btn-danger btn-sm">
-                                <i class="bi bi-trash"></i> Delete
-                            </a>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ServiceTypeId" class="btn btn-secondary">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.ServiceTypeId" class="btn btn-danger">Delete</a>
                         </td>
                     </tr>
                 }
@@ -43,21 +35,45 @@
         </table>
     </div>
 
-    <div class="text-end mt-3">
-        <a href="javascript:void(0);" onclick="setReturnFlagAndNavigate()"><i class="bi bi-arrow-return-left"></i>Back to Sadhana History</a>
-    </div>
-
+    <!-- Hidden Service Types -->
+    @if (Model.HiddenServiceTypes.Any())
+    {
+        <div class="mt-5">
+            <h3>Hidden Service Types</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.HiddenServiceTypes)
+                    {
+                        <tr>
+                            <td>@item.ServiceName</td>
+                            <td>
+                                <!-- Assuming you have an Unhide action -->
+                                <a asp-action="UnhideServiceType" asp-route-id="@item.ServiceTypeId" class="btn btn-info">Unhide</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>
 
-@section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <script>
-        function setReturnFlagAndNavigate() {
-            localStorage.setItem('returningFromServiceTypes', 'true');
-            window.location.href = '@Url.Action("SadhanaHistory", "Sadhana")';
-        }
+    @section Scripts {
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    </script>
-    <!-- Include any additional scripts here -->
-}
+        <script>
+            function setReturnFlagAndNavigate() {
+               // localStorage.setItem('returningFromServiceTypes', 'true');
+                window.location.href = '@Url.Action("SadhanaHistory", "Sadhana")';
+            }
+
+        </script>
+        <!-- Include any additional scripts here -->
+    }

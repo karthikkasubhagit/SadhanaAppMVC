@@ -3,6 +3,26 @@
     font-family: Arial, sans-serif;*/ /* Change the font family here */
 /*}*/
 
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40vh;
+    width: 80vw;
+    margin: auto;
+}
+
+/* Adjusting for smaller screens */
+@media screen and (max-width: 600px) {
+    .chart-container {
+        width: 95vw; /* slightly smaller to fit in smaller screens */
+        height: 30vh;
+    }
+}
+
+/* You can add more media queries for different breakpoints */
+
+
 .welcome-message {
     font-weight: 400; /* Change as desired */
     color: #333; /* Change to your preferred color */

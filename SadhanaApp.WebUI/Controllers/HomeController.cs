@@ -36,7 +36,7 @@ namespace SadhanaApp.WebUI.Controllers
 
                 // Filter records for the last 30 days, last 12 months, and last 5 years
 
-                var records = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == id && c.Date >= currentDate.AddDays(-30))
+                var records = _unitOfWork.SadhanaRepository.GetAll(c => c.UserId == id && c.Date >= currentDate.AddDays(-7))
                                           .OrderBy(r => r.Date)
                                           .ToList();
 

@@ -16,5 +16,7 @@ namespace SadhanaApp.Domain
         public User User { get; set; }
 
         public bool IsDeleted { get; set; }
+        public bool IsHidden { get; set; } = false;
+
     }
 }

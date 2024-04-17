@@ -100,7 +100,7 @@
                     <i class="bi bi-info-circle" id="infoIconManageServices" style="cursor: pointer;"></i>
                     <small class="text-muted"> Click the icon for more information about Services Type.</small>
                     <div id="notesManageServices" style="display: none;">
-                        <small class="text-muted">To add regular service types, use 'Manage Services' from the menu; they'll appear in the dropdown upon return. For occasional services, check 'Others' and enter details in the above text box.</small>
+                        <small class="text-muted">To add regular service types, use 'Manage Services' from the menu; they'll appear in the dropdown upon return. For occasional services, check 'Others' and enter details in the above text box. Either use Others or Drop down elements but not both for desired results.</small>
                     </div>
                 </div>
 
@@ -142,7 +142,7 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>  
     <script>
         function updateSelectedServiceTypes() {
             var selectedServiceTypes = $('.dropdown-menu .form-check-input:checked').map(function () {
@@ -160,39 +160,39 @@
         }
 
 
-        function saveFormData() {
-            var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var selectedServiceTypes = $('#serviceTypesDropdown').val() || [];
-            var selectedServiceTypeNames = selectedServiceTypes.map(function (id) {
-                return $("#serviceTypesDropdown option[value='" + id + "']").text();
-            }).join(';');
+        // function saveFormData() {
+        //     var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //     var selectedServiceTypes = $('#serviceTypesDropdown').val() || [];
+        //     var selectedServiceTypeNames = selectedServiceTypes.map(function (id) {
+        //         return $("#serviceTypesDropdown option[value='" + id + "']").text();
+        //     }).join(';');
 
 
-            var formData = {
-                date: $('#Date').val(),
-                morningRounds: $('#MorningRounds').val(),
-                dayRounds: $('#DayRounds').val(),
-                eveningRounds: $('#EveningRounds').val(),
-                readingTitle: $('#ReadingTitle').val(),
-                readingDurationInMinutes: $('#ReadingDurationInMinutes').val(),
-                hearingTitle: $('#HearingTitle').val(),
-                hearingDurationInMinutes: $('#HearingDurationInMinutes').val(),
-                selectedServiceTypeNames: selectedServiceTypeNames, // Changed to store the names
-                serviceDurationInMinutes: $('#ServiceDurationInMinutes').val(),
-                notes: $('#Notes').val(),
-            };
-            localStorage.setItem('sadhanaFormData' + userId, JSON.stringify(formData));
-        }
+        //     var formData = {
+        //         date: $('#Date').val(),
+        //         morningRounds: $('#MorningRounds').val(),
+        //         dayRounds: $('#DayRounds').val(),
+        //         eveningRounds: $('#EveningRounds').val(),
+        //         readingTitle: $('#ReadingTitle').val(),
+        //         readingDurationInMinutes: $('#ReadingDurationInMinutes').val(),
+        //         hearingTitle: $('#HearingTitle').val(),
+        //         hearingDurationInMinutes: $('#HearingDurationInMinutes').val(),
+        //         selectedServiceTypeNames: selectedServiceTypeNames, // Changed to store the names
+        //         serviceDurationInMinutes: $('#ServiceDurationInMinutes').val(),
+        //         notes: $('#Notes').val(),
+        //     };
+        //     localStorage.setItem('sadhanaFormData' + userId, JSON.stringify(formData));
+        // }
 
 
         // Attach event listeners
-        $('#Date, #MorningRounds, #DayRounds, #EveningRounds, #ReadingTitle, #ReadingDurationInMinutes, #HearingTitle, #HearingDurationInMinutes, #serviceTypesDropdown, #ServiceDurationInMinutes, #Notes').change(saveFormData);
+      //  $('#Date, #MorningRounds, #DayRounds, #EveningRounds, #ReadingTitle, #ReadingDurationInMinutes, #HearingTitle, #HearingDurationInMinutes, #serviceTypesDropdown, #ServiceDurationInMinutes, #Notes').change(saveFormData);
 
 
         $(document).ready(function () {
             $('.service-type-checkbox').change(function () {
                 updateSelectedServiceTypes();
-                saveFormData();
+              //  saveFormData();
             });
 
             // Trigger the update function on initial load
@@ -201,37 +201,37 @@
             var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
             var returningFromServiceTypes = localStorage.getItem('returningFromServiceTypes');
 
-            if (returningFromServiceTypes === 'true') {
-                var savedData = localStorage.getItem('sadhanaFormData' + userId);
-                if (savedData) {
-                    var formData = JSON.parse(savedData);
-                    var savedDate = new Date(formData.date);
-                    var currentDate = new Date();
-                    if (savedDate.setHours(0, 0, 0, 0) === currentDate.setHours(0, 0, 0, 0)) {
-                        $('#Date').val(formData.date);
-                    }
-                    $('#MorningRounds').val(formData.morningRounds);
-                    $('#DayRounds').val(formData.dayRounds);
-                    $('#EveningRounds').val(formData.eveningRounds);
-                    $('#ReadingTitle').val(formData.readingTitle);
-                    $('#ReadingDurationInMinutes').val(formData.readingDurationInMinutes);
-                    $('#HearingTitle').val(formData.hearingTitle);
-                    $('#HearingDurationInMinutes').val(formData.hearingDurationInMinutes);
+            // if (returningFromServiceTypes === 'true') {
+            //     var savedData = localStorage.getItem('sadhanaFormData' + userId);
+            //     if (savedData) {
+            //         var formData = JSON.parse(savedData);
+            //         var savedDate = new Date(formData.date);
+            //         var currentDate = new Date();
+            //         if (savedDate.setHours(0, 0, 0, 0) === currentDate.setHours(0, 0, 0, 0)) {
+            //             $('#Date').val(formData.date);
+            //         }
+            //         $('#MorningRounds').val(formData.morningRounds);
+            //         $('#DayRounds').val(formData.dayRounds);
+            //         $('#EveningRounds').val(formData.eveningRounds);
+            //         $('#ReadingTitle').val(formData.readingTitle);
+            //         $('#ReadingDurationInMinutes').val(formData.readingDurationInMinutes);
+            //         $('#HearingTitle').val(formData.hearingTitle);
+            //         $('#HearingDurationInMinutes').val(formData.hearingDurationInMinutes);
 
-                    // Handle multi-select service types
-                    if (formData.selectedServiceTypeNames) {
-                        var serviceNames = formData.selectedServiceTypeNames.split(';');
-                        $('#serviceTypesDropdown').val(serviceNames);
-                        $('#serviceTypesDropdown').trigger('change');
-                    }
+            //         // Handle multi-select service types
+            //         if (formData.selectedServiceTypeNames) {
+            //             var serviceNames = formData.selectedServiceTypeNames.split(';');
+            //             $('#serviceTypesDropdown').val(serviceNames);
+            //             $('#serviceTypesDropdown').trigger('change');
+            //         }
 
-                    $('#ServiceDurationInMinutes').val(formData.serviceDurationInMinutes);
-                    $('#Notes').val(formData.notes);
-                }
-                localStorage.removeItem('returningFromServiceTypes');
-            } else {
-                localStorage.removeItem('sadhanaFormData' + userId);
-            }
+            //         $('#ServiceDurationInMinutes').val(formData.serviceDurationInMinutes);
+            //         $('#Notes').val(formData.notes);
+            //     }
+            //     localStorage.removeItem('returningFromServiceTypes');
+            // } else {
+            //     localStorage.removeItem('sadhanaFormData' + userId);
+            // }
         });
 
     </script>

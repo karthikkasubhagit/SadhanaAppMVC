@@ -13,6 +13,7 @@
         public int WeekOffset { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public int Days { get; set; } // Number of days for the history view
     }
 
 }

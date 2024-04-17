@@ -6,8 +6,7 @@ namespace SadhanaApp.WebUI.ViewModels
     {
         [Required(ErrorMessage = "Date is a mandatory field")]
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [CustomDate(ErrorMessage = "Future dates are not allowed.")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]        
         public DateTime? Date { get; set; }
 
         // A list to hold the names of selected service types
@@ -63,10 +62,11 @@ namespace SadhanaApp.WebUI.ViewModels
                 return false;
             }
 
-            DateTime inputDate = (DateTime)value;
-            DateTime currentTimePlus2Hours = DateTime.Now.AddHours(2);
+            DateTime inputDate = ((DateTime)value).ToUniversalTime(); // Convert input to UTC
+            DateTime currentUtcTime = DateTime.UtcNow; // Current UTC time
 
-            return inputDate <= currentTimePlus2Hours;
+            return inputDate <= currentUtcTime;
         }
     }
+
 }
