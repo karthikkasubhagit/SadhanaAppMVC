@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SadhanaApp.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231230010719_NewColumnForServiceTypeNames")]
+    partial class NewColumnForServiceTypeNames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,9 +35,6 @@ namespace SadhanaApp.Persistence.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CustomServiceTypeInput")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -49,9 +49,6 @@ namespace SadhanaApp.Persistence.Migrations
 
                     b.Property<string>("HearingTitle")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsOtherServiceTypeSelected")
-                        .HasColumnType("bit");
 
                     b.Property<int?>("MorningRounds")
                         .HasColumnType("int");
@@ -72,6 +69,9 @@ namespace SadhanaApp.Persistence.Migrations
                     b.Property<int?>("ServiceDurationInMinutes")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ServiceTypeId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ServiceTypeNames")
                         .HasColumnType("nvarchar(max)");
 
@@ -82,6 +82,8 @@ namespace SadhanaApp.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ServiceTypeId");
 
                     b.HasIndex("UserId");
 
@@ -95,12 +97,6 @@ namespace SadhanaApp.Persistence.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceTypeId"));
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsHidden")
-                        .HasColumnType("bit");
 
                     b.Property<string>("ServiceName")
                         .IsRequired()
@@ -119,80 +115,60 @@ namespace SadhanaApp.Persistence.Migrations
                         new
                         {
                             ServiceTypeId = 1,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Cleaning Temple",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 2,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Garlands",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 3,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Cooking",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 4,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Serving Prasadam",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 5,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Book Distribution",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 6,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Giving Lecture",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 7,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Deity Worship",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 8,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Voice Program Lecture",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 9,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Voice Program Service",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 10,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Digital Service",
                             UserId = 0
                         });
@@ -244,11 +220,17 @@ namespace SadhanaApp.Persistence.Migrations
 
             modelBuilder.Entity("ChantingRecord", b =>
                 {
+                    b.HasOne("SadhanaApp.Domain.ServiceType", "ServiceType")
+                        .WithMany()
+                        .HasForeignKey("ServiceTypeId");
+
                     b.HasOne("User", "User")
                         .WithMany("ChantingRecords")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ServiceType");
 
                     b.Navigation("User");
                 });

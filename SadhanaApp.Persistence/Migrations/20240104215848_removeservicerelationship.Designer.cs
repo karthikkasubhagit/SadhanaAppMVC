@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SadhanaApp.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240104215848_removeservicerelationship")]
+    partial class removeservicerelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,12 +99,6 @@ namespace SadhanaApp.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceTypeId"));
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsHidden")
-                        .HasColumnType("bit");
-
                     b.Property<string>("ServiceName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -119,80 +116,60 @@ namespace SadhanaApp.Persistence.Migrations
                         new
                         {
                             ServiceTypeId = 1,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Cleaning Temple",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 2,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Garlands",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 3,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Cooking",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 4,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Serving Prasadam",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 5,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Book Distribution",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 6,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Giving Lecture",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 7,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Deity Worship",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 8,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Voice Program Lecture",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 9,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Voice Program Service",
                             UserId = 0
                         },
                         new
                         {
                             ServiceTypeId = 10,
-                            IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Digital Service",
                             UserId = 0
                         });

@@ -16,48 +16,78 @@
     }
 </select>
 
+<label for="timeFrameDropdown">Time Frame:</label>
+<select id="timeFrameDropdown" class="form-control mb-3">
+    <option value="7">1 Week</option>
+    <option value="30">30 Days</option>
+    <option value="100">100 Days</option>
+</select>
+
 <div id="chantingRecords"></div>
+
+<div class="text-center mb-3">
+    <button id="previousButton" class="btn btn-secondary">Previous</button>
+    <button id="nextButton" class="btn btn-secondary">Next</button>
+</div>
 
 @section Scripts {
     <script>
+        let selectedTimeFrame = 7; // Default to 7 days
+        let currentOffset = 0; // Initialize offset
+        let selectedDevoteeId = null;
+
         function formatDate(dateString) {
             var date = new Date(dateString);
             return date.toLocaleDateString();
         }
 
+        document.getElementById("timeFrameDropdown").addEventListener("change", function () {
+            selectedTimeFrame = this.value;
+            currentOffset = 0; // Reset offset when the time frame changes
+            fetchAndDisplayRecords();
+        });
+
+        document.getElementById("previousButton").addEventListener("click", function () {
+            currentOffset = Math.max(0, currentOffset - selectedTimeFrame);
+            fetchAndDisplayRecords();
+        });
+
+        document.getElementById("nextButton").addEventListener("click", function () {
+            currentOffset += parseInt(selectedTimeFrame);
+            fetchAndDisplayRecords();
+        });
+
         document.getElementById("devoteeDropdown").addEventListener("change", function () {
-            var selectedDevoteeId = this.value;
+            selectedDevoteeId = this.value;
+            currentOffset = 0;
+            fetchAndDisplayRecords();            
+        });
+
+        function fetchAndDisplayRecords() {
             if (selectedDevoteeId) {
-                fetch(`/Sadhana/GetDevoteeChantingRecords?devoteeId=${selectedDevoteeId}`)
+                fetch(`/Sadhana/GetDevoteeChantingRecords?devoteeId=${selectedDevoteeId}&days=${selectedTimeFrame}&offset=${currentOffset}`)
                     .then(response => response.json())
                     .then(data => {
                         var recordsDiv = document.getElementById('chantingRecords');
                         recordsDiv.innerHTML = '';
                         if (data && data.length > 0) {
-                            var table = '<table class="table table-responsive"><thead><tr><th>Date</th><th>Morning Rounds</th><th>Day Rounds</th><th>Evening Rounds</th><th>Reading Duration</th><th>Hearing Duration</th><th>Service Duration</th><th>Total Points</th><th>Details</th></tr></thead><tbody>';
+                            var table = '<table class="table table-responsive"><thead><tr><th>Date</th><th>Morning Rounds</th><th>Day Rounds</th><th>Evening Rounds</th><th>Reading Title</th><th>Reading Duration</th><th>Hearing Title</th><th>Hearing Duration</th><th>Service Type Names</th><th>Service Duration</th><th>Total Points</th></tr></thead><tbody>';
                             data.forEach((record, index) => {
+                                console.log(record);
                                 table += `
                                             <tr data-bs-toggle="collapse" data-bs-target="#details-${index}" aria-expanded="false" aria-controls="details-${index}">
                                                 <td>${formatDate(record.date)}</td>
-                                                <td>${record.morningRounds}</td>
-                                                <td>${record.dayRounds}</td>
-                                                <td>${record.eveningRounds}</td>
-                                                <td>${record.readingDurationInMinutes}</td>
-                                                <td>${record.hearingDurationInMinutes}</td>
-                                                <td>${record.serviceDurationInMinutes}</td>
-                                                <td>${record.totalScore}</td>
-                                                <td><button class="btn btn-outline-primary btn-sm">View Details</button></td>
-                                            </tr>
-                                            <tr id="details-${index}" class="collapse">
-                                                <td colspan="9">
-                                                    <div class="card card-body">
-                                                        Reading Title: ${record.readingTitle || 'N/A'} <br>
-                                                        Hearing Title: ${record.hearingTitle || 'N/A'} <br>
-                                                        Service Type: ${record.serviceType?.serviceName || 'No Service Selected'} <br>
-                                                        Notes: ${record.notes || 'N/A'}
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                <td>${record.morningRounds || ''}</td>
+                                                <td>${record.dayRounds || ''}</td>
+                                                <td>${record.eveningRounds || ''}</td>   
+                                                <td>${record.readingTitle || ''}</td>
+                                                <td>${record.readingDurationInMinutes || ''}</td>
+                                                <td>${record.hearingTitle || ''}</td>
+                                                <td>${record.hearingDurationInMinutes || ''}</td>
+                                                 <td>${record.serviceTypeNames || ''}</td>
+                                                <td>${record.serviceDurationInMinutes || ''}</td>
+                                                <td>${record.totalScore || ''}</td>
+                                            </tr>                                            
                                         `;
                             });
                             table += '</tbody></table>';
@@ -73,9 +103,6 @@
             } else {
                 document.getElementById('chantingRecords').innerHTML = '';
             }
-        });
+        }
     </script>
 }
-
-
-

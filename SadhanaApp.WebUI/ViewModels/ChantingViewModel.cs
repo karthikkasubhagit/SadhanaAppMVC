@@ -6,12 +6,20 @@ namespace SadhanaApp.WebUI.ViewModels
     {
         [Required(ErrorMessage = "Date is a mandatory field")]
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [CustomDate(ErrorMessage = "Date cannot be in the future")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]        
         public DateTime? Date { get; set; }
 
-        // Existing service type (e.g., ID of the selected service type)
-        public string? SelectedServiceTypeId { get; set; }
+        // A list to hold the names of selected service types
+        public List<string> SelectedServiceTypeNames { get; set; } = new List<string>();
+
+
+        // Property to get/set the selected service type names as a semicolon-separated string
+        public string SelectedServiceTypeNamesAsString
+        {
+            get => string.Join(";", SelectedServiceTypeNames);
+            set => SelectedServiceTypeNames = value?.Split(';').ToList() ?? new List<string>();
+        }
+        public bool IsOtherServiceTypeSelected { get; set; }
 
         // Custom service type input for 'other'
         public string? CustomServiceTypeInput { get; set; }
@@ -28,16 +36,16 @@ namespace SadhanaApp.WebUI.ViewModels
         public string? ReadingTitle { get; set; }
 
 
-        [Range(0, 500)]
+        [Range(0, 1440)]
         public int? ReadingDurationInMinutes { get; set; }
 
         public string? HearingTitle { get; set; }
 
-        [Range(0, 500)]
+        [Range(0, 1440)]
         public int? HearingDurationInMinutes { get; set; }        
         public string? ServiceType { get; set; }
 
-        [Range(0, 500)]
+        [Range(0, 1440)]
         public int? ServiceDurationInMinutes { get; set; }
 
         [MaxLength(100)]
@@ -49,8 +57,16 @@ namespace SadhanaApp.WebUI.ViewModels
     {
         public override bool IsValid(object value)
         {
-            DateTime d = Convert.ToDateTime(value);
-            return d <= DateTime.Now;
+            if (value == null || !(value is DateTime))
+            {
+                return false;
+            }
+
+            DateTime inputDate = ((DateTime)value).ToUniversalTime(); // Convert input to UTC
+            DateTime currentUtcTime = DateTime.UtcNow; // Current UTC time
+
+            return inputDate <= currentUtcTime;
         }
     }
+
 }

@@ -14,5 +14,9 @@ namespace SadhanaApp.Domain
 
         // Navigation property for User
         public User User { get; set; }
+
+        public bool IsDeleted { get; set; }
+        public bool IsHidden { get; set; } = false;
+
     }
 }

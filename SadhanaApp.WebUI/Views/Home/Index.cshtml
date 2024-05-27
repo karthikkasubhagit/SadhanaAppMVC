@@ -1,9 +1,13 @@
-﻿@{
+﻿@model GraphViewModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
+
+
 <div class="container login-container" style="text-align: center; padding: 40px;">
-    <h1 class="specific-text" style="font-size: 2.5rem; margin-bottom: 20px;">Hare Krishna!</h1>
+    <h1 class="specific-text" style="font-size: 2.5rem; margin-bottom: 20px;">Hare Krishna</h1>
     <p class="specific-text" style="font-size: 1.2rem;">This application is designed to assist you in monitoring and enhancing your sadhana journey.</p>
 
     @if (!Context.User.Identity.IsAuthenticated)
@@ -23,9 +27,60 @@
         <p style="margin-top: 20px;">
             <a asp-controller="Sadhana" asp-action="SadhanaHistory" class="btn btn-success">SadhanaTracker</a>
         </p>
+
+        @if (Model.Dates.Any() && Model.TotalScoresPerDay.Any())
+        {
+
+            <!-- Chart container with flex layout for responsiveness -->
+            <div class="chart-container" style="display: flex; justify-content: center; align-items: center; height:40vh; width:80vw; margin: auto;">
+                <canvas id="dailyScoreChart"></canvas>
+            </div>
+        }
+        
     }
 
     <!-- Optional: Inspirational Quote or Message -->
     <p style="font-style: italic; margin-top: 30px;">"To try to become happy by adjusting the material atmosphere is a useless endeavor - Srila Prabhu Pada."</p>
 
 </div>
+
+
+@section Scripts
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Data for the chart
+        var dates = @Html.Raw(Json.Serialize(Model.Dates));
+        var totalScoresPerDay = @Html.Raw(Json.Serialize(Model.TotalScoresPerDay));
+
+        document.addEventListener('DOMContentLoaded', function () {
+            renderChart('dailyScoreChart', dates, totalScoresPerDay, 'Daily Progress');
+        });
+
+        function renderChart(elementId, labels, data, labelText) {
+            var ctx = document.getElementById(elementId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: labelText,
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+}

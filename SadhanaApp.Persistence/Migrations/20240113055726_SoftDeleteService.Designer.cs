@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SadhanaApp.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240113055726_SoftDeleteService")]
+    partial class SoftDeleteService
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,9 +102,6 @@ namespace SadhanaApp.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsHidden")
-                        .HasColumnType("bit");
-
                     b.Property<string>("ServiceName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -120,7 +120,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 1,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Cleaning Temple",
                             UserId = 0
                         },
@@ -128,7 +127,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 2,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Garlands",
                             UserId = 0
                         },
@@ -136,7 +134,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 3,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Cooking",
                             UserId = 0
                         },
@@ -144,7 +141,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 4,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Serving Prasadam",
                             UserId = 0
                         },
@@ -152,7 +148,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 5,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Book Distribution",
                             UserId = 0
                         },
@@ -160,7 +155,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 6,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Giving Lecture",
                             UserId = 0
                         },
@@ -168,7 +162,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 7,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Deity Worship",
                             UserId = 0
                         },
@@ -176,7 +169,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 8,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Voice Program Lecture",
                             UserId = 0
                         },
@@ -184,7 +176,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 9,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Voice Program Service",
                             UserId = 0
                         },
@@ -192,7 +183,6 @@ namespace SadhanaApp.Persistence.Migrations
                         {
                             ServiceTypeId = 10,
                             IsDeleted = false,
-                            IsHidden = false,
                             ServiceName = "Digital Service",
                             UserId = 0
                         });

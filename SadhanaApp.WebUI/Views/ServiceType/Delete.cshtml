@@ -12,15 +12,23 @@
         <div class="text-center mb-3">
             <h4>@Model.ServiceName</h4>
         </div>
-        <form asp-action="Delete" method="post" class="text-center">
-            <input type="hidden" asp-for="ServiceTypeId" />
-            <button type="submit" class="btn btn-danger me-2">Confirm Delete</button>
-            <a asp-action="Index" class="btn btn-secondary">Back to Form</a>
-        </form>
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-warning">@ViewBag.ErrorMessage</div>
+            <!-- Option buttons -->
+            <form asp-action="HideServiceType" method="post" class="text-center">
+                <input type="hidden" name="id" value="@Model.ServiceTypeId" />
+                <button type="submit" class="btn btn-warning me-2">Hide Service Type</button>
+                <a asp-action="Index" class="btn btn-secondary">Keep Service Type</a>
+            </form>
+        }
+        else
+        {
+            <form asp-action="Delete" method="post" class="text-center">
+                <input type="hidden" asp-for="ServiceTypeId" />
+                <button type="submit" class="btn btn-danger me-2">Confirm Delete</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </form>
+        }
     </div>
 </div>
-
-@section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Additional scripts can be included here -->
-}

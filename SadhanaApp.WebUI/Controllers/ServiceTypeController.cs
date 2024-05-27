@@ -1,36 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SadhanaApp.Application.Common.Interfaces;
 using SadhanaApp.Domain;
+using SadhanaApp.Persistence.Repository;
+using SadhanaApp.WebUI.ViewModels;
 using System.Security.Claims;
 
 namespace SadhanaApp.WebUI.Controllers
 {
     public class ServiceTypeController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ServiceTypeController(AppDbContext context)
+        public ServiceTypeController(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
-        // Index Action
         public async Task<IActionResult> Index()
         {
-            //var serviceTypes = await _context.ServiceTypes.ToListAsync();
-            //return View(serviceTypes);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var serviceTypes = await _context.ServiceTypes
-                .Where(st => st.UserId == int.Parse(userId))
-                .ToListAsync();
-            var distinctServiceTypes = serviceTypes
-                .GroupBy(st => st.ServiceName)
-                .Select(group => group.First())
-                .ToList();
+            var serviceTypes = _unitOfWork.ServiceRepository
+                                .GetAll(st => st.UserId == int.Parse(userId) && !st.IsDeleted)
+                                .ToList();
 
-            return View(distinctServiceTypes);
+            var activeServiceTypes = serviceTypes.Where(st => !st.IsHidden).ToList();
+            var hiddenServiceTypes = serviceTypes.Where(st => st.IsHidden).ToList();
+
+            var viewModel = new ServiceTypeViewModel
+            {
+                ActiveServiceTypes = activeServiceTypes,
+                HiddenServiceTypes = hiddenServiceTypes
+            };
+
+            return View(viewModel);
         }
+
 
         // Create Action (GET)
         public IActionResult Create()
@@ -53,9 +59,9 @@ namespace SadhanaApp.WebUI.Controllers
                 if (ModelState.IsValid)
                 {
                     // Check for duplicates within the user's service types
-                    bool recordExists = await _context.ServiceTypes
-                        .AnyAsync(st => st.ServiceName.Trim().Equals(serviceType.ServiceName.Trim())
-                                        && st.UserId == userId);
+                    bool recordExists = _unitOfWork.ServiceRepository
+                        .Any(st => st.ServiceName.Trim().Equals(serviceType.ServiceName.Trim())
+                                        && st.UserId == userId && st.IsDeleted == false);
                     if (recordExists)
                     {
                         TempData["error"] = "This service type already exists.";
@@ -63,8 +69,19 @@ namespace SadhanaApp.WebUI.Controllers
                     }
 
                     // Add the new service type
-                    _context.ServiceTypes.Add(serviceType);
-                    await _context.SaveChangesAsync();
+
+                    if (_unitOfWork.ServiceRepository
+                        .Any(st => st.ServiceName.Trim().Equals(serviceType.ServiceName.Trim())
+                                        && st.UserId == userId))
+                    {
+                        serviceType.IsDeleted = false;
+                        _unitOfWork.ServiceRepository.Add(serviceType);
+                    }
+                    else
+                    {
+                        _unitOfWork.ServiceRepository.Add(serviceType);
+                    }
+                    _unitOfWork.Save();
 
                     TempData["success"] = "A new service type has been created successfully.";
                     return RedirectToAction(nameof(Index));
@@ -88,7 +105,7 @@ namespace SadhanaApp.WebUI.Controllers
                 return NotFound();
             }
 
-            var serviceType = await _context.ServiceTypes.FindAsync(id);
+            var serviceType = _unitOfWork.ServiceRepository.Get(s => s.ServiceTypeId ==id);
             if (serviceType == null)
             {
                 return NotFound();
@@ -107,7 +124,7 @@ namespace SadhanaApp.WebUI.Controllers
                 return NotFound();
             }
 
-            var existingServiceType = await _context.ServiceTypes.AsNoTracking().FirstOrDefaultAsync(st => st.ServiceTypeId == id);
+            var existingServiceType = _unitOfWork.ServiceRepository.Get(st => st.ServiceTypeId == id);
             if (existingServiceType == null)
             {
                 return NotFound();
@@ -118,8 +135,8 @@ namespace SadhanaApp.WebUI.Controllers
                 // Preserve the original UserId
                 serviceType.UserId = existingServiceType.UserId;
 
-                _context.Update(serviceType);
-                await _context.SaveChangesAsync();
+                _unitOfWork.ServiceRepository.Update(serviceType);
+                _unitOfWork.Save();
 
                 TempData["success"] = "Service type has been updated successfully.";
                 return RedirectToAction(nameof(Index));
@@ -131,10 +148,10 @@ namespace SadhanaApp.WebUI.Controllers
 
         private bool ServiceTypeExists(int id)
         {
-            return _context.ServiceTypes.Any(e => e.ServiceTypeId == id);
+            return _unitOfWork.ServiceRepository.Any(e => e.ServiceTypeId == id);
         }
 
-        // Delete Action (GET)
+        // Existing Delete action (GET)
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -143,24 +160,58 @@ namespace SadhanaApp.WebUI.Controllers
             }
 
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(m => m.ServiceTypeId == id);
+            var serviceType = _unitOfWork.ServiceRepository.Get(m => m.ServiceTypeId == id);
 
             if (serviceType == null || serviceType.UserId != userId)
             {
-                return NotFound(); // Or return unauthorized if you want to indicate a permission issue
+                return NotFound();
             }
 
-            // Check if any chanting records reference this service type
-            bool isReferenced = await _context.ChantingRecords.AnyAsync(cr => cr.ServiceTypeId == id);
-            if (isReferenced)
+            bool canDelete = CanDeleteServiceType(serviceType.ServiceName, userId);
+            if (!canDelete)
             {
-                // If referenced, prevent deletion and inform the user
-                TempData["error"] = "This service type cannot be deleted because it is referenced by another devotee.";
-                return RedirectToAction(nameof(Index));
+                ViewBag.ErrorMessage = "This service type cannot be deleted as it is in use.";
+                return View(serviceType);
             }
 
             return View(serviceType);
         }
+
+        // Action to hide the service type
+        [HttpPost]
+        public async Task<IActionResult> HideServiceType(int id)
+        {
+            var serviceType = _unitOfWork.ServiceRepository.Get(m => m.ServiceTypeId == id);
+            if (serviceType == null)
+            {
+                return NotFound();
+            }
+
+            serviceType.IsHidden = true; // Set the flag to hide the service type
+            _unitOfWork.ServiceRepository.Update(serviceType);
+            _unitOfWork.Save();
+
+            TempData["Message"] = "The service type has been hidden.";
+            return RedirectToAction("Index");
+        }
+
+        public bool CanDeleteServiceType(string serviceTypeToCheck, int userId)
+        {
+            // Assuming _dbContext is your database context
+            // This query checks if any record for the specified user contains the serviceTypeToCheck
+            var chantingRecords = _unitOfWork.SadhanaRepository
+                     .GetAll(cr => cr.UserId == userId && cr.ServiceTypeNames != null)
+                     .ToList(); // Retrieve data into memory
+
+            bool exists = chantingRecords
+                                .Any(cr =>   cr.ServiceTypeNames != null && cr.ServiceTypeNames
+                                            .Split(new string[] { ";" }, StringSplitOptions.None)
+                                            .Contains(serviceTypeToCheck));
+
+
+            return !exists; // If it exists, return false (cannot delete), else true (can delete)
+        }
+
 
 
         [HttpPost, ActionName("Delete")]
@@ -168,29 +219,39 @@ namespace SadhanaApp.WebUI.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var serviceType = await _context.ServiceTypes.FindAsync(id);
+            var serviceType = _unitOfWork.ServiceRepository.Get(st => st.ServiceTypeId == id);
 
             if (serviceType == null || serviceType.UserId != userId)
             {
                 return NotFound(); // Or return unauthorized if you want to indicate a permission issue
             }
 
-            // Check if any chanting records reference this service type
-            bool isReferenced = await _context.ChantingRecords.AnyAsync(cr => cr.ServiceTypeId == id);
-            if (isReferenced)
-            {
-                // If referenced, prevent deletion and inform the user
-                TempData["error"] = "This service type cannot be deleted because it is referenced by other records.";
-                return RedirectToAction(nameof(Index));
-            }
+            // Soft delete the service type
+            serviceType.IsDeleted = true;
+            _unitOfWork.ServiceRepository.Update(serviceType);
+            _unitOfWork.Save();
 
-            _context.ServiceTypes.Remove(serviceType);
-            await _context.SaveChangesAsync();
             TempData["success"] = "Service type has been deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> UnhideServiceType(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var serviceType = _unitOfWork.ServiceRepository.Get(m => m.ServiceTypeId == id && m.UserId == userId);
 
+            if (serviceType == null)
+            {
+                return NotFound();
+            }
+
+            serviceType.IsHidden = false; // Unhide the service type
+            _unitOfWork.ServiceRepository.Update(serviceType);
+            _unitOfWork.Save();
+
+            TempData["Message"] = "The service type has been unhidden.";
+            return RedirectToAction("Index");
+        }
 
     }
 

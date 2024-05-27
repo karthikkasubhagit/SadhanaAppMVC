@@ -9,17 +9,18 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
+using SadhanaApp.Application.Common.Interfaces;
 
 namespace SadhanaApp.WebUI.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AccountController> _logger;
 
-        public AccountController(AppDbContext context, ILogger<AccountController> logger)
+        public AccountController(IUnitOfWork unitOfWork, ILogger<AccountController> logger)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
@@ -29,8 +30,7 @@ namespace SadhanaApp.WebUI.Controllers
         {
             try
             {
-                var shikshaGurus = _context.Users
-                                   .Where(u => u.IsInstructor) // Assuming IsInstructor is equivalent property for IsShikshaGuru
+                var shikshaGurus = _unitOfWork.UserRepository.GetAll(u => u.IsInstructor) // Assuming IsInstructor is equivalent property for IsShikshaGuru
                                    .ToList();
 
                 var viewModel = new UserRegistrationViewModel
@@ -56,8 +56,7 @@ namespace SadhanaApp.WebUI.Controllers
         {
             try
             {
-                var shikshaGurus = _context.Users
-                             .Where(u => u.IsInstructor)
+                var shikshaGurus = _unitOfWork.UserRepository.GetAll(u => u.IsInstructor)
                              .Select(sg => new SelectListItem
                              {
                                  Value = sg.UserId.ToString(),
@@ -67,8 +66,8 @@ namespace SadhanaApp.WebUI.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    var userExists = await _context.Users.AnyAsync(u => u.Username == model.Username);
-                    if (userExists)
+                    var userExists = _unitOfWork.UserRepository.Get(u => u.Username == model.Username);
+                    if (userExists != null)
                     {
                         ModelState.AddModelError("Username", "Username already exists.");
                         return View(model);
@@ -102,8 +101,8 @@ namespace SadhanaApp.WebUI.Controllers
                         // using model.ShikshaGuruId
                     }
 
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.UserRepository.Add(user);
+                    _unitOfWork.Save();
 
                     // Here you might want to log the user in and redirect to the dashboard, but for simplicity, we'll redirect to the login page.
                     return RedirectToAction("Login");
@@ -175,7 +174,7 @@ namespace SadhanaApp.WebUI.Controllers
                     return RedirectToAction("Login");
                 }
 
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailClaim);
+                var user = _unitOfWork.UserRepository.Get(u => u.Email == emailClaim);
 
                 if (user != null)
                 {
@@ -211,8 +210,8 @@ namespace SadhanaApp.WebUI.Controllers
                         IsInstructor = false,
                     };
 
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.UserRepository.Add(user);
+                    _unitOfWork.Save();
                 }
 
                 var claimDetails = new List<Claim>
@@ -246,18 +245,16 @@ namespace SadhanaApp.WebUI.Controllers
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 // Load ShikshaGurus for dropdown
-                var shikshaGurus = await _context.Users
-                    .Where(u => u.IsInstructor)
+                var shikshaGurus = _unitOfWork.UserRepository.GetAll(u => u.IsInstructor)
                     .Select(sg => new SelectListItem
                     {
                         Value = sg.UserId.ToString(),
                         Text = $"{sg.FirstName} {sg.LastName}"
-                    })
-                    .ToListAsync();
+                    });
 
                 var viewModel = new ProfileCompletionViewModel
                 {
-                    ShikshaGurus = shikshaGurus
+                    ShikshaGurus = shikshaGurus.ToList()
                 };
 
                 return View(viewModel);
@@ -284,7 +281,7 @@ namespace SadhanaApp.WebUI.Controllers
                         return RedirectToAction("Error", "Home");
                     }
 
-                    var user = await _context.Users.FindAsync(int.Parse(userId));
+                    var user = _unitOfWork.UserRepository.Get(u => u.UserId == int.Parse(userId));
                     if (user == null)
                     {
                         // Handle the case where the user is not found in the database
@@ -296,8 +293,8 @@ namespace SadhanaApp.WebUI.Controllers
                     user.ShikshaGuruId = model.ShikshaGuruId;
 
                     // Save changes to the database
-                    _context.Users.Update(user);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.UserRepository.Update(user);
+                    _unitOfWork.Save();
 
                     var claims = new List<Claim>
                     {
@@ -320,8 +317,7 @@ namespace SadhanaApp.WebUI.Controllers
 
                 // In case of any validation errors, return the same view for correction
                 // Reload ShikshaGurus to repopulate the dropdown
-                model.ShikshaGurus = _context.Users
-                                    .Where(u => u.IsInstructor)
+                model.ShikshaGurus = _unitOfWork.UserRepository.GetAll(u => u.IsInstructor)
                                     .Select(sg => new SelectListItem
                                     {
                                         Value = sg.UserId.ToString(),
@@ -345,7 +341,7 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var user = _context.Users.FirstOrDefault(u => u.Username == model.Username); // Note: Avoid storing plain text passwords
+                    var user = _unitOfWork.UserRepository.Get(u => u.Username == model.Username); // Note: Avoid storing plain text passwords
 
                     if (user != null && PasswordUtility.HashPassword(model.Password) == user.PasswordHash)
                     {
@@ -414,7 +410,7 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == model.Username);
+                    var user = _unitOfWork.UserRepository.Get(u => u.Username == model.Username);
                     if (user != null)
                     {
                         // Redirect to the reset password page
@@ -453,13 +449,13 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var user = await _context.Users.FindAsync(model.UserId);
+                    var user = _unitOfWork.UserRepository.Get(u => u.UserId == model.UserId);
                     if (user != null)
                     {
                         // Update the user's password
                         user.PasswordHash = PasswordUtility.HashPassword(model.NewPassword);
-                        _context.Update(user);
-                        await _context.SaveChangesAsync();
+                        _unitOfWork.UserRepository.Update(user);
+                        _unitOfWork.Save();
 
                         return RedirectToAction("Login");
                     }

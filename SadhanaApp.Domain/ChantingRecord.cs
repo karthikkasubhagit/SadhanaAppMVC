@@ -21,16 +21,16 @@ public class ChantingRecord
     public string? ReadingTitle { get; set; }
 
 
-    [Range(0, 500)]
+    [Range(0, 1440)]
     public int? ReadingDurationInMinutes { get; set; }
 
     public string? HearingTitle { get; set; }
 
-    [Range(0, 500)]
+    [Range(0, 1440)]
     public int? HearingDurationInMinutes { get; set; }
     //public string? ServiceType { get; set; }
 
-    [Range(0, 500)]
+    [Range(0, 1440)]
     public int? ServiceDurationInMinutes { get; set; }
 
     [MaxLength(400)]
@@ -42,11 +42,9 @@ public class ChantingRecord
     // Navigation property
     public int UserId { get; set; }
     public User User { get; set; }
-
-    public int? ServiceTypeId { get; set; }
-
-    public ServiceType ServiceType { get; set; }
-
+    public string? ServiceTypeNames { get; set; }
+    public bool IsOtherServiceTypeSelected { get; set; }
+    public string? CustomServiceTypeInput { get; set; }
     public int? TotalScore
     {
         get
