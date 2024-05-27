@@ -36,16 +36,16 @@ namespace SadhanaApp.WebUI.ViewModels
         public string? ReadingTitle { get; set; }
 
 
-        [Range(0, 500)]
+        [Range(0, 1440)]
         public int? ReadingDurationInMinutes { get; set; }
 
         public string? HearingTitle { get; set; }
 
-        [Range(0, 500)]
+        [Range(0, 1440)]
         public int? HearingDurationInMinutes { get; set; }        
         public string? ServiceType { get; set; }
 
-        [Range(0, 500)]
+        [Range(0, 1440)]
         public int? ServiceDurationInMinutes { get; set; }
 
         [MaxLength(100)]
