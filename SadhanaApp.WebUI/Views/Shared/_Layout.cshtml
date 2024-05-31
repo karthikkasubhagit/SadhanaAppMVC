@@ -73,6 +73,12 @@
                                 <a class="nav-link" asp-controller="Sadhana"
                                    asp-action="StudentProgressGraph">Students Graph</a>
                             </li>
+                            @if (User.IsInRole("Instructor") && (User.FindFirstValue(ClaimTypes.NameIdentifier) == "5" || User.FindFirstValue(ClaimTypes.NameIdentifier) == "85"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Sadhana" asp-action="OtherInstructors">Other Students History</a>
+                                </li>
+                            }
                         }
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Help" asp-action="Index">Help & Instructions</a>

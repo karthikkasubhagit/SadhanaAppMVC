@@ -24,12 +24,12 @@
 
             <!-- Top navigation buttons -->
             <div class="d-flex justify-content-end mb-4">
-               <a asp-action="SadhanaHistory" asp-route-offset="@(Model.WeekOffset + 100)" asp-route-days="@Model.Days" class="btn btn-secondary">
+               <a asp-action="SadhanaHistory" asp-route-offset="@(Model.WeekOffset + 7)" asp-route-days="@Model.Days" class="btn btn-secondary">
     Previous <i class="bi bi-arrow-left-circle"></i>
 </a>
 @if (Model.WeekOffset > 0)
 {
-    <a asp-action="SadhanaHistory" asp-route-offset="@(Model.WeekOffset - 100)" asp-route-days="@Model.Days" class="btn btn-primary">
+    <a asp-action="SadhanaHistory" asp-route-offset="@(Model.WeekOffset - 7)" asp-route-days="@Model.Days" class="btn btn-primary">
         Next <i class="bi bi-arrow-right-circle"></i>
     </a>
 }
@@ -86,13 +86,13 @@
                 }
 
                 <div class="text-center mt-3">
-                    <a asp-action="SadhanaHistory" asp-route-offset="@(Model.WeekOffset + 100)" class="btn btn-secondary">
+                    <a asp-action="SadhanaHistory" asp-route-offset="@(Model.WeekOffset + 7)" class="btn btn-secondary">
                         Previous <i class="bi bi-arrow-left-circle"></i>
                     </a>
 
                     @if (Model.WeekOffset > 0)
                     {
-                        <a asp-action="SadhanaHistory" asp-route-offset="@(Model.WeekOffset - 100)" class="btn btn-primary">
+                        <a asp-action="SadhanaHistory" asp-route-offset="@(Model.WeekOffset - 7)" class="btn btn-primary">
                             Next <i class="bi bi-arrow-right-circle"></i>
                         </a>
                     }
