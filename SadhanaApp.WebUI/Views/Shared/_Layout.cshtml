@@ -1,7 +1,6 @@
 ﻿@using System.Security.Claims
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,12 +22,9 @@
             if (User.Identity.IsAuthenticated)
             {
                 username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
-            }           
+            }
         }
-    @* <div class="center-right-image">
-    <img src="~/images/small-image.jpg" alt="Prabhupada" />
-    </div> *@
-  
+
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" href="/">
@@ -38,22 +34,21 @@
                     Welcome <span class="username">@username</span>
                 </div>
 
-
-
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                         @if (Context.User.Identity.IsAuthenticated)
+                        @if (Context.User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                             </li>
+                            
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Sadhana"
-                                asp-action="SadhanaHistory">SadhanaTracker</a>
+                                   asp-action="SadhanaHistory">SadhanaTracker</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Sadhana" asp-action="Graph">Score Graph</a>
@@ -61,12 +56,20 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="ServiceType" asp-action="Index">Manage Services</a>
                             </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Profile" asp-action="Index">Manage Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Help" asp-action="Index">Help & Instructions</a>
+                            </li>
+                           
                         }
                         @if (User.IsInRole("Instructor"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Sadhana"
-                                    asp-action="DevoteeSadhanaHistory">Students History</a>
+                                   asp-action="DevoteeSadhanaHistory">Students History</a>
                             </li>
 
                             <li class="nav-item">
@@ -80,18 +83,17 @@
                                 </li>
                             }
                         }
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Help" asp-action="Index">Help & Instructions</a>
-                        </li>
+                       
+                       
                         @if (!Context.User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Account"
-                                    asp-action="Register">Register</a>
+                                   asp-action="Register">Register</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Account"
-                                    asp-action="Login">Login</a>
+                                   asp-action="Login">Login</a>
                             </li>
                         }
                         else
@@ -101,7 +103,6 @@
                                    asp-action="Logout" onclick="clearUserData()">Logout</a>
                             </li>
                         }
-                        
                     </ul>
                 </div>
             </div>
@@ -109,22 +110,19 @@
     </header>
     <div class="content-wrapper">
         <div class="container">
-            <main role="main" class="pb-3">   
+            <main role="main" class="pb-3">
                 <partial name="_Notification" />
                 @RenderBody()
             </main>
         </div>
     </div>
 
-   
-
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.min.js" integrity="sha512-fHY2UiQlipUq0dEabSM4s+phmn+bcxSYzXP4vAXItBvBHU7zAM/mkhCZjtBEIJexhOMzZbgFlPLuErlJF2b+0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script> 
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
-
 </html>

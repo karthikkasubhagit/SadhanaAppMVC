@@ -1,0 +1,62 @@
+﻿@model SadhanaApp.WebUI.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group" hidden>
+                <label asp-for="UserId" class="control-label"></label>
+                <input asp-for="UserId" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Are you an instructor?</label>
+                <div>
+
+                    <label class="radio-inline">
+                        <input type="radio" asp-for="IsInstructor" value="true" checked="@Model.IsInstructor" /> Yes
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" asp-for="IsInstructor" value="false" checked="@(Model.IsInstructor == false)" /> No
+                    </label>
+                </div>
+                <span asp-validation-for="IsInstructor" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group" id="shikshaGuruDropdown">
+                <label asp-for="ShikshaGuruId">Select your mentor 
+                    <br />
+                </label>
+                <select asp-for="ShikshaGuruId" asp-items="Model.ShikshaGurus" class="form-control">
+                    <option value="">Select a mentor</option>
+                </select> <i>if you would like to change your current mentor or else leave it blank</i>
+                <span asp-validation-for="ShikshaGuruId" class="text-danger"></span>
+            </div>
+
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

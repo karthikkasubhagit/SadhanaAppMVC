@@ -347,7 +347,7 @@ namespace SadhanaApp.WebUI.Controllers
                     {
                         var claims = new List<Claim>
                     {
-                        new Claim(ClaimTypes.Name, user.Username),
+                        new Claim(ClaimTypes.Name, user.FirstName),
                         new Claim(ClaimTypes.Email, user.Email),
                         new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
                     };
