@@ -6,6 +6,8 @@ namespace SadhanaApp.WebUI.ViewModels
     {
         public int UserId { get; set; }
 
+        public string? UserName { get; set; }
+
         [Required]
         [DataType(DataType.Password)]
         [MinLength(5, ErrorMessage = "Password must be at least 5 characters long.")]
