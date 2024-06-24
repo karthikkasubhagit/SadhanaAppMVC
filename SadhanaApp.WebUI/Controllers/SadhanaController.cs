@@ -165,6 +165,46 @@ namespace SadhanaApp.WebUI.Controllers
 
         // Display the chanting history of the user   
 
+        //[Authorize]
+        //public async Task<IActionResult> SadhanaHistory(int offset = 0, int days = 7)
+        //{
+        //    try
+        //    {
+        //        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //        if (userId == null)
+        //        {
+        //            return RedirectToAction("Login", "Account");
+        //        }
+
+        //        var endDate = GetNewZealandTime();
+        //        endDate = endDate.AddDays(-offset); // Adjust based on the offset
+
+        //        var startDate = endDate.AddDays(-days + 1);
+
+        //        var recordsQuery = _unitOfWork.SadhanaRepository.GetAll(
+        //            c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate
+        //        );
+
+        //        var records = recordsQuery.OrderByDescending(c => c.Date).ToList();
+
+        //        var model = new SadhanaHistoryViewModel
+        //        {
+        //            Records = records,
+        //            WeekOffset = offset,
+        //            StartDate = startDate,
+        //            EndDate = endDate,
+        //            Days = days
+        //        };
+
+        //        return View(model);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error occurred in SadhanaHistory method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
+        //        return RedirectToAction("Error", "Home");
+        //    }
+        //}
+
         [Authorize]
         public async Task<IActionResult> SadhanaHistory(int offset = 0, int days = 7)
         {
@@ -176,17 +216,23 @@ namespace SadhanaApp.WebUI.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                var endDate = GetNewZealandTime();
-                endDate = endDate.AddDays(-offset); // Adjust based on the offset
+                // Get the current time in New Zealand time zone
+                var currentDate = GetNewZealandTime();
 
-                var startDate = endDate.AddDays(-days + 1);
+                // Normalize the current date to the start of the day for consistent day alignment
+                var endDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 0, 0, 0, DateTimeKind.Local);
+                endDate = endDate.AddDays(-offset); // Adjust based on the offset, aligning to the start of the day
 
+                var startDate = endDate.AddDays(-days + 1); // Shift back to start of the 7-day window
+
+                // Fetch records from the database
                 var recordsQuery = _unitOfWork.SadhanaRepository.GetAll(
                     c => c.UserId == int.Parse(userId) && c.Date.Date >= startDate && c.Date.Date <= endDate
                 );
 
                 var records = recordsQuery.OrderByDescending(c => c.Date).ToList();
 
+                // Build the view model
                 var model = new SadhanaHistoryViewModel
                 {
                     Records = records,
@@ -229,6 +275,24 @@ namespace SadhanaApp.WebUI.Controllers
             }
         }
 
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> DevoteeForMentor(int mentorId)
+        {
+            try
+            {
+                var devotees = _unitOfWork.UserRepository.GetAll(u => u.ShikshaGuruId == mentorId).ToList();
+                var result = devotees.Select(d => new { userId = d.UserId, firstName = d.FirstName, lastName = d.LastName }).ToList();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching devotees.");
+                return Json(new { error = "An error occurred while fetching devotees." });
+            }
+        }
+
+
+
         [HttpGet]
         [Authorize(Roles = "Instructor")]
         public async Task<IActionResult> GetDevoteeChantingRecords(int devoteeId, int days = 7)
@@ -253,6 +317,7 @@ namespace SadhanaApp.WebUI.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        
 
 
         [Authorize]
@@ -570,6 +635,26 @@ namespace SadhanaApp.WebUI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in StudentProgressGraph method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                return RedirectToAction("Error", "Home");
+            }
+        }
+
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> OtherInstructors()
+        {
+            try
+            {
+                // Assuming you have an instructor role identifier and a method to fetch instructors
+                var instructors = _unitOfWork.UserRepository.GetAll(u => u.IsInstructor == true).ToList();
+
+                // Convert this list into a SelectList for the view
+                ViewBag.InstructorList = new SelectList(instructors, "UserId", "FullName");
+
+                return View(instructors);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching instructors.");
                 return RedirectToAction("Error", "Home");
             }
         }

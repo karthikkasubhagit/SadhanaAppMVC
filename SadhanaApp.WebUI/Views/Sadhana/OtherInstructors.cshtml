@@ -1,19 +1,24 @@
-﻿@model IEnumerable<User>
+﻿@model IEnumerable<User>  // Continue using the 'User' model
 
 @{
-    ViewData["Title"] = "Devotee Chanting History";
+    ViewData["Title"] = "Other Instructors History";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Devotee Chanting History</h2>
+<h2>@ViewData["Title"]</h2>
 
-<label for="devoteeDropdown">Select a Devotee:</label>
-<select id="devoteeDropdown" class="form-control">
-    <option value="">-- Select a Devotee --</option>
+<label for="instructorDropdown">Select an Instructor:</label>
+<select id="instructorDropdown" class="form-control">
+    <option value="">-- Select an Instructor --</option>
     @foreach (var devotee in Model)
     {
         <option value="@devotee.UserId">@devotee.FirstName @devotee.LastName</option>
     }
+</select>
+
+<label for="devoteeDropdown">Select a Devotee:</label>
+<select id="devoteeDropdown" class="form-control">
+    <option value="">-- Select a Devotee --</option>
 </select>
 
 <label for="timeFrameDropdown">Time Frame:</label>
@@ -30,9 +35,46 @@
     <button id="nextButton" class="btn btn-secondary">Next</button>
 </div>
 
+
 @section Scripts {
     <script>
-        let selectedTimeFrame = 7; // Default to 7 days
+        document.getElementById('instructorDropdown').addEventListener('change', function () {
+            var instructorId = this.value;
+            if (instructorId) {
+                // Fetching devotee data for the selected instructor
+                fetch(`/Sadhana/DevoteeForMentor?mentorId=${instructorId}`)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();  // Parse JSON data from the response
+                        } else {
+                            throw new Error('Failed to fetch data');  // Handle server errors or non-OK responses
+                        }
+                    })
+                    .then(data => {
+                        updateDevoteeDropdown(data);  // Update the devotee dropdown with the received data
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);  // Log errors to the console
+                        document.getElementById('devoteeDropdown').innerHTML = '<option>Error loading devotees</option>';  // Show an error in the dropdown
+                    });
+            } else {
+                document.getElementById('devoteeDropdown').innerHTML = '<option value="">-- Select a Devotee --</option>';  // Reset dropdown if no instructor is selected
+            }
+        });
+
+        // Define the function to update the devotee dropdown
+        function updateDevoteeDropdown(devotees) {
+            var dropdown = document.getElementById('devoteeDropdown');
+            dropdown.innerHTML = '<option value="">-- Select a Devotee --</option>';  // Clear previous options
+
+            devotees.forEach(devotee => {
+                // Creating a new option element for each devotee and adding it to the dropdown
+                var option = new Option(devotee.firstName + ' ' + devotee.lastName, devotee.userId);
+                dropdown.add(option);
+            });
+        }
+
+         let selectedTimeFrame = 7; // Default to 7 days
         let currentOffset = 0; // Initialize offset
         let selectedDevoteeId = null;
 
@@ -105,5 +147,7 @@
                 document.getElementById('chantingRecords').innerHTML = '';
             }
         }
+
     </script>
 }
+

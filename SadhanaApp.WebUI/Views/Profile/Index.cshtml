@@ -1,0 +1,49 @@
+﻿@model SadhanaApp.WebUI.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="card shadow">
+        <div class="card-header">
+            <h4>Profile Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">First Name:</label>
+                <div class="col-sm-9">
+                    <p class="form-control-plaintext">@Model.FirstName</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">Last Name:</label>
+                <div class="col-sm-9">
+                    <p class="form-control-plaintext">@Model.LastName</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">Email:</label>
+                <div class="col-sm-9">
+                    <p class="form-control-plaintext">@Model.Email</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">Instructor</label>
+                <div class="col-sm-9">
+                    <p class="form-control-plaintext"> @ViewBag.Instructor</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">Shiksha Guru:</label>
+                <div class="col-sm-9">
+                    <p class="form-control-plaintext">@Model.ShikshaGuruName</p>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.UserId" class="btn btn-primary mx-2">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>

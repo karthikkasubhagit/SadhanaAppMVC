@@ -347,7 +347,7 @@ namespace SadhanaApp.WebUI.Controllers
                     {
                         var claims = new List<Claim>
                     {
-                        new Claim(ClaimTypes.Name, user.Username),
+                        new Claim(ClaimTypes.Name, user.FirstName),
                         new Claim(ClaimTypes.Email, user.Email),
                         new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
                     };
@@ -410,13 +410,17 @@ namespace SadhanaApp.WebUI.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var user = _unitOfWork.UserRepository.Get(u => u.Username == model.Username);
+                    var user = _unitOfWork.UserRepository.Get(u =>
+                        u.FirstName.Trim().ToLower() == model.FirstName.Trim().ToLower() &&
+                        u.LastName.Trim().ToLower() == model.LastName.Trim().ToLower() &&
+                        u.Email.Trim().ToLower() == model.Email.Trim().ToLower());
+
                     if (user != null)
                     {
                         // Redirect to the reset password page
-                        return RedirectToAction("ResetPassword", new { userId = user.UserId });
+                        return RedirectToAction("ResetPassword", new { userId = user.UserId, userName = user.Username });
                     }
-                    ModelState.AddModelError("", "Username not found.");
+                    ViewBag.Error = "User not found. Please enter valid details.";
                 }
                 return View(model);
             }
@@ -428,11 +432,11 @@ namespace SadhanaApp.WebUI.Controllers
         }
 
         [HttpGet]
-        public IActionResult ResetPassword(int userId)
+        public IActionResult ResetPassword(int userId, string userName)
         {
             try
             {
-                var model = new ResetPasswordViewModel { UserId = userId };
+                var model = new ResetPasswordViewModel { UserId = userId, UserName = userName };
                 return View(model);
             }
             catch (Exception ex)
@@ -463,10 +467,10 @@ namespace SadhanaApp.WebUI.Controllers
                 }
                 return View(model);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in ResetPassword Post method for user {UserId}.", User.FindFirstValue(ClaimTypes.NameIdentifier));
-                return RedirectToAction("Error", "Home");            
+                return RedirectToAction("Error", "Home");
             }
         }
     }
