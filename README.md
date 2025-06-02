@@ -1,4 +1,4 @@
-Internal Operations Platform for NGOs
+**Internal Operations Platform for NGO**
 An internal application built to streamline operations and enhance team collaboration for a non-profit organization. It's hosted entirely on the Azure cloud platform.
 
 Core Technologies:
