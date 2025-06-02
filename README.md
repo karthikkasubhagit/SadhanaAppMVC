@@ -6,3 +6,6 @@ Core Technologies:
       Database: Azure SQL Database
       Hosting: Azure App Service
       Serverless & Messaging: Azure Functions, Azure Service Bus
+
+
+This application is designed for a restricted set of internal users. While the immediate scope does not necessitate enterprise-grade security features or transaction-level guarantees, utmost care has been taken to secure sensitive configurations, such as connection strings, via Azure Key Vault and Managed Identities. Additional security layers will be integrated as the application's needs and scope expand.
