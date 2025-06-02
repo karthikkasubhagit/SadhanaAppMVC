@@ -8,4 +8,4 @@ Core Technologies:
       Serverless & Messaging: Azure Functions, Azure Service Bus
 
 
-This application is designed for a restricted set of internal users. While the immediate scope does not necessitate enterprise-grade security features or transaction-level guarantees, utmost care has been taken to secure sensitive configurations, such as connection strings in Azure Key Vault, Single sign on with Google and Managed Identities. Additional security layers will be integrated as the application's needs and scope expand.
+This application is designed for a restricted set of internal users. While the immediate scope does not necessitate enterprise-grade security features or transaction-level guarantees, utmost care has been taken to secure sensitive configurations, such as connection strings in Azure Key Vault, Single Sign-On (SSO) with Google and Managed Identities. Additional security layers will be integrated as the application's needs and scope expand.
