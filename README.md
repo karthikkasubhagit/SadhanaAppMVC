@@ -1,5 +1,4 @@
-**Internal Operations Platform for NGO**
-An internal application built to streamline their daily activities/practices for a non-profit organization (ISKCON). It's hosted entirely on the Azure cloud platform.
+Web application built to streamline daily activities/practices for the members of a non-profit organization (ISKCON). It's hosted entirely on the Azure cloud platform.
 
 Core Technologies:
 
