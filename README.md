@@ -2,7 +2,7 @@ Web application built to streamline daily activities/practices for the members o
 
 Core Technologies:
 
-Frontend/Backend: ASP.NET Core MVC
-Database: Azure SQL Database
-Hosting: Azure App Service
-Serverless & Messaging: Azure Functions, Azure Service Bus
+      Frontend/Backend: ASP.NET Core MVC
+      Database: Azure SQL Database
+      Hosting: Azure App Service
+      Serverless & Messaging: Azure Functions, Azure Service Bus
