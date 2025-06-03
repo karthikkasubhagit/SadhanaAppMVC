@@ -1,4 +1,4 @@
-Web application built to streamline daily activities/practices for the members of a non-profit organization (ISKCON). It's hosted entirely on the Azure cloud platform.
+This is a practice project. Volunteered to build a Web application to streamline daily activities/practices for the members of a non-profit organization (ISKCON). It's hosted entirely on the Azure cloud platform.
 
 Core Technologies:
 
