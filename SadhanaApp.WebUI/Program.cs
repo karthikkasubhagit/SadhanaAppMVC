@@ -16,7 +16,6 @@ using SadhanaApp.Persistence.Repository;
 
 
 
-// Configure Serilog with the settings
 Log.Logger = new LoggerConfiguration()
 .WriteTo.Console()
 .WriteTo.Debug()
@@ -48,15 +47,7 @@ try
                  TelemetryConverter.Events));
 
     Log.Information("Starting the application...");
-    // Add services to the container.
-
-
-
-
-    //var instrumentationKey = "d0f0d672-8b27-46e3-b686-cc2317ecc440";
-
-
-
+    
     builder.Services.AddControllersWithViews();
     builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         .AddCookie(options =>
@@ -67,10 +58,8 @@ try
 
   
 
-    // Determine the environment
     var environment = builder.Environment;
 
-    // Get the connection string based on the environment
     string connectionString;
 
     if (environment.IsDevelopment())
